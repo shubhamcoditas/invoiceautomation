@@ -275,7 +275,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           status: 'success',
           data: {
             pan: parameters.pan,
-            gstins: [`${parameters.pan.substr(0, 5)}1234F1Z5`, `${parameters.pan.substr(0, 5)}5678P2Q3`]
+            gstins: parameters.pan ? [`${parameters.pan.substring(0, 5)}1234F1Z5`, `${parameters.pan.substring(0, 5)}5678P2Q3`] : ['27ABCDE1234F1Z5', '29ABCDE1234F2Z6']
           }
         },
         'view-track-returns': {
@@ -341,12 +341,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       res.json(response);
     } catch (error) {
-      await storage.createSystemLog({
-        level: 'ERROR',
-        module: 'API Validation',
-        message: 'API call failed',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      });
+      try {
+        await storage.createSystemLog({
+          level: 'ERROR',
+          module: 'API Validation',
+          message: 'API call failed',
+          details: error instanceof Error ? error.message : 'Unknown error'
+        });
+      } catch (logError) {
+        console.error('Failed to log error:', logError);
+      }
       res.status(500).json({ error: 'API call failed' });
     }
   });
