@@ -1,0 +1,136 @@
+You are to build a frontend-only web application that simulates the "EGAM and Invoice Reader Platform." This is a dummy prototype for demonstration and testing purposes — no real API keys or backend integrations should be required. Use modern frontend frameworks (React + Tailwind recommended), modular clean UI components, and dummy API responses.
+
+Core Features to Implement
+1. Invoice Processing
+
+QR Scanner Module
+
+Implement a QR code upload/scan component (simulate via file upload or input string).
+
+Extract 8 dummy fields from the QR code (e.g., IRN, GSTIN, Invoice No, Date, Total Amount, Buyer GSTIN, Seller GSTIN, Invoice Type).
+
+Show extracted fields on screen in a tabular form.
+
+Allow users to manually edit extracted fields (inline editing).
+
+PDF Upload Module
+
+Allow upload of single or multiple PDF files.
+
+Simulate OCR by generating dummy extracted data for invoice fields (Invoice No, Date, IRN, GSTIN, Amount, etc.).
+
+Display extracted data in a structured editable table.
+
+Provide an option to download the extracted data in Excel format (dummy file).
+
+Allow users to edit extracted data inline and confirm.
+
+Email Simulation (Optional)
+
+Create a dummy view where uploaded PDFs are treated as "fetched via email" to simulate email ingestion.
+
+2. EGAM Repository (Dummy)
+
+Provide a toggle/CTA to “Fetch EGAM Data from KIGS”.
+
+On click, populate a dummy repository table with mock EGAM purchase invoice data (fields: IRN, Invoice No, Date, Vendor GSTIN, Amount).
+
+Show timestamp of last fetch (e.g., “Last fetched: 4 hours ago”).
+
+3. Data Reconciliation Screen
+
+Display a screen to compare PDF/QR extracted data vs EGAM repository data.
+
+Match based on IRN.
+
+Highlight matched rows in green and mismatches in red.
+
+Provide a filter to show only mismatched or missing entries.
+
+If IRN not found, show an error message “No Data Found.”
+
+4. EWB Generation (Dummy)
+
+Add a CTA “Push to KIGS” on reconciliation screen.
+
+When clicked, simulate sending data and show a success/failure toast notification.
+
+Display dummy response JSON (status: success, EWB number: ####).
+
+5. Validation APIs Playground
+
+Provide a developer-friendly UI for triggering dummy APIs (call it “Validation APIs”).
+
+Supported dummy endpoints:
+
+Search Taxpayer (Input: GSTIN, Action)
+
+PAN to GSTIN (Input: PAN, Action)
+
+View & Track Returns (Input: GSTIN, FY, Type)
+
+Get Preference (Input: GSTIN, FY)
+
+MSME Validation (Input: MSME ID)
+
+CIN Validation (Input: CIN ID)
+
+Two input methods:
+
+Form-based Input → fields dynamically change based on selected API.
+
+Excel Upload → upload an Excel file with request params (simulate parsing, display table).
+
+API results should be displayed as raw JSON output in the UI.
+
+Provide an “API Logs” tab to view history of requests/responses.
+
+6. User & System Features (Dummy)
+
+User Management:
+
+Simulate login with dummy user roles (Admin, Business User).
+
+Show different access levels (e.g., Admin sees all modules, Business User only invoice processing).
+
+Notifications & Logs:
+
+Add a small “Notifications” panel to show dummy alerts (e.g., “QR Code IRN not found,” “EGAM sync completed”).
+
+Add a “Logs” tab with dummy request/response logs for QR scans, PDF reads, and API calls.
+
+Design & UX Guidelines
+
+Use React + Tailwind for a clean, professional UI.
+
+Keep the design developer-friendly:
+
+Tabs for different modules (Invoice Processing, Repository, Validation APIs, Logs).
+
+Card-based layouts with tables for data.
+
+Clear CTAs (Upload PDF, Fetch EGAM Data, Push to KIGS, Run API).
+
+Use dummy JSON for API responses, mock data for repositories, and placeholder tables for Excel uploads.
+
+Make sure inline editing, toggles, and error states are visually clear.
+
+Constraints
+
+This is frontend-only, no backend or real API keys.
+
+Use dummy data for all repositories, APIs, and results.
+
+The goal is to simulate workflows and flows, not implement real services.
+
+✅ Deliver a single frontend app that demonstrates all workflows:
+
+Upload QR / PDF → Extract Data → Edit Data.
+
+Fetch EGAM Repository → Reconcile Data.
+
+Push to KIGS (simulate success).
+
+Trigger Validation APIs via forms or Excel upload.
+
+Logs + Notifications for transparency.
