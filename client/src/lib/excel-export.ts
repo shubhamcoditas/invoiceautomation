@@ -75,3 +75,33 @@ export const exportReconciliationToExcel = (reconciliationData: any[]) => {
   
   return exportToExcel(data, 'reconciliation-results');
 };
+
+export const exportEmailDataToExcel = (emailData: any[], category: string = 'emails') => {
+  const data = emailData.map(item => ({
+    Sender: item.sender,
+    Subject: item.subject,
+    'Received At': item.receivedAt,
+    Attachments: item.attachments,
+    'Processing Status': item.processingStatus,
+    'Invoice Type': item.invoiceType,
+    'Has QR in EGAM': item.hasQrInEgam,
+    'Invoice No': item.invoiceNo,
+    Amount: item.amount,
+    'Vendor Name': item.vendorName
+  }));
+  
+  return exportToExcel(data, `${category}-email-data`);
+};
+
+export const exportValidationAPIResultsToExcel = (results: any[], apiName: string) => {
+  const data = results.map(result => ({
+    Row: result.row,
+    Status: result.status,
+    'Error Message': result.errorMessage || '',
+    'Input Data': JSON.stringify(result.inputData || {}),
+    'Response Data': JSON.stringify(result.responseData || {}),
+    'Success': result.status === 'success' ? 'Yes' : 'No'
+  }));
+  
+  return exportToExcel(data, `${apiName.replace(/\s+/g, '_').toLowerCase()}_validation_results`);
+};

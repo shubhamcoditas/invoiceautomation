@@ -9,6 +9,7 @@ interface AppState {
   apiLogs: any[];
   systemLogs: any[];
   isLoading: boolean;
+  isTransitioning: boolean;
 }
 
 type AppAction = 
@@ -20,11 +21,12 @@ type AppAction =
   | { type: 'SET_API_LOGS'; payload: any[] }
   | { type: 'SET_SYSTEM_LOGS'; payload: any[] }
   | { type: 'SET_LOADING'; payload: boolean }
+  | { type: 'SET_TRANSITIONING'; payload: boolean }
   | { type: 'ADD_SYSTEM_LOG'; payload: any }
   | { type: 'ADD_API_LOG'; payload: any };
 
 const initialState: AppState = {
-  currentTab: 'dashboard',
+  currentTab: 'qr-scanner',
   extractedQRData: null,
   extractedPDFData: [],
   egamData: [],
@@ -32,12 +34,13 @@ const initialState: AppState = {
   apiLogs: [],
   systemLogs: [],
   isLoading: false,
+  isTransitioning: false,
 };
 
 const appReducer = (state: AppState, action: AppAction): AppState => {
   switch (action.type) {
     case 'SET_CURRENT_TAB':
-      return { ...state, currentTab: action.payload };
+      return { ...state, currentTab: action.payload, isTransitioning: true };
     case 'SET_QR_DATA':
       return { ...state, extractedQRData: action.payload };
     case 'SET_PDF_DATA':
@@ -52,6 +55,8 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
       return { ...state, systemLogs: action.payload };
     case 'SET_LOADING':
       return { ...state, isLoading: action.payload };
+    case 'SET_TRANSITIONING':
+      return { ...state, isTransitioning: action.payload };
     case 'ADD_SYSTEM_LOG':
       return { ...state, systemLogs: [action.payload, ...state.systemLogs] };
     case 'ADD_API_LOG':

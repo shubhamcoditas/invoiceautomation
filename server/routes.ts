@@ -1,7 +1,8 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
+import { randomUUID } from "crypto";
 import { storage } from "./storage";
-import { insertQRDataSchema, insertPDFDataSchema, insertEGAMDataSchema, insertSystemLogSchema, insertAPILogSchema } from "@shared/schema";
+import { insertQRDataSchema, insertPDFDataSchema, insertEGAMDataSchema, insertSystemLogSchema, insertAPILogSchema, insertPDFProcessingHistorySchema, insertBulkQRProcessingSchema, insertBulkQRBatchesSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // QR Data routes
@@ -99,8 +100,41 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/egam-data/fetch', async (req, res) => {
+  // EGAM Audit Logs routes
+  app.get('/api/egam-audit-logs', async (req, res) => {
     try {
+      const auditLogs = await storage.getAllEGAMAuditLogs();
+      res.json(auditLogs);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch EGAM audit logs' });
+    }
+  });
+
+  app.get('/api/egam-next-pull', async (req, res) => {
+    try {
+      const nextPull = await storage.getNextScheduledPull();
+      res.json({ nextScheduledAt: nextPull });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch next scheduled pull' });
+    }
+  });
+
+  app.post('/api/egam-data/fetch', async (req, res) => {
+    const pullType = req.body.pullType || 'manual';
+    const auditLogId = randomUUID();
+    
+    try {
+      // Create audit log entry for the pull
+      const auditLog = await storage.createEGAMAuditLog({
+        pullType,
+        status: 'in_progress',
+        recordsCount: null,
+        startedAt: new Date(),
+        completedAt: null,
+        errorMessage: null,
+        nextScheduledAt: pullType === 'scheduled' ? new Date(Date.now() + 24 * 60 * 60 * 1000) : null
+      });
+
       // Simulate fetching data from KIGS
       const mockEGAMData = [
         {
@@ -127,6 +161,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         createdRecords.push(record);
       }
 
+      // Update audit log with success
+      await storage.createEGAMAuditLog({
+        pullType,
+        status: 'success',
+        recordsCount: createdRecords.length.toString(),
+        startedAt: auditLog.startedAt,
+        completedAt: new Date(),
+        errorMessage: null,
+        nextScheduledAt: pullType === 'scheduled' ? new Date(Date.now() + 24 * 60 * 60 * 1000) : null
+      });
+
       await storage.createSystemLog({
         level: 'SUCCESS',
         module: 'EGAM Repository',
@@ -140,6 +185,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         data: createdRecords 
       });
     } catch (error) {
+      // Update audit log with error
+      await storage.createEGAMAuditLog({
+        pullType,
+        status: 'error',
+        recordsCount: null,
+        startedAt: new Date(),
+        completedAt: new Date(),
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        nextScheduledAt: pullType === 'scheduled' ? new Date(Date.now() + 24 * 60 * 60 * 1000) : null
+      });
+
       await storage.createSystemLog({
         level: 'ERROR',
         module: 'EGAM Repository',
@@ -255,6 +311,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Validation API endpoints
   app.post('/api/validation/:apiType', async (req, res) => {
     try {
+      const startTime = Date.now();
       const { apiType } = req.params;
       const parameters = req.body;
 
@@ -323,13 +380,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       const response = mockResponses[apiType] || { status: 'error', message: 'API not implemented' };
+      const responseTime = Date.now() - startTime;
 
       // Log the API call
       await storage.createAPILog({
         apiName: apiType,
+        apiType: apiType,
         parameters,
         response,
-        status: response.status
+        status: response.status,
+        responseTime: responseTime
       });
 
       await storage.createSystemLog({
@@ -378,6 +438,112 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(logs);
     } catch (error) {
       res.status(500).json({ error: 'Failed to fetch API logs' });
+    }
+  });
+
+  // PDF Processing History routes
+  app.get('/api/pdf-processing-history', async (req, res) => {
+    try {
+      const { processedBy } = req.query;
+      const history = processedBy ? 
+        await storage.getPDFProcessingHistoryByUser(processedBy as string) : 
+        await storage.getAllPDFProcessingHistory();
+      res.json(history);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch PDF processing history' });
+    }
+  });
+
+  app.post('/api/pdf-processing-history', async (req, res) => {
+    try {
+      const validatedData = insertPDFProcessingHistorySchema.parse(req.body);
+      const history = await storage.createPDFProcessingHistory(validatedData);
+      res.json(history);
+    } catch (error) {
+      res.status(400).json({ error: 'Invalid PDF processing history data' });
+    }
+  });
+
+  // Bulk QR Processing routes
+  app.post('/api/bulk-qr/batch', async (req, res) => {
+    try {
+      const validatedData = insertBulkQRBatchesSchema.parse(req.body);
+      const batch = await storage.createBulkQRBatch(validatedData);
+      
+      // Log the action
+      await storage.createSystemLog({
+        level: 'SUCCESS',
+        module: 'Bulk QR Processing',
+        message: `Created bulk QR batch: ${batch.fileName}`,
+        details: `Total records: ${batch.totalRecords}`
+      });
+      
+      res.json(batch);
+    } catch (error) {
+      console.error('Error creating bulk QR batch:', error);
+      res.status(400).json({ error: 'Invalid batch data' });
+    }
+  });
+
+  app.get('/api/bulk-qr/batches', async (req, res) => {
+    try {
+      const batches = await storage.getAllBulkQRBatches();
+      res.json(batches);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch bulk QR batches' });
+    }
+  });
+
+  app.post('/api/bulk-qr/processing', async (req, res) => {
+    try {
+      const validatedData = insertBulkQRProcessingSchema.parse(req.body);
+      const processing = await storage.createBulkQRProcessing(validatedData);
+      res.json(processing);
+    } catch (error) {
+      console.error('Error creating bulk QR processing:', error);
+      res.status(400).json({ error: 'Invalid processing data' });
+    }
+  });
+
+  app.get('/api/bulk-qr/processing/:batchId', async (req, res) => {
+    try {
+      const { batchId } = req.params;
+      const processing = await storage.getBulkQRProcessingByBatchId(batchId);
+      res.json(processing);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch bulk QR processing' });
+    }
+  });
+
+  app.put('/api/bulk-qr/processing/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      const updated = await storage.updateBulkQRProcessing(id, updates);
+      
+      if (!updated) {
+        return res.status(404).json({ error: 'Bulk QR processing not found' });
+      }
+      
+      res.json(updated);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to update bulk QR processing' });
+    }
+  });
+
+  app.put('/api/bulk-qr/batch/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      const updated = await storage.updateBulkQRBatch(id, updates);
+      
+      if (!updated) {
+        return res.status(404).json({ error: 'Bulk QR batch not found' });
+      }
+      
+      res.json(updated);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to update bulk QR batch' });
     }
   });
 
