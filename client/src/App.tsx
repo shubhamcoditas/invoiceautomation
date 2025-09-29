@@ -9,17 +9,23 @@ import { AppStateProvider } from "@/hooks/use-app-state";
 import { SidebarProvider } from "@/hooks/use-sidebar";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
+import { InvoiceTracker } from "@/components/invoice-tracker/invoice-tracker";
 import { QRScanner } from "@/components/qr-scanner/qr-scanner";
 import { PDFUpload } from "@/components/pdf-upload/pdf-upload";
 import { EGAMRepository } from "@/components/egam-repository/egam-repository";
 import { EmailReviewQueue } from "@/components/email-review-queue/email-review-queue";
 import { ValidationAPIs } from "@/components/validation-apis/validation-apis";
 import { NoticeAPIs } from "@/components/notice-apis/notice-apis";
+import { APIUsage } from "@/components/api-usage/api-usage";
 import { SystemLogs } from "@/components/system-logs/system-logs";
 import { UserManagement } from "@/components/user-management/user-management";
 import { SettingsAndConfig } from "@/components/settings/settings";
+import { EmailSettings } from "@/components/email-settings/email-settings";
+import { UserProfile } from "@/components/user-profile/user-profile";
+import { Integrations } from "@/components/integrations/integrations";
 import { useAppState } from "@/hooks/use-app-state";
 import { useSidebar } from "@/hooks/use-sidebar";
+import { CoditasWatermark } from "@/components/ui/coditas-watermark";
 import NotFound from "@/pages/not-found";
 
 function MainContent() {
@@ -28,6 +34,8 @@ function MainContent() {
 
   const renderCurrentTab = () => {
     switch (state.currentTab) {
+      case 'invoice-tracker':
+        return <InvoiceTracker />;
       case 'qr-scanner':
         return <QRScanner />;
       case 'pdf-upload':
@@ -40,12 +48,20 @@ function MainContent() {
         return <ValidationAPIs />;
       case 'notice-apis':
         return <NoticeAPIs />;
+      case 'api-usage':
+        return <APIUsage />;
+      case 'integrations':
+        return <Integrations />;
       case 'logs':
         return <SystemLogs />;
       case 'user-management':
         return <UserManagement />;
       case 'settings':
         return <SettingsAndConfig />;
+      case 'email-settings':
+        return <EmailSettings />;
+      case 'user-profile':
+        return <UserProfile />;
       default:
         return <QRScanner />;
     }
@@ -76,7 +92,7 @@ function MainContent() {
         isCollapsed ? "lg:ml-16" : "lg:ml-72"
       )}>
         <Header />
-        <main className="p-6 w-full">
+        <main className="p-4 w-full">
           <div className={cn(
             "page-transition w-full",
             state.isTransitioning ? "opacity-0 scale-95" : "opacity-100 scale-100",
@@ -86,6 +102,7 @@ function MainContent() {
           </div>
         </main>
       </div>
+      
     </div>
   );
 }

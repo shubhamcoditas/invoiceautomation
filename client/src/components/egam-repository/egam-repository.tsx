@@ -8,12 +8,14 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAppState } from "@/hooks/use-app-state";
-import { Database, RefreshCw, Search, Loader2, Clock, CheckCircle, XCircle, AlertCircle, AlertTriangle } from "lucide-react";
+import { useEntity } from "@/hooks/use-entity";
+import { Database, RefreshCw, Search, Loader2, Clock, CheckCircle, AlertTriangle } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { formatDateTime, statusBadgeConfig } from "@/lib/utils";
 
 export function EGAMRepository() {
+  const { currentEntityId } = useEntity();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [fetchProgress, setFetchProgress] = useState(0);
@@ -92,18 +94,7 @@ export function EGAMRepository() {
     return matchesSearch && matchesStatus;
   });
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'success':
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'error':
-        return <XCircle className="h-4 w-4 text-red-500" />;
-      case 'in_progress':
-        return <Loader2 className="h-4 w-4 text-blue-500 animate-spin" />;
-      default:
-        return <AlertCircle className="h-4 w-4 text-gray-500" />;
-    }
-  };
+  // Removed getStatusIcon function - no external icons needed
 
   const getStatusBadge = (status: string) => {
     if (status === 'in_progress') {
@@ -254,10 +245,7 @@ export function EGAMRepository() {
                               </Badge>
                             </TableCell>
                             <TableCell>
-                              <div className="flex items-center space-x-2">
-                                {getStatusIcon(log.status)}
-                                {getStatusBadge(log.status)}
-                              </div>
+                              {getStatusBadge(log.status)}
                             </TableCell>
                             <TableCell>
                               {log.recordsCount ? `${log.recordsCount} records` : '-'}

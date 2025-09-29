@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -17,7 +19,14 @@ import {
   CheckCircle, 
   AlertCircle,
   User,
-  Paperclip
+  Paperclip,
+  Search,
+  Filter,
+  X,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Calendar
 } from "lucide-react";
 import { formatDateTime, statusBadgeConfig } from "@/lib/utils";
 import { exportEmailDataToExcel } from "@/lib/excel-export";
@@ -125,6 +134,14 @@ export function EmailReviewQueue() {
   const [currentEmailIndex, setCurrentEmailIndex] = useState(0);
   const { toast } = useToast();
 
+  // Search and filter states
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [dateRange, setDateRange] = useState<string>("all");
+  const [sortField, setSortField] = useState<string>("receivedAt");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [showFilters, setShowFilters] = useState(false);
+
   const getStatusBadge = (status: EmailRecord['processingStatus']) => {
     if (status === 'queued') {
       return (
@@ -189,7 +206,142 @@ export function EmailReviewQueue() {
     }
   };
 
-  const filteredEmails = filterEmails(mockEmailRecords, selectedTab);
+  const getDateRangeFilter = (dateRange: string) => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    
+    switch (dateRange) {
+      case 'today':
+        return (email: EmailRecord) => {
+          const emailDate = new Date(email.receivedAt);
+          return emailDate >= today;
+        };
+      case 'yesterday':
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        return (email: EmailRecord) => {
+          const emailDate = new Date(email.receivedAt);
+          return emailDate >= yesterday && emailDate < today;
+        };
+      case 'last7days':
+        const last7Days = new Date(today);
+        last7Days.setDate(last7Days.getDate() - 7);
+        return (email: EmailRecord) => {
+          const emailDate = new Date(email.receivedAt);
+          return emailDate >= last7Days;
+        };
+      case 'last30days':
+        const last30Days = new Date(today);
+        last30Days.setDate(last30Days.getDate() - 30);
+        return (email: EmailRecord) => {
+          const emailDate = new Date(email.receivedAt);
+          return emailDate >= last30Days;
+        };
+      default:
+        return () => true;
+    }
+  };
+
+  const searchEmails = (emails: EmailRecord[], query: string) => {
+    if (!query.trim()) return emails;
+    
+    const searchTerm = query.toLowerCase();
+    return emails.filter(email => 
+      email.sender.toLowerCase().includes(searchTerm) ||
+      email.subject.toLowerCase().includes(searchTerm) ||
+      email.invoiceNo?.toLowerCase().includes(searchTerm) ||
+      email.vendorName?.toLowerCase().includes(searchTerm) ||
+      email.amount?.toLowerCase().includes(searchTerm)
+    );
+  };
+
+  const sortEmails = (emails: EmailRecord[], field: string, direction: "asc" | "desc") => {
+    return [...emails].sort((a, b) => {
+      let aValue: any, bValue: any;
+      
+      switch (field) {
+        case 'sender':
+          aValue = a.sender.toLowerCase();
+          bValue = b.sender.toLowerCase();
+          break;
+        case 'subject':
+          aValue = a.subject.toLowerCase();
+          bValue = b.subject.toLowerCase();
+          break;
+        case 'receivedAt':
+          aValue = new Date(a.receivedAt).getTime();
+          bValue = new Date(b.receivedAt).getTime();
+          break;
+        case 'processingStatus':
+          aValue = a.processingStatus;
+          bValue = b.processingStatus;
+          break;
+        case 'invoiceNo':
+          aValue = a.invoiceNo || '';
+          bValue = b.invoiceNo || '';
+          break;
+        case 'amount':
+          aValue = parseFloat(a.amount?.replace(/[₹,]/g, '') || '0');
+          bValue = parseFloat(b.amount?.replace(/[₹,]/g, '') || '0');
+          break;
+        default:
+          return 0;
+      }
+      
+      if (aValue < bValue) return direction === 'asc' ? -1 : 1;
+      if (aValue > bValue) return direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  };
+
+  const filteredEmails = useMemo(() => {
+    let emails = filterEmails(mockEmailRecords, selectedTab);
+    
+    // Apply search filter
+    emails = searchEmails(emails, searchQuery);
+    
+    // Apply status filter
+    if (statusFilter !== 'all') {
+      emails = emails.filter(email => email.processingStatus === statusFilter);
+    }
+    
+    // Apply date range filter
+    const dateFilter = getDateRangeFilter(dateRange);
+    emails = emails.filter(dateFilter);
+    
+    // Apply sorting
+    emails = sortEmails(emails, sortField, sortDirection);
+    
+    return emails;
+  }, [selectedTab, searchQuery, statusFilter, dateRange, sortField, sortDirection]);
+
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
+  };
+
+  const getSortIcon = (field: string) => {
+    if (sortField !== field) {
+      return <ArrowUpDown className="h-4 w-4 text-gray-400" />;
+    }
+    return sortDirection === 'asc' ? 
+      <ArrowUp className="h-4 w-4 text-blue-500" /> : 
+      <ArrowDown className="h-4 w-4 text-blue-500" />;
+  };
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setStatusFilter("all");
+    setDateRange("all");
+    setSortField("receivedAt");
+    setSortDirection("desc");
+  };
+
+  const hasActiveFilters = searchQuery || statusFilter !== "all" || dateRange !== "all";
 
   const handleEmailClick = (email: EmailRecord) => {
     if (email.processingStatus === 'ready_for_review') {
@@ -289,21 +441,98 @@ export function EmailReviewQueue() {
         <CardContent>
           <div className="space-y-6">
             {/* Email Processing Status Section */}
-            <div className="flex justify-between items-center">
-              <div>
-                <h3 className="text-lg font-semibold text-foreground">Email Processing Status</h3>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {getTabDisplayName(selectedTab)} ({filteredEmails.length} emails)
-                </p>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground">Email Processing Status</h3>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {getTabDisplayName(selectedTab)} ({filteredEmails.length} emails)
+                    {hasActiveFilters && (
+                      <span className="ml-2 text-blue-600 font-medium">
+                        (filtered from {mockEmailRecords.length})
+                      </span>
+                    )}
+                  </p>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Button 
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowFilters(!showFilters)}
+                    className="flex items-center space-x-2"
+                  >
+                    <Filter className="h-4 w-4" />
+                    <span>Filters</span>
+                    {hasActiveFilters && (
+                      <Badge variant="secondary" className="ml-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+                        !
+                      </Badge>
+                    )}
+                  </Button>
+                  <Button 
+                    onClick={handleExport} 
+                    className="bg-gradient-to-r from-[#00338D] to-[#4A90E2] hover:from-[#001F5C] hover:to-[#00338D] text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={filteredEmails.length === 0}
+                  >
+                    <Download className="mr-2 h-4 w-4" />
+                    Export {getTabDisplayName(selectedTab)}
+                  </Button>
+                </div>
               </div>
-              <Button 
-                onClick={handleExport} 
-                className="bg-gradient-to-r from-[#00338D] to-[#4A90E2] hover:from-[#001F5C] hover:to-[#00338D] text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={filteredEmails.length === 0}
-              >
-                <Download className="mr-2 h-4 w-4" />
-                Export {getTabDisplayName(selectedTab)}
-              </Button>
+
+              {/* Search and Filters */}
+              <div className={`space-y-4 transition-all duration-300 ${showFilters ? 'opacity-100 max-h-96' : 'opacity-0 max-h-0 overflow-hidden'}`}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {/* Search Input */}
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                      placeholder="Search emails..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+
+                  {/* Status Filter */}
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Statuses</SelectItem>
+                      <SelectItem value="queued">Queued</SelectItem>
+                      <SelectItem value="in_progress">In Progress</SelectItem>
+                      <SelectItem value="ready_for_review">Ready for Review</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {/* Date Range Filter */}
+                  <Select value={dateRange} onValueChange={setDateRange}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Filter by date" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Dates</SelectItem>
+                      <SelectItem value="today">Today</SelectItem>
+                      <SelectItem value="yesterday">Yesterday</SelectItem>
+                      <SelectItem value="last7days">Last 7 Days</SelectItem>
+                      <SelectItem value="last30days">Last 30 Days</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {/* Clear Filters */}
+                  <Button
+                    variant="outline"
+                    onClick={clearFilters}
+                    disabled={!hasActiveFilters}
+                    className="flex items-center space-x-2"
+                  >
+                    <X className="h-4 w-4" />
+                    <span>Clear Filters</span>
+                  </Button>
+                </div>
+              </div>
             </div>
             
             <Tabs value={selectedTab} onValueChange={setSelectedTab}>
@@ -345,12 +574,62 @@ export function EmailReviewQueue() {
                 <Table>
                   <TableHeader>
                     <TableRow className="border-b border-border/50">
-                      <TableHead className="font-semibold text-foreground">Status</TableHead>
-                      <TableHead className="font-semibold text-foreground">Sender</TableHead>
-                      <TableHead className="font-semibold text-foreground">Subject</TableHead>
+                      <TableHead className="font-semibold text-foreground">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleSort('processingStatus')}
+                          className="h-auto p-0 font-semibold hover:bg-transparent"
+                        >
+                          Status
+                          {getSortIcon('processingStatus')}
+                        </Button>
+                      </TableHead>
+                      <TableHead className="font-semibold text-foreground">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleSort('sender')}
+                          className="h-auto p-0 font-semibold hover:bg-transparent"
+                        >
+                          Sender
+                          {getSortIcon('sender')}
+                        </Button>
+                      </TableHead>
+                      <TableHead className="font-semibold text-foreground">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleSort('subject')}
+                          className="h-auto p-0 font-semibold hover:bg-transparent"
+                        >
+                          Subject
+                          {getSortIcon('subject')}
+                        </Button>
+                      </TableHead>
                       <TableHead className="font-semibold text-foreground">Attachments</TableHead>
-                      <TableHead className="font-semibold text-foreground">Received At</TableHead>
-                      <TableHead className="font-semibold text-foreground">Invoice Details</TableHead>
+                      <TableHead className="font-semibold text-foreground">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleSort('receivedAt')}
+                          className="h-auto p-0 font-semibold hover:bg-transparent"
+                        >
+                          Received At
+                          {getSortIcon('receivedAt')}
+                        </Button>
+                      </TableHead>
+                      <TableHead className="font-semibold text-foreground">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleSort('invoiceNo')}
+                          className="h-auto p-0 font-semibold hover:bg-transparent"
+                        >
+                          Invoice Details
+                          {getSortIcon('invoiceNo')}
+                        </Button>
+                      </TableHead>
                       <TableHead className="font-semibold text-foreground">Actions</TableHead>
                     </TableRow>
                   </TableHeader>

@@ -1,6 +1,32 @@
+/* Import unified form styles */
+@import './styles/form-styles.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Ensure watermark is always visible in screenshots and print */
+.coditas-watermark {
+  -webkit-print-color-adjust: exact !important;
+  color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+/* Print styles for watermark visibility */
+@media print {
+  .coditas-watermark {
+    display: block !important;
+    position: fixed !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    z-index: 9999 !important;
+    background: white !important;
+    border: 2px solid #333 !important;
+    padding: 8px 12px !important;
+    border-radius: 4px !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+  }
+}
 
 /* Enhanced Dropdown Styling */
 [data-radix-select-content] {
@@ -16,16 +42,19 @@
 }
 
 [data-radix-select-item] {
-  padding: 1rem !important;
+  padding: 0.875rem 1rem !important;
   border-radius: 0.375rem !important;
   transition: all 150ms ease-in-out !important;
   cursor: pointer !important;
   font-weight: 500 !important;
   margin: 0.125rem !important;
+  color: #111827 !important;
 }
 
 [data-radix-select-item]:hover {
   background-color: #eff6ff !important;
+  color: #1e40af !important;
+  font-weight: 600 !important;
 }
 
 [data-radix-select-item][data-state="checked"] {
@@ -50,22 +79,23 @@
   outline: none !important;
 }
 
-/* Checkmark visibility */
+/* Checkmark visibility and spacing */
 [data-radix-select-item-indicator] {
   color: #1e40af !important;
   font-weight: bold !important;
-  margin-right: 0.5rem !important;
+  margin-right: 1rem !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  width: 16px !important;
-  height: 16px !important;
+  width: 18px !important;
+  height: 18px !important;
+  padding: 2px !important;
 }
 
-/* Ensure the checkmark icon is visible */
+/* Ensure the checkmark icon is visible with proper spacing */
 [data-radix-select-item-indicator] svg {
-  width: 14px !important;
-  height: 14px !important;
+  width: 16px !important;
+  height: 16px !important;
   stroke-width: 2.5 !important;
 }
 
@@ -85,6 +115,37 @@
   font-weight: 400 !important;
   color: #6b7280 !important;
   font-size: 0.875rem !important;
+}
+
+/* Enhanced dropdown menu hover states */
+[data-radix-dropdown-menu-item]:hover {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
+}
+
+[data-radix-dropdown-menu-checkbox-item]:hover {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
+}
+
+[data-radix-dropdown-menu-radio-item]:hover {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
+}
+
+/* Global checkmark spacing improvements */
+[data-radix-dropdown-menu-checkbox-item-indicator],
+[data-radix-dropdown-menu-radio-item-indicator] {
+  margin-right: 0.75rem !important;
+  padding: 2px !important;
+}
+
+/* Ensure proper spacing for all select and dropdown items */
+[data-radix-select-item],
+[data-radix-dropdown-menu-item],
+[data-radix-dropdown-menu-checkbox-item],
+[data-radix-dropdown-menu-radio-item] {
+  padding-left: 2.5rem !important;
 }
 
 /* Enhanced Input Field Styling */
@@ -450,6 +511,18 @@ input[type="text"]:disabled, input[type="email"]:disabled, input[type="password"
 
   .hover-lift:active {
     transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Improved hover text visibility */
+  .hover-text-visible:hover {
+    color: #111827 !important;
+    font-weight: 600 !important;
+  }
+
+  /* Better button hover states */
+  .btn-hover-visible:hover {
+    color: #111827 !important;
+    background-color: rgba(59, 130, 246, 0.1) !important;
   }
 
   .hover-glow {

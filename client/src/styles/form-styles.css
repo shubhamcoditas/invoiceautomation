@@ -1,0 +1,172 @@
+/* Unified Form Styling System */
+
+/* Form Labels - Consistent styling across all forms */
+.form-label {
+  @apply text-sm font-medium text-gray-700 mb-2 block;
+}
+
+.form-label-large {
+  @apply text-base font-semibold text-gray-900 mb-2 block;
+}
+
+.form-label-small {
+  @apply text-xs font-medium text-gray-600 mb-1 block;
+}
+
+/* Form Inputs - Consistent styling across all forms */
+.form-input {
+  @apply h-12 px-3 py-2 text-sm font-normal text-gray-900 bg-white border-2 border-gray-200 rounded-md;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+  @apply hover:border-gray-300 transition-colors duration-200;
+}
+
+.form-input-disabled {
+  @apply h-12 px-3 py-2 text-sm font-normal text-gray-500 bg-gray-50 border-2 border-gray-200 rounded-md;
+  @apply cursor-not-allowed;
+}
+
+.form-input-error {
+  @apply h-12 px-3 py-2 text-sm font-normal text-gray-900 bg-white border-2 border-red-300 rounded-md;
+  @apply focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500;
+}
+
+/* Form Selects - Consistent styling across all forms */
+.form-select {
+  @apply h-12 px-3 py-2 text-sm font-normal text-gray-900 bg-white border-2 border-gray-200 rounded-md;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+  @apply hover:border-gray-300 transition-colors duration-200;
+}
+
+.form-select-disabled {
+  @apply h-12 px-3 py-2 text-sm font-normal text-gray-500 bg-gray-50 border-2 border-gray-200 rounded-md;
+  @apply cursor-not-allowed;
+}
+
+/* Form Textareas - Consistent styling across all forms */
+.form-textarea {
+  @apply min-h-[100px] px-3 py-2 text-sm font-normal text-gray-900 bg-white border-2 border-gray-200 rounded-md;
+  @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+  @apply hover:border-gray-300 transition-colors duration-200 resize-y;
+}
+
+/* Form Display Values - For read-only information */
+.form-display-value {
+  @apply p-3 bg-gray-50 rounded-md border border-gray-200;
+}
+
+.form-display-text {
+  @apply text-sm font-normal text-gray-900;
+}
+
+.form-display-text-mono {
+  @apply text-sm font-mono text-gray-900;
+}
+
+.form-display-text-semibold {
+  @apply text-sm font-semibold text-gray-900;
+}
+
+/* Form Help Text - Consistent styling for helper text */
+.form-help-text {
+  @apply text-xs text-gray-500 mt-1;
+}
+
+.form-help-text-error {
+  @apply text-xs text-red-600 mt-1;
+}
+
+/* Form Field Groups - Consistent spacing and layout */
+.form-field-group {
+  @apply space-y-2;
+}
+
+.form-field-group-large {
+  @apply space-y-4;
+}
+
+/* Form Grid Layouts - Consistent grid patterns */
+.form-grid-1 {
+  @apply grid grid-cols-1 gap-4;
+}
+
+.form-grid-2 {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+}
+
+.form-grid-3 {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4;
+}
+
+/* Form Sections - Consistent section styling */
+.form-section {
+  @apply space-y-6;
+}
+
+.form-section-header {
+  @apply text-lg font-semibold text-gray-900 mb-4 flex items-center;
+}
+
+.form-section-subheader {
+  @apply text-sm text-gray-600 mb-4;
+}
+
+/* Form Validation States */
+.form-field-error {
+  @apply border-red-300 focus:border-red-500 focus:ring-red-500;
+}
+
+.form-field-success {
+  @apply border-green-300 focus:border-green-500 focus:ring-green-500;
+}
+
+/* Form Button Groups - Consistent button styling in forms */
+.form-button-group {
+  @apply flex items-center space-x-2;
+}
+
+.form-button-group-right {
+  @apply flex items-center justify-end space-x-2;
+}
+
+/* Form Card Styling - Consistent card styling for forms */
+.form-card {
+  @apply bg-white rounded-lg border border-gray-200 shadow-sm;
+}
+
+.form-card-header {
+  @apply px-6 py-4 border-b border-gray-200;
+}
+
+.form-card-content {
+  @apply px-6 py-6;
+}
+
+/* Form Table Styling - Consistent table styling in forms */
+.form-table-header {
+  @apply text-sm font-semibold text-gray-900;
+}
+
+.form-table-cell {
+  @apply text-sm font-normal text-gray-900 py-3;
+}
+
+.form-table-cell-mono {
+  @apply text-sm font-mono text-gray-900 py-3;
+}
+
+/* Form Status Indicators */
+.form-status-active {
+  @apply text-sm font-semibold text-green-600;
+}
+
+.form-status-inactive {
+  @apply text-sm font-semibold text-gray-500;
+}
+
+.form-status-warning {
+  @apply text-sm font-semibold text-yellow-600;
+}
+
+.form-status-error {
+  @apply text-sm font-semibold text-red-600;
+}

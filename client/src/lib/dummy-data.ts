@@ -1,22 +1,70 @@
-export const generateDummyQRData = () => ({
-  irn: '1a2b3c4d5e6f7g8h9i0j1k2l3m4n',
-  gstin: '27ABCDE1234F1Z5',
-  invoiceNo: 'INV-2024-001',
-  date: '2024-01-18',
-  totalAmount: '₹125,000.00',
-  buyerGstin: '29XYZPQ5678R1S2',
-  sellerGstin: '27ABCDE1234F1Z5',
-  invoiceType: 'Regular'
-});
+export const generateDummyQRData = (entityId: string = 'hsbc') => {
+  const entityData = {
+    hsbc: {
+      gstin: '27ABCDE1234F1Z5',
+      buyerGstin: '29XYZPQ5678R1S2',
+      sellerGstin: '27ABCDE1234F1Z5',
+      invoiceNo: 'HSBC-INV-2024-001',
+      totalAmount: '₹125,000.00'
+    },
+    swiggy: {
+      gstin: '29SWIGGY1234F1Z5',
+      buyerGstin: '27CUSTOMER5678R1S2',
+      sellerGstin: '29SWIGGY1234F1Z5',
+      invoiceNo: 'SWIGGY-INV-2024-001',
+      totalAmount: '₹2,500.00'
+    },
+    flipkart: {
+      gstin: '29FLIPKART1234F1Z5',
+      buyerGstin: '27CUSTOMER5678R1S2',
+      sellerGstin: '29FLIPKART1234F1Z5',
+      invoiceNo: 'FLIPKART-INV-2024-001',
+      totalAmount: '₹15,000.00'
+    }
+  };
 
-export const generateDummyPDFData = (files: FileList) => {
+  const data = entityData[entityId as keyof typeof entityData] || entityData.hsbc;
+
+  return {
+    irn: '1a2b3c4d5e6f7g8h9i0j1k2l3m4n',
+    gstin: data.gstin,
+    invoiceNo: data.invoiceNo,
+    date: '2024-01-18',
+    totalAmount: data.totalAmount,
+    buyerGstin: data.buyerGstin,
+    sellerGstin: data.sellerGstin,
+    invoiceType: 'Regular'
+  };
+};
+
+export const generateDummyPDFData = (files: FileList, entityId: string = 'hsbc') => {
+  const entityData = {
+    hsbc: {
+      gstin: '27ABCDE1234F1Z5',
+      prefix: 'HSBC-INV',
+      baseAmount: 125000
+    },
+    swiggy: {
+      gstin: '29SWIGGY1234F1Z5',
+      prefix: 'SWIGGY-INV',
+      baseAmount: 2500
+    },
+    flipkart: {
+      gstin: '29FLIPKART1234F1Z5',
+      prefix: 'FLIPKART-INV',
+      baseAmount: 15000
+    }
+  };
+
+  const data = entityData[entityId as keyof typeof entityData] || entityData.hsbc;
+
   return Array.from(files).map((file, index) => ({
     fileName: file.name,
-    invoiceNo: `INV-2024-${String(index + 1).padStart(3, '0')}`,
+    invoiceNo: `${data.prefix}-2024-${String(index + 1).padStart(3, '0')}`,
     date: '2024-01-18',
     irn: `${index + 1}${'a2b3c4d5e6f7g8h9i0j1k2l3m4n'.substring(1)}`,
-    gstin: '27ABCDE1234F1Z5',
-    amount: `₹${(125000 + Math.random() * 50000).toLocaleString()}.00`,
+    gstin: data.gstin,
+    amount: `₹${(data.baseAmount + Math.random() * 50000).toLocaleString()}.00`,
     status: Math.random() > 0.8 ? 'Review Required' : 'Processed'
   }));
 };

@@ -7,11 +7,13 @@ export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
-  role: text("role").notNull().default('business_user'), // 'admin' or 'business_user'
+  role: text("role").notNull().default('business_user'), // 'admin', 'application_admin', or 'business_user'
+  entityId: text("entity_id").notNull().default('hsbc'), // Entity the user belongs to
 });
 
 export const qrData = pgTable("qr_data", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  entityId: text("entity_id").notNull().default('hsbc'), // Entity this data belongs to
   irn: text("irn").notNull(),
   gstin: text("gstin").notNull(),
   invoiceNo: text("invoice_no").notNull(),
@@ -28,6 +30,7 @@ export const qrData = pgTable("qr_data", {
 
 export const pdfData = pgTable("pdf_data", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  entityId: text("entity_id").notNull().default('hsbc'), // Entity this data belongs to
   fileName: text("file_name").notNull(),
   invoiceNo: text("invoice_no").notNull(),
   date: text("date").notNull(),
@@ -40,6 +43,7 @@ export const pdfData = pgTable("pdf_data", {
 
 export const egamRepository = pgTable("egam_repository", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  entityId: text("entity_id").notNull().default('hsbc'), // Entity this data belongs to
   irn: text("irn").notNull().unique(),
   invoiceNo: text("invoice_no").notNull(),
   date: text("date").notNull(),
@@ -51,6 +55,7 @@ export const egamRepository = pgTable("egam_repository", {
 
 export const egamAuditLogs = pgTable("egam_audit_logs", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  entityId: text("entity_id").notNull().default('hsbc'), // Entity this log belongs to
   pullType: text("pull_type").notNull(), // 'manual' or 'scheduled'
   status: text("status").notNull(), // 'success', 'error', 'in_progress'
   recordsCount: decimal("records_count", { precision: 10, scale: 0 }),
@@ -62,6 +67,7 @@ export const egamAuditLogs = pgTable("egam_audit_logs", {
 
 export const pdfProcessingHistory = pgTable("pdf_processing_history", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  entityId: text("entity_id").notNull().default('hsbc'), // Entity this data belongs to
   fileName: text("file_name").notNull(),
   documentType: text("document_type").notNull(),
   processedBy: text("processed_by").notNull(),
@@ -75,6 +81,7 @@ export const pdfProcessingHistory = pgTable("pdf_processing_history", {
 
 export const systemLogs = pgTable("system_logs", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  entityId: text("entity_id").notNull().default('hsbc'), // Entity this log belongs to
   timestamp: timestamp("timestamp").defaultNow(),
   level: text("level").notNull(), // 'INFO', 'WARNING', 'ERROR', 'SUCCESS'
   module: text("module").notNull(),
@@ -84,6 +91,7 @@ export const systemLogs = pgTable("system_logs", {
 
 export const apiLogs = pgTable("api_logs", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  entityId: text("entity_id").notNull().default('hsbc'), // Entity this log belongs to
   timestamp: timestamp("timestamp").defaultNow(),
   apiName: text("api_name").notNull(),
   apiType: text("api_type").notNull(),
@@ -95,6 +103,7 @@ export const apiLogs = pgTable("api_logs", {
 
 export const bulkQRProcessing = pgTable("bulk_qr_processing", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  entityId: text("entity_id").notNull().default('hsbc'), // Entity this data belongs to
   batchId: varchar("batch_id").notNull(),
   qrString: text("qr_string").notNull(),
   status: text("status").notNull().default("queued"), // queued, in_progress, success, failed
@@ -106,6 +115,7 @@ export const bulkQRProcessing = pgTable("bulk_qr_processing", {
 
 export const bulkQRBatches = pgTable("bulk_qr_batches", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  entityId: text("entity_id").notNull().default('hsbc'), // Entity this data belongs to
   fileName: text("file_name").notNull(),
   totalRecords: integer("total_records").notNull(),
   processedRecords: integer("processed_records").notNull().default(0),
@@ -120,6 +130,7 @@ export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
   role: true,
+  entityId: true,
 });
 
 export const insertQRDataSchema = createInsertSchema(qrData).omit({

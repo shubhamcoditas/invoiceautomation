@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -120,8 +120,32 @@ export function ValidationAPIs() {
     }));
   };
 
+  // Handle API selection change
+  const handleAPISelectionChange = (apiValue: string) => {
+    setSelectedAPI(apiValue);
+    // Clear API response state when switching APIs
+    setApiResponse("");
+    setHasApiBeenCalled(false);
+    setHttpStatus(null);
+    setResponseTime(null);
+    setExcelPreviewData([]);
+    setExcelResponseData([]);
+    setExcelProcessingState('idle');
+  };
+
   // Get current sub-tab for selected API
   const currentSubTab = activeSubTab[selectedAPI] || 'single';
+
+  // Clear API response state when switching APIs
+  useEffect(() => {
+    setApiResponse("");
+    setHasApiBeenCalled(false);
+    setHttpStatus(null);
+    setResponseTime(null);
+    setExcelPreviewData([]);
+    setExcelResponseData([]);
+    setExcelProcessingState('idle');
+  }, [selectedAPI]);
 
   // Fetch API logs
   const { data: apiLogs = [] } = useQuery({
@@ -532,7 +556,635 @@ export function ValidationAPIs() {
     }
   };
 
+  const handleDownloadSingleResult = (log: any) => {
+    try {
+      // Create a single result object for download
+      const singleResult = {
+        timestamp: log.timestamp,
+        apiType: log.apiType || selectedAPI,
+        status: log.status,
+        responseTime: log.responseTime,
+        inputData: log.data || {},
+        responseData: log.responseData || {},
+        errorMessage: log.errorMessage || null
+      };
+
+      const success = exportValidationAPIResultsToExcel([singleResult], `${selectedEndpoint?.label || 'API'}_${formatDateTime(log.timestamp).replace(/[:\s]/g, '_')}`);
+      
+      if (success) {
+        toast({
+          title: "Download Complete",
+          description: "API result has been downloaded successfully.",
+        });
+      } else {
+        toast({
+          title: "Download Failed",
+          description: "Failed to download API result. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Download Error",
+        description: "An error occurred while downloading the result.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const selectedEndpoint = apiEndpoints.find(api => api.value === selectedAPI);
+
+  // Generate cURL command example
+  const generateCurlExample = () => {
+    const baseUrl = 'https://api.invoicesimulator.com';
+    const endpoint = `/api/validation/${selectedAPI}`;
+    
+    const requestBody: any = {};
+    selectedEndpoint?.fields.forEach(field => {
+      requestBody[field] = getSampleValue(field);
+    });
+
+    return `curl --location '${baseUrl}${endpoint}' \\
+--header 'secret-key: <your-secret-key>' \\
+--header 'access-key: <your-access-key>' \\
+--header 'Content-Type: application/json' \\
+--data-raw '${JSON.stringify(requestBody, null, 2)}'`;
+  };
+
+  // Generate request example
+  const generateRequestExample = () => {
+    const requestBody: any = {};
+    selectedEndpoint?.fields.forEach(field => {
+      requestBody[field] = getSampleValue(field);
+    });
+
+    return JSON.stringify(requestBody, null, 2);
+  };
+
+  // Format API response for user-friendly display
+  const formatUserFriendlyResponse = (apiResponse: any) => {
+    try {
+      const data = typeof apiResponse === 'string' ? JSON.parse(apiResponse) : apiResponse;
+      
+      if (!data.status || data.status !== 'success') {
+        return (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+            <div className="flex items-center mb-4">
+              <div className="mr-3 h-6 w-6 text-red-600">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </div>
+              <h4 className="text-lg font-medium text-red-900 dark:text-red-100">
+                API Call Failed
+              </h4>
+            </div>
+            <p className="text-red-700 dark:text-red-300">
+              {data.message || 'An error occurred while processing your request.'}
+            </p>
+          </div>
+        );
+      }
+
+      const responseData = data.data;
+      
+      switch (selectedAPI) {
+        case 'search-taxpayer':
+          return (
+            <div className="space-y-6">
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6">
+                <div className="flex items-center mb-4">
+                  <div className="mr-3 h-6 w-6 text-green-600">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <h4 className="text-lg font-medium text-green-900 dark:text-green-100">
+                    Taxpayer Information Found
+                  </h4>
+                </div>
+                <p className="text-green-700 dark:text-green-300">
+                  Successfully retrieved taxpayer details for GSTIN: {responseData.gstin}
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                  <h5 className="font-semibold text-gray-900 dark:text-white mb-4">Business Information</h5>
+                  <div className="space-y-3">
+                    <div>
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Legal Name:</span>
+                      <p className="text-gray-900 dark:text-white font-medium">{responseData.legalName || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Trade Name:</span>
+                      <p className="text-gray-900 dark:text-white font-medium">{responseData.tradeName || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Registration Date:</span>
+                      <p className="text-gray-900 dark:text-white font-medium">{responseData.registrationDate || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Status:</span>
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                        responseData.status === 'Active' 
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                          : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                      }`}>
+                        {responseData.status || 'N/A'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Business Type:</span>
+                      <p className="text-gray-900 dark:text-white font-medium">{responseData.businessType || 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                  <h5 className="font-semibold text-gray-900 dark:text-white mb-4">Contact Details</h5>
+                  <div className="space-y-3">
+                    <div>
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Email:</span>
+                      <p className="text-gray-900 dark:text-white font-medium">{responseData.contactDetails?.email || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Phone:</span>
+                      <p className="text-gray-900 dark:text-white font-medium">{responseData.contactDetails?.phone || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Address:</span>
+                      <div className="text-gray-900 dark:text-white font-medium">
+                        {responseData.address ? (
+                          <div>
+                            <p>{responseData.address.buildingName || ''} {responseData.address.street || ''}</p>
+                            <p>{responseData.address.city || ''}, {responseData.address.state || ''}</p>
+                            <p>{responseData.address.pincode || ''}</p>
+                          </div>
+                        ) : 'N/A'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+
+        case 'pan-to-gstin':
+          return (
+            <div className="space-y-6">
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6">
+                <div className="flex items-center mb-4">
+                  <div className="mr-3 h-6 w-6 text-green-600">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <h4 className="text-lg font-medium text-green-900 dark:text-green-100">
+                    GSTINs Retrieved Successfully
+                  </h4>
+                </div>
+                <p className="text-green-700 dark:text-green-300">
+                  Found {responseData.gstins?.length || 0} GSTIN(s) associated with PAN: {responseData.pan}
+                </p>
+              </div>
+              
+              <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                <h5 className="font-semibold text-gray-900 dark:text-white mb-4">Associated GSTINs</h5>
+                <div className="space-y-3">
+                  {responseData.gstins?.map((gstin: any, index: number) => (
+                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-white">{gstin.gstin}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{gstin.state}</p>
+                      </div>
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                        gstin.status === 'Active' 
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                          : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                      }`}>
+                        {gstin.status}
+                      </span>
+                    </div>
+                  )) || <p className="text-gray-500 dark:text-gray-400">No GSTINs found</p>}
+                </div>
+              </div>
+            </div>
+          );
+
+        case 'view-track-returns':
+          return (
+            <div className="space-y-6">
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6">
+                <div className="flex items-center mb-4">
+                  <div className="mr-3 h-6 w-6 text-green-600">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <h4 className="text-lg font-medium text-green-900 dark:text-green-100">
+                    Return Details Retrieved
+                  </h4>
+                </div>
+                <p className="text-green-700 dark:text-green-300">
+                  Return information for GSTIN: {responseData.gstin} (FY: {responseData.financialYear})
+                </p>
+              </div>
+              
+              <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                <h5 className="font-semibold text-gray-900 dark:text-white mb-4">Return Filing Status</h5>
+                <div className="space-y-3">
+                  {responseData.returns?.map((returnItem: any, index: number) => (
+                    <div key={index} className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <h6 className="font-medium text-gray-900 dark:text-white">{returnItem.returnType}</h6>
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                          returnItem.filingStatus === 'Filed' 
+                            ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                            : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
+                        }`}>
+                          {returnItem.filingStatus}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-gray-500 dark:text-gray-400">Period:</span>
+                          <p className="font-medium text-gray-900 dark:text-white">{returnItem.period}</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-500 dark:text-gray-400">Filing Date:</span>
+                          <p className="font-medium text-gray-900 dark:text-white">{returnItem.filingDate || 'N/A'}</p>
+                        </div>
+                        <div>
+                          <span className="text-gray-500 dark:text-gray-400">Due Date:</span>
+                          <p className="font-medium text-gray-900 dark:text-white">{returnItem.dueDate || 'N/A'}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )) || <p className="text-gray-500 dark:text-gray-400">No return data found</p>}
+                </div>
+              </div>
+            </div>
+          );
+
+        case 'msme-validation':
+          return (
+            <div className="space-y-6">
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6">
+                <div className="flex items-center mb-4">
+                  <div className="mr-3 h-6 w-6 text-green-600">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <h4 className="text-lg font-medium text-green-900 dark:text-green-100">
+                    MSME Validation Successful
+                  </h4>
+                </div>
+                <p className="text-green-700 dark:text-green-300">
+                  MSME registration validated for ID: {responseData.msmeId}
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                  <h5 className="font-semibold text-gray-900 dark:text-white mb-4">Enterprise Details</h5>
+                  <div className="space-y-3">
+                    <div>
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Enterprise Type:</span>
+                      <p className="text-gray-900 dark:text-white font-medium">{responseData.enterpriseType || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Registration Date:</span>
+                      <p className="text-gray-900 dark:text-white font-medium">{responseData.registrationDate || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Status:</span>
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                        responseData.status === 'Active' 
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                          : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                      }`}>
+                        {responseData.status || 'N/A'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                  <h5 className="font-semibold text-gray-900 dark:text-white mb-4">Financial Limits</h5>
+                  <div className="space-y-3">
+                    <div>
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Investment Limit:</span>
+                      <p className="text-gray-900 dark:text-white font-medium">₹{responseData.investmentLimit || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Turnover Limit:</span>
+                      <p className="text-gray-900 dark:text-white font-medium">₹{responseData.turnoverLimit || 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+
+        case 'cin-validation':
+          return (
+            <div className="space-y-6">
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6">
+                <div className="flex items-center mb-4">
+                  <div className="mr-3 h-6 w-6 text-green-600">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <h4 className="text-lg font-medium text-green-900 dark:text-green-100">
+                    CIN Validation Successful
+                  </h4>
+                </div>
+                <p className="text-green-700 dark:text-green-300">
+                  Company information validated for CIN: {responseData.cin}
+                </p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                  <h5 className="font-semibold text-gray-900 dark:text-white mb-4">Company Information</h5>
+                  <div className="space-y-3">
+                    <div>
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Company Name:</span>
+                      <p className="text-gray-900 dark:text-white font-medium">{responseData.companyName || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Company Type:</span>
+                      <p className="text-gray-900 dark:text-white font-medium">{responseData.companyType || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Registration Date:</span>
+                      <p className="text-gray-900 dark:text-white font-medium">{responseData.registrationDate || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Status:</span>
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                        responseData.status === 'Active' 
+                          ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                          : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                      }`}>
+                        {responseData.status || 'N/A'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                  <h5 className="font-semibold text-gray-900 dark:text-white mb-4">Capital Information</h5>
+                  <div className="space-y-3">
+                    <div>
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Authorized Capital:</span>
+                      <p className="text-gray-900 dark:text-white font-medium">₹{responseData.authorizedCapital || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <span className="text-sm font-medium text-gray-500 dark:text-gray-400">Paid-up Capital:</span>
+                      <p className="text-gray-900 dark:text-white font-medium">₹{responseData.paidUpCapital || 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+
+        case 'get-preference':
+          return (
+            <div className="space-y-6">
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6">
+                <div className="flex items-center mb-4">
+                  <div className="mr-3 h-6 w-6 text-green-600">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                  <h4 className="text-lg font-medium text-green-900 dark:text-green-100">
+                    Preferences Retrieved
+                  </h4>
+                </div>
+                <p className="text-green-700 dark:text-green-300">
+                  User preferences for GSTIN: {responseData.gstin}
+                </p>
+              </div>
+              
+              <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                <h5 className="font-semibold text-gray-900 dark:text-white mb-4">Notification Preferences</h5>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-700 dark:text-gray-300">Email Notifications</span>
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                      responseData.preferences?.notifications?.email 
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                        : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                    }`}>
+                      {responseData.preferences?.notifications?.email ? 'Enabled' : 'Disabled'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-700 dark:text-gray-300">SMS Notifications</span>
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                      responseData.preferences?.notifications?.sms 
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                        : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                    }`}>
+                      {responseData.preferences?.notifications?.sms ? 'Enabled' : 'Disabled'}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-700 dark:text-gray-300">Push Notifications</span>
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                      responseData.preferences?.notifications?.push 
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                        : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                    }`}>
+                      {responseData.preferences?.notifications?.push ? 'Enabled' : 'Disabled'}
+                    </span>
+                  </div>
+                </div>
+                
+                <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-600">
+                  <h6 className="font-medium text-gray-900 dark:text-white mb-3">Filing Reminders</h6>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-700 dark:text-gray-300">Reminder Status</span>
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                      responseData.preferences?.filingReminders?.enabled 
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+                        : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                    }`}>
+                      {responseData.preferences?.filingReminders?.enabled ? 'Enabled' : 'Disabled'}
+                    </span>
+                  </div>
+                  {responseData.preferences?.filingReminders?.enabled && (
+                    <div className="mt-2">
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        Reminder sent {responseData.preferences.filingReminders.daysBefore} days before due date
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+
+        default:
+          return (
+            <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
+              <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-2">API Response</h4>
+              <p className="text-gray-600 dark:text-gray-300">
+                {data.message || 'API call completed successfully.'}
+              </p>
+            </div>
+          );
+      }
+    } catch (error) {
+      return (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-6">
+          <div className="flex items-center mb-4">
+            <div className="mr-3 h-6 w-6 text-red-600">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </div>
+            <h4 className="text-lg font-medium text-red-900 dark:text-red-100">
+              Invalid Response Format
+            </h4>
+          </div>
+          <p className="text-red-700 dark:text-red-300">
+            Unable to parse the API response. Please try again.
+          </p>
+        </div>
+      );
+    }
+  };
+
+  // Generate response example
+  const generateResponseExample = () => {
+    const responseExamples: { [key: string]: any } = {
+      'search-taxpayer': {
+        "code": 200,
+        "message": "Taxpayer information retrieved successfully",
+        "status": true,
+        "data": {
+          "gstin": "27ABCDE1234F1Z5",
+          "legalName": "ABC Company Private Limited",
+          "tradeName": "ABC Corp",
+          "registrationDate": "2020-04-01",
+          "status": "Active",
+          "businessType": "Regular",
+          "address": {
+            "buildingName": "ABC Tower",
+            "street": "Main Street",
+            "city": "Mumbai",
+            "state": "Maharashtra",
+            "pincode": "400001"
+          },
+          "contactDetails": {
+            "email": "contact@abccorp.com",
+            "phone": "+91-9876543210"
+          }
+        }
+      },
+      'pan-to-gstin': {
+        "code": 200,
+        "message": "GSTINs retrieved successfully",
+        "status": true,
+        "data": {
+          "pan": "ABCDE1234F",
+          "gstins": [
+            {
+              "gstin": "27ABCDE1234F1Z5",
+              "state": "Maharashtra",
+              "status": "Active"
+            },
+            {
+              "gstin": "29ABCDE1234F1Z6",
+              "state": "Karnataka",
+              "status": "Active"
+            }
+          ]
+        }
+      },
+      'view-track-returns': {
+        "code": 200,
+        "message": "Return details retrieved successfully",
+        "status": true,
+        "data": {
+          "gstin": "27ABCDE1234F1Z5",
+          "financialYear": "2024-25",
+          "returns": [
+            {
+              "returnType": "GSTR1",
+              "period": "012024",
+              "filingStatus": "Filed",
+              "filingDate": "2024-02-15",
+              "dueDate": "2024-02-11"
+            }
+          ]
+        }
+      },
+      'get-preference': {
+        "code": 200,
+        "message": "Preferences retrieved successfully",
+        "status": true,
+        "data": {
+          "gstin": "27ABCDE1234F1Z5",
+          "preferences": {
+            "notifications": {
+              "email": true,
+              "sms": false,
+              "push": true
+            },
+            "filingReminders": {
+              "enabled": true,
+              "daysBefore": 7
+            }
+          }
+        }
+      },
+      'msme-validation': {
+        "code": 200,
+        "message": "MSME validation completed successfully",
+        "status": true,
+        "data": {
+          "msmeId": "MSME123456",
+          "gstin": "27ABCDE1234F1Z5",
+          "enterpriseType": "Micro",
+          "registrationDate": "2023-01-15",
+          "status": "Active",
+          "investmentLimit": "1000000",
+          "turnoverLimit": "5000000"
+        }
+      },
+      'cin-validation': {
+        "code": 200,
+        "message": "CIN validation completed successfully",
+        "status": true,
+        "data": {
+          "cin": "L74999DL2010PTC123456",
+          "companyName": "ABC Company Private Limited",
+          "registrationDate": "2010-03-15",
+          "status": "Active",
+          "companyType": "Private Limited",
+          "authorizedCapital": "10000000",
+          "paidUpCapital": "5000000"
+        }
+      }
+    };
+
+    return JSON.stringify(responseExamples[selectedAPI] || {
+      "code": 200,
+      "message": "API call successful",
+      "status": true,
+      "data": {
+        "result": "Sample response data"
+      }
+    }, null, 2);
+  };
 
   return (
     <div className="w-full space-y-8" data-testid="validation-apis">
@@ -559,7 +1211,7 @@ export function ValidationAPIs() {
                     return (
                       <button
                         key={api.value}
-                        onClick={() => setSelectedAPI(api.value)}
+                        onClick={() => handleAPISelectionChange(api.value)}
                         className={`flex-shrink-0 py-3 text-sm transition-all duration-200 border-r border-border last:border-r-0 flex items-center space-x-2 min-w-0 ${
                           selectedAPI === api.value
                             ? `bg-primary text-primary-foreground border-b-2 border-primary shadow-sm font-semibold pl-4 ${isLast ? 'pr-2' : 'pr-4'}`
@@ -584,14 +1236,14 @@ export function ValidationAPIs() {
               )}
             </div>
 
-            {/* Sub-tabs for Single/Bulk */}
+            {/* Sub-tabs for Single/Bulk/Developer View */}
             <Tabs value={currentSubTab} onValueChange={(value) => handleSubTabChange(selectedAPI, value)}>
-              <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-1">
+              <TabsList className="grid w-full grid-cols-3 bg-muted/50 p-1">
                 <TabsTrigger 
                   value="single" 
                   className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-semibold data-[state=active]:shadow-sm transition-all duration-200"
                 >
-                  Single API Call
+                  Individual Call
                 </TabsTrigger>
                 <TabsTrigger 
                   value="bulk" 
@@ -599,9 +1251,15 @@ export function ValidationAPIs() {
                 >
                   Bulk Processing
                 </TabsTrigger>
+                <TabsTrigger 
+                  value="developer" 
+                  className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:font-semibold data-[state=active]:shadow-sm transition-all duration-200"
+                >
+                  Developer View
+                </TabsTrigger>
               </TabsList>
 
-            {/* Single API Call Tab */}
+            {/* Individual Call Tab */}
             <TabsContent value="single" className="space-y-6 mt-6">
               {/* API Parameters */}
               <div className="space-y-4" data-testid="form-input-section">
@@ -738,8 +1396,8 @@ export function ValidationAPIs() {
                 </Button>
               </div>
 
-              {/* API Response */}
-              {hasApiBeenCalled && (
+              {/* API Response - Only show in Individual Call tab */}
+              {hasApiBeenCalled && currentSubTab === 'single' && (
                 <div className="space-y-4" data-testid="api-response-section">
                   <div className="flex justify-between items-center">
                     <div className="flex items-center space-x-3">
@@ -765,18 +1423,35 @@ export function ValidationAPIs() {
                     </div>
                     <Button variant="outline" size="sm" onClick={handleCopyResponse} data-testid="button-copy-response">
                       <Copy className="mr-1 h-4 w-4" />
-                      Copy
-            </Button>
+                      Copy JSON
+                    </Button>
                   </div>
-                  <div className="bg-black rounded-lg p-4 min-h-64 border border-gray-700">
-                    <pre className="text-sm text-gray-100 overflow-auto whitespace-pre-wrap font-mono" data-testid="api-response-text">
-                      {apiResponse ? (
-                        <code className="json-display" dangerouslySetInnerHTML={{ __html: formatJSON(apiResponse) }} />
-                      ) : (
-                        <span className="text-gray-400">No response data available.</span>
-                      )}
-                    </pre>
+                  
+                  {/* User-friendly response display */}
+                  <div className="space-y-4">
+                    {formatUserFriendlyResponse(apiResponse)}
                   </div>
+                  
+                  {/* Raw JSON response (collapsible) */}
+                  <details className="group">
+                    <summary className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                        View Raw JSON Response
+                      </span>
+                      <svg className="w-4 h-4 text-gray-500 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </summary>
+                    <div className="mt-2 bg-black rounded-lg p-4 border border-gray-700">
+                      <pre className="text-sm text-gray-100 overflow-auto whitespace-pre-wrap font-mono" data-testid="api-response-text">
+                        {apiResponse ? (
+                          <code className="json-display" dangerouslySetInnerHTML={{ __html: formatJSON(apiResponse) }} />
+                        ) : (
+                          <span className="text-gray-400">No response data available.</span>
+                        )}
+                      </pre>
+                    </div>
+                  </details>
                 </div>
               )}
 
@@ -792,6 +1467,7 @@ export function ValidationAPIs() {
                           <TableHead>Status</TableHead>
                           <TableHead>Response Time</TableHead>
                           <TableHead>Parameters</TableHead>
+                          <TableHead>Action</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -822,6 +1498,21 @@ export function ValidationAPIs() {
                                     .join(', ')
                                 : '-'
                               }
+                            </TableCell>
+                            <TableCell>
+                              {log.status === 'success' ? (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleDownloadSingleResult(log)}
+                                  className="h-8 px-3 text-xs"
+                                >
+                                  <Download className="mr-1 h-3 w-3" />
+                                  Download
+                                </Button>
+                              ) : (
+                                <span className="text-xs text-gray-400">-</span>
+                              )}
                             </TableCell>
                           </TableRow>
                         ))}
@@ -1092,6 +1783,7 @@ export function ValidationAPIs() {
                           <TableHead>Status</TableHead>
                           <TableHead>Response Time</TableHead>
                           <TableHead>Parameters</TableHead>
+                          <TableHead>Action</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -1123,6 +1815,21 @@ export function ValidationAPIs() {
                                 : '-'
                               }
                             </TableCell>
+                            <TableCell>
+                              {log.status === 'success' ? (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleDownloadSingleResult(log)}
+                                  className="h-8 px-3 text-xs"
+                                >
+                                  <Download className="mr-1 h-3 w-3" />
+                                  Download
+                                </Button>
+                              ) : (
+                                <span className="text-xs text-gray-400">-</span>
+                              )}
+                            </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -1135,6 +1842,189 @@ export function ValidationAPIs() {
                     <p className="text-sm">Run your first API call to see it here</p>
                   </div>
               )}
+              </div>
+            </TabsContent>
+
+            {/* Developer View Tab */}
+            <TabsContent value="developer" className="space-y-6 mt-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Left Side - API Documentation */}
+                <div className="space-y-6">
+                  <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+                      API Documentation
+                    </h3>
+                    
+                    {/* API Endpoint Info */}
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                          {selectedEndpoint?.label}
+                        </h4>
+                        <div className="bg-gray-50 dark:bg-gray-700 rounded-md p-3 font-mono text-sm">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded">
+                              POST
+                            </span>
+                            <span className="text-gray-600 dark:text-gray-300">
+                              /api/validation/{selectedAPI}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* API Description */}
+                      <div>
+                        <h5 className="font-medium text-gray-900 dark:text-white mb-2">Description</h5>
+                        <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                          {selectedEndpoint?.description}
+                        </p>
+                      </div>
+
+                      {/* Authentication */}
+                      <div>
+                        <h5 className="font-medium text-gray-900 dark:text-white mb-2">Authentication</h5>
+                        <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md p-3">
+                          <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                            <strong>Type:</strong> API Key Authentication
+                          </p>
+                          <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">
+                            <strong>Headers Required:</strong> secret-key, access-key
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Request Parameters */}
+                      <div>
+                        <h5 className="font-medium text-gray-900 dark:text-white mb-2">Request Parameters</h5>
+                        <div className="overflow-x-auto">
+                          <table className="min-w-full text-sm">
+                            <thead>
+                              <tr className="border-b border-gray-200 dark:border-gray-600">
+                                <th className="text-left py-2 px-3 font-medium text-gray-900 dark:text-white">Parameter</th>
+                                <th className="text-left py-2 px-3 font-medium text-gray-900 dark:text-white">Type</th>
+                                <th className="text-left py-2 px-3 font-medium text-gray-900 dark:text-white">Required</th>
+                                <th className="text-left py-2 px-3 font-medium text-gray-900 dark:text-white">Description</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {selectedEndpoint?.fields.map((field, index) => (
+                                <tr key={field} className={index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-700' : ''}>
+                                  <td className="py-2 px-3 font-mono text-blue-600 dark:text-blue-400">{field}</td>
+                                  <td className="py-2 px-3 text-gray-600 dark:text-gray-300">string</td>
+                                  <td className="py-2 px-3">
+                                    <span className={`px-2 py-1 text-xs rounded ${
+                                      ['gstin', 'pan', 'email'].includes(field) 
+                                        ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                                        : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                                    }`}>
+                                      {['gstin', 'pan', 'email'].includes(field) ? 'Required' : 'Optional'}
+                                    </span>
+                                  </td>
+                                  <td className="py-2 px-3 text-gray-600 dark:text-gray-300">
+                                    {getFieldLabel(field)} parameter for {selectedEndpoint?.label}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      {/* Response Format */}
+                      <div>
+                        <h5 className="font-medium text-gray-900 dark:text-white mb-2">Response Format</h5>
+                        <div className="bg-gray-50 dark:bg-gray-700 rounded-md p-3">
+                          <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">
+                            <strong>Content-Type:</strong> application/json
+                          </p>
+                          <p className="text-sm text-gray-600 dark:text-gray-300">
+                            <strong>Status Codes:</strong> 200 (Success), 400 (Bad Request), 401 (Unauthorized), 500 (Internal Server Error)
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Side - Request/Response Examples */}
+                <div className="space-y-6">
+                  {/* Example Request */}
+                  <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        Example Request
+                      </h3>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const curlCommand = generateCurlExample();
+                          navigator.clipboard.writeText(curlCommand).then(() => {
+                            toast({
+                              title: "Copied",
+                              description: "Curl command copied to clipboard!",
+                            });
+                          });
+                        }}
+                      >
+                        <Copy className="mr-1 h-4 w-4" />
+                        Copy cURL
+                      </Button>
+                    </div>
+                    
+                    {/* cURL Command */}
+                    <div className="mb-4">
+                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">cURL Command:</h4>
+                      <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
+                        <pre className="text-sm text-gray-100 font-mono">
+                          <code>{generateCurlExample()}</code>
+                        </pre>
+                      </div>
+                    </div>
+                    
+                    {/* JSON Payload */}
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">JSON Payload:</h4>
+                      <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
+                        <pre className="text-sm text-gray-100 font-mono">
+                          <code dangerouslySetInnerHTML={{ __html: formatJSON(generateRequestExample()) }} />
+                        </pre>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Example Response */}
+                  <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                        Example Response
+                      </h3>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const responseExample = generateResponseExample();
+                          navigator.clipboard.writeText(responseExample).then(() => {
+                            toast({
+                              title: "Copied",
+                              description: "Response example copied to clipboard!",
+                            });
+                          });
+                        }}
+                      >
+                        <Copy className="mr-1 h-4 w-4" />
+                        Copy
+                      </Button>
+                    </div>
+                    
+                    <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
+                      <pre className="text-sm text-gray-100 font-mono">
+                        <code dangerouslySetInnerHTML={{ __html: formatJSON(generateResponseExample()) }} />
+                      </pre>
+                    </div>
+                  </div>
+                </div>
               </div>
             </TabsContent>
             </Tabs>

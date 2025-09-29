@@ -7,9 +7,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useAppState } from "@/hooks/use-app-state";
-import { FileText, Upload, Edit, Save, X, FileSpreadsheet, Eye, Download, CheckCircle, Plus, Clock, User, CheckCircle2, XCircle, AlertCircle, AlertTriangle } from "lucide-react";
+import { useEntity } from "@/hooks/use-entity";
+import { FileText, Upload, Edit, Save, X, FileSpreadsheet, Eye, Download, Plus, Clock, User, CheckCircle, CheckCircle2, AlertTriangle, AlertCircle } from "lucide-react";
 import { Loading, TableLoading } from "@/components/ui/loading";
 import { generateDummyPDFData } from "@/lib/dummy-data";
 import { exportPDFDataToExcel } from "@/lib/excel-export";
@@ -65,6 +67,7 @@ interface PDFProcessingHistory {
 }
 
 export function PDFUpload() {
+  const { currentEntityId } = useEntity();
   const [selectedDocumentType, setSelectedDocumentType] = useState<string>("");
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [processingFiles, setProcessingFiles] = useState<ProcessingFile[]>([]);
@@ -72,7 +75,31 @@ export function PDFUpload() {
   const [isEditing, setIsEditing] = useState(false);
   const [pdfHistory, setPdfHistory] = useState<PDFProcessingHistory[]>([]);
   const [showNewUpload, setShowNewUpload] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedHistory, setSelectedHistory] = useState<PDFProcessingHistory | null>(null);
   const [formData, setFormData] = useState<FormData>({
+    documentType: '',
+    invoiceNo: '',
+    date: '',
+    irn: '',
+    gstin: '',
+    amount: '',
+    vendorName: '',
+    vendorAddress: '',
+    buyerName: '',
+    buyerAddress: '',
+    itemDescription: '',
+    quantity: '',
+    unitPrice: '',
+    taxAmount: '',
+    totalAmount: '',
+    paymentTerms: '',
+    dueDate: '',
+    remarks: ''
+  });
+
+  // Separate state for PDF preview - shows original uploaded PDF data
+  const [pdfPreviewData, setPdfPreviewData] = useState<FormData>({
     documentType: '',
     invoiceNo: '',
     date: '',
@@ -170,7 +197,7 @@ export function PDFUpload() {
         dueDate: '2024-02-18',
         remarks: 'Payment due within 30 days'
       };
-      setFormData({
+      const processedData = {
         documentType: selectedDocumentType,
         invoiceNo: dummyData.invoiceNo || '',
         date: dummyData.date || '',
@@ -189,7 +216,11 @@ export function PDFUpload() {
         paymentTerms: 'Net 30',
         dueDate: new Date(new Date(dummyData.date || new Date()).getTime() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         remarks: 'Invoice processed successfully'
-      });
+      };
+      
+      // Set both form data and PDF preview data with the same initial data
+      setFormData(processedData);
+      setPdfPreviewData(processedData);
       
       setIsProcessing(false);
     }, 2000);
@@ -203,6 +234,15 @@ export function PDFUpload() {
   };
 
   const handleEdit = () => {
+    // Don't allow editing if EWB status is success
+    if (selectedHistory && selectedHistory.ewbStatus === 'success') {
+      toast({
+        title: "Edit Not Allowed",
+        description: "Cannot edit document details when EWB status is success.",
+        variant: "destructive",
+      });
+      return;
+    }
     setIsEditing(!isEditing);
   };
 
@@ -306,18 +346,7 @@ export function PDFUpload() {
   };
 
   // Get EWB status icon and color
-  const getEWBStatusIcon = (status: 'success' | 'failed' | 'not_attempted') => {
-    switch (status) {
-      case 'success':
-        return <CheckCircle2 className="h-4 w-4 text-green-500" />;
-      case 'failed':
-        return <XCircle className="h-4 w-4 text-red-500" />;
-      case 'not_attempted':
-        return <AlertCircle className="h-4 w-4 text-yellow-500" />;
-      default:
-        return <AlertCircle className="h-4 w-4 text-gray-500" />;
-    }
-  };
+  // Removed getEWBStatusIcon function - no external icons needed
 
   const getEWBStatusBadge = (status: 'success' | 'failed' | 'not_attempted') => {
     if (status === 'not_attempted') {
@@ -368,6 +397,16 @@ export function PDFUpload() {
     setProcessingFiles([]);
   };
 
+  const handleViewHistory = (history: PDFProcessingHistory) => {
+    setSelectedHistory(history);
+    setIsViewModalOpen(true);
+  };
+
+  const handleCloseViewModal = () => {
+    setIsViewModalOpen(false);
+    setSelectedHistory(null);
+  };
+
   return (
     <div className="w-full space-y-8" data-testid="pdf-upload">
       {/* PDF Processing History - Main View */}
@@ -400,6 +439,7 @@ export function PDFUpload() {
                     <th className="text-left py-4 px-4 font-semibold text-foreground">Invoice No</th>
                     <th className="text-left py-4 px-4 font-semibold text-foreground">Amount</th>
                     <th className="text-left py-4 px-4 font-semibold text-foreground">Processed At</th>
+                    <th className="text-left py-4 px-4 font-semibold text-foreground">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -423,10 +463,7 @@ export function PDFUpload() {
                         </div>
                       </td>
                       <td className="py-4 px-4">
-                        <div className="flex items-center space-x-2">
-                          {getEWBStatusIcon(history.ewbStatus)}
-                          {getEWBStatusBadge(history.ewbStatus)}
-                        </div>
+                        {getEWBStatusBadge(history.ewbStatus)}
                       </td>
                       <td className="py-4 px-4 text-sm text-muted-foreground">
                         {history.invoiceNo || '-'}
@@ -440,11 +477,22 @@ export function PDFUpload() {
                           <span>{formatDateTime(history.processedAt)}</span>
                         </div>
                       </td>
+                      <td className="py-4 px-4">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleViewHistory(history)}
+                          className="h-8 px-3"
+                        >
+                          <Eye className="mr-2 h-4 w-4" />
+                          View
+                        </Button>
+                      </td>
                     </tr>
                   ))}
                   {(!pdfHistoryData || pdfHistoryData.length === 0) && (
                     <tr>
-                      <td colSpan={7} className="py-12 px-4 text-center text-muted-foreground">
+                      <td colSpan={8} className="py-12 px-4 text-center text-muted-foreground">
                         <div className="flex flex-col items-center space-y-2">
                           <FileText className="h-12 w-12 text-muted-foreground/50" />
                           <p className="text-lg font-medium">No PDF processing history found</p>
@@ -601,17 +649,17 @@ export function PDFUpload() {
                     <div>
                       <h3 className="font-semibold text-sm text-gray-700 mb-2">From:</h3>
                       <div className="text-xs text-gray-600 space-y-1">
-                        <p className="font-medium">{formData.vendorName || 'ABC Technologies Pvt Ltd'}</p>
-                        <p>{formData.vendorAddress || '123 Business Park, Mumbai, Maharashtra 400001'}</p>
-                        <p>GSTIN: {formData.gstin || '27ABCDE1234F1Z5'}</p>
+                        <p className="font-medium">{pdfPreviewData.vendorName || 'ABC Technologies Pvt Ltd'}</p>
+                        <p>{pdfPreviewData.vendorAddress || '123 Business Park, Mumbai, Maharashtra 400001'}</p>
+                        <p>GSTIN: {pdfPreviewData.gstin || '27ABCDE1234F1Z5'}</p>
                       </div>
                     </div>
                     <div>
                       <h3 className="font-semibold text-sm text-gray-700 mb-2">Invoice Details:</h3>
                       <div className="text-xs text-gray-600 space-y-1">
-                        <p><span className="font-medium">Invoice No:</span> {formData.invoiceNo || 'INV-2024-001'}</p>
-                        <p><span className="font-medium">Date:</span> {formData.date || '2024-01-15'}</p>
-                        <p><span className="font-medium">IRN:</span> {formData.irn || '1a2b3c4d5e6f7g8h9i0j1k2l3m4n'}</p>
+                        <p><span className="font-medium">Invoice No:</span> {pdfPreviewData.invoiceNo || 'INV-2024-001'}</p>
+                        <p><span className="font-medium">Date:</span> {pdfPreviewData.date || '2024-01-15'}</p>
+                        <p><span className="font-medium">IRN:</span> {pdfPreviewData.irn || '1a2b3c4d5e6f7g8h9i0j1k2l3m4n'}</p>
                       </div>
                     </div>
                   </div>
@@ -620,8 +668,8 @@ export function PDFUpload() {
                   <div>
                     <h3 className="font-semibold text-sm text-gray-700 mb-2">Bill To:</h3>
                     <div className="text-xs text-gray-600 space-y-1">
-                      <p className="font-medium">{formData.buyerName || 'XYZ Corporation Ltd'}</p>
-                      <p>{formData.buyerAddress || '456 Corporate Plaza, Delhi, Delhi 110001'}</p>
+                      <p className="font-medium">{pdfPreviewData.buyerName || 'XYZ Corporation Ltd'}</p>
+                      <p>{pdfPreviewData.buyerAddress || '456 Corporate Plaza, Delhi, Delhi 110001'}</p>
                     </div>
                   </div>
                   
@@ -638,10 +686,10 @@ export function PDFUpload() {
                       </thead>
                       <tbody>
                         <tr>
-                          <td className="p-2 border-r border-b">{formData.itemDescription || 'Software Development Services'}</td>
-                          <td className="p-2 border-r border-b text-center">{formData.quantity || '1'}</td>
-                          <td className="p-2 border-r border-b text-right">{formData.unitPrice || '₹125,000.00'}</td>
-                          <td className="p-2 border-b text-right">{formData.amount || '₹125,000.00'}</td>
+                          <td className="p-2 border-r border-b">{pdfPreviewData.itemDescription || 'Software Development Services'}</td>
+                          <td className="p-2 border-r border-b text-center">{pdfPreviewData.quantity || '1'}</td>
+                          <td className="p-2 border-r border-b text-right">{pdfPreviewData.unitPrice || '₹125,000.00'}</td>
+                          <td className="p-2 border-b text-right">{pdfPreviewData.amount || '₹125,000.00'}</td>
                         </tr>
                       </tbody>
                     </table>
@@ -650,18 +698,18 @@ export function PDFUpload() {
                   {/* Tax Details */}
                   <div className="grid grid-cols-2 gap-4 text-xs">
                     <div className="space-y-1">
-                      <p><span className="font-medium">CGST (9%):</span> {formData.taxAmount || '₹11,250.00'}</p>
-                      <p><span className="font-medium">SGST (9%):</span> {formData.taxAmount || '₹11,250.00'}</p>
+                      <p><span className="font-medium">CGST (9%):</span> {pdfPreviewData.taxAmount || '₹11,250.00'}</p>
+                      <p><span className="font-medium">SGST (9%):</span> {pdfPreviewData.taxAmount || '₹11,250.00'}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-semibold text-sm">Total: {formData.amount || '₹125,000.00'}</p>
+                      <p className="font-semibold text-sm">Total: {pdfPreviewData.amount || '₹125,000.00'}</p>
                     </div>
                   </div>
                   
                   {/* Footer */}
                   <div className="text-center text-xs text-gray-500 pt-4 border-t">
                     <p>Thank you for your business!</p>
-                    <p className="mt-1">Payment Terms: {formData.paymentTerms || 'Net 30'}</p>
+                    <p className="mt-1">Payment Terms: {pdfPreviewData.paymentTerms || 'Net 30'}</p>
                   </div>
                 </div>
               </div>
@@ -694,9 +742,8 @@ export function PDFUpload() {
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="invoiceNo" className="flex items-center space-x-2">
-                      <span>Invoice No <span className="text-red-500">*</span></span>
-                      {isEWBFieldFilled('invoiceNo') && <CheckCircle className="h-4 w-4 text-green-500" />}
+                    <Label htmlFor="invoiceNo">
+                      Invoice No <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="invoiceNo"
@@ -706,9 +753,8 @@ export function PDFUpload() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="date" className="flex items-center space-x-2">
-                      <span>Date <span className="text-red-500">*</span></span>
-                      {isEWBFieldFilled('date') && <CheckCircle className="h-4 w-4 text-green-500" />}
+                    <Label htmlFor="date">
+                      Date <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="date"
@@ -722,9 +768,8 @@ export function PDFUpload() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="irn" className="flex items-center space-x-2">
-                      <span>IRN <span className="text-red-500">*</span></span>
-                      {isEWBFieldFilled('irn') && <CheckCircle className="h-4 w-4 text-green-500" />}
+                    <Label htmlFor="irn">
+                      IRN <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="irn"
@@ -734,9 +779,8 @@ export function PDFUpload() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="gstin" className="flex items-center space-x-2">
-                      <span>GSTIN <span className="text-red-500">*</span></span>
-                      {isEWBFieldFilled('gstin') && <CheckCircle className="h-4 w-4 text-green-500" />}
+                    <Label htmlFor="gstin">
+                      GSTIN <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="gstin"
@@ -753,9 +797,8 @@ export function PDFUpload() {
                 <h4 className="font-semibold text-sm text-muted-foreground">Parties</h4>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="vendorName" className="flex items-center space-x-2">
-                    <span>Vendor Name <span className="text-red-500">*</span></span>
-                    {isEWBFieldFilled('vendorName') && <CheckCircle className="h-4 w-4 text-green-500" />}
+                  <Label htmlFor="vendorName">
+                    Vendor Name <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="vendorName"
@@ -777,9 +820,8 @@ export function PDFUpload() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="buyerName" className="flex items-center space-x-2">
-                    <span>Buyer Name <span className="text-red-500">*</span></span>
-                    {isEWBFieldFilled('buyerName') && <CheckCircle className="h-4 w-4 text-green-500" />}
+                  <Label htmlFor="buyerName">
+                    Buyer Name <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="buyerName"
@@ -807,9 +849,8 @@ export function PDFUpload() {
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="amount" className="flex items-center space-x-2">
-                      <span>Amount <span className="text-red-500">*</span></span>
-                      {isEWBFieldFilled('amount') && <CheckCircle className="h-4 w-4 text-green-500" />}
+                    <Label htmlFor="amount">
+                      Amount <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="amount"
@@ -928,6 +969,304 @@ export function PDFUpload() {
           </CardContent>
         </Card>
       )}
+
+      {/* View History Modal */}
+      <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
+        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <FileText className="h-5 w-5" />
+              <span>Document Details - {selectedHistory?.fileName}</span>
+            </DialogTitle>
+          </DialogHeader>
+          
+          {selectedHistory && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* PDF Preview */}
+              <Card>
+                <CardHeader>
+                  <div className="flex justify-between items-center">
+                    <CardTitle>Document Preview</CardTitle>
+                    <div className="flex space-x-2">
+                      <Button variant="outline" size="sm">
+                        <Eye className="mr-2 h-4 w-4" />
+                        View
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Download className="mr-2 h-4 w-4" />
+                        Download
+                      </Button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="border rounded-lg bg-white shadow-sm min-h-[500px] overflow-hidden">
+                    {/* PDF Header */}
+                    <div className="bg-gray-100 px-4 py-2 border-b flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <FileText className="h-4 w-4 text-red-500" />
+                        <span className="text-sm font-medium">{selectedHistory.fileName}</span>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Processed by: {selectedHistory.processedBy}
+                      </div>
+                    </div>
+                    
+                    {/* PDF Content */}
+                    <div className="p-6 space-y-4">
+                      {/* Invoice Header */}
+                      <div className="text-center border-b pb-4">
+                        <h2 className="text-xl font-bold text-gray-800">TAX INVOICE</h2>
+                        <p className="text-sm text-gray-600 mt-1">GST Invoice</p>
+                      </div>
+                      
+                      {/* Invoice Details */}
+                      <div className="grid grid-cols-2 gap-6">
+                        <div>
+                          <h3 className="font-semibold text-sm text-gray-700 mb-2">From:</h3>
+                          <div className="text-xs text-gray-600 space-y-1">
+                            <p className="font-medium">{selectedHistory.vendorName || 'Vendor Name'}</p>
+                            <p>123 Business Park, Mumbai, Maharashtra 400001</p>
+                            <p>GSTIN: 27ABCDE1234F1Z5</p>
+                          </div>
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-sm text-gray-700 mb-2">Invoice Details:</h3>
+                          <div className="text-xs text-gray-600 space-y-1">
+                            <p><span className="font-medium">Invoice No:</span> {selectedHistory.invoiceNo || 'INV-2024-001'}</p>
+                            <p><span className="font-medium">Date:</span> 2024-01-15</p>
+                            <p><span className="font-medium">IRN:</span> 1a2b3c4d5e6f7g8h9i0j1k2l3m4n</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Bill To */}
+                      <div>
+                        <h3 className="font-semibold text-sm text-gray-700 mb-2">Bill To:</h3>
+                        <div className="text-xs text-gray-600 space-y-1">
+                          <p className="font-medium">{selectedHistory.buyerName || 'Company Name Ltd'}</p>
+                          <p>456 Corporate Plaza, Delhi, Delhi 110001</p>
+                        </div>
+                      </div>
+                      
+                      {/* Item Table */}
+                      <div className="border rounded">
+                        <table className="w-full text-xs">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <th className="text-left p-2 border-r">Description</th>
+                              <th className="text-center p-2 border-r">Qty</th>
+                              <th className="text-right p-2 border-r">Rate</th>
+                              <th className="text-right p-2">Amount</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td className="p-2 border-r border-b">Software Development Services</td>
+                              <td className="p-2 border-r border-b text-center">1</td>
+                              <td className="p-2 border-r border-b text-right">₹125,000.00</td>
+                              <td className="p-2 border-b text-right">{selectedHistory.amount || '₹125,000.00'}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      
+                      {/* Tax Details */}
+                      <div className="grid grid-cols-2 gap-4 text-xs">
+                        <div className="space-y-1">
+                          <p><span className="font-medium">CGST (9%):</span> ₹11,250.00</p>
+                          <p><span className="font-medium">SGST (9%):</span> ₹11,250.00</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold text-sm">Total: {selectedHistory.amount || '₹125,000.00'}</p>
+                        </div>
+                      </div>
+                      
+                      {/* Footer */}
+                      <div className="text-center text-xs text-gray-500 pt-4 border-t">
+                        <p>Thank you for your business!</p>
+                        <p className="mt-1">Payment Terms: Net 30</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Document Details */}
+              <Card>
+                <CardHeader>
+                  <div className="flex justify-between items-center">
+                    <CardTitle>Document Details</CardTitle>
+                    <div className="flex space-x-2">
+                      <Button 
+                        variant="outline" 
+                        onClick={handleEdit} 
+                        data-testid="button-edit-data"
+                        disabled={selectedHistory.ewbStatus === 'success'}
+                        className={selectedHistory.ewbStatus === 'success' ? 'opacity-50 cursor-not-allowed' : ''}
+                      >
+                        <Edit className="mr-2 h-4 w-4" />
+                        {isEditing ? 'Cancel' : 'Edit'}
+                      </Button>
+                      {isEditing && (
+                        <Button onClick={handleSave} data-testid="button-save-changes">
+                          <Save className="mr-2 h-4 w-4" />
+                          Save
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4 max-h-[500px] overflow-y-auto">
+                  {/* Basic Information */}
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-sm text-muted-foreground">Basic Information</h4>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="modal-invoiceNo">
+                          Invoice No <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                          id="modal-invoiceNo"
+                          value={selectedHistory.invoiceNo || ''}
+                          disabled={!isEditing}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="modal-date">
+                          Date <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                          id="modal-date"
+                          type="date"
+                          value="2024-01-15"
+                          disabled={!isEditing}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="modal-irn">
+                          IRN <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                          id="modal-irn"
+                          value="1a2b3c4d5e6f7g8h9i0j1k2l3m4n"
+                          disabled={!isEditing}
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="modal-gstin">
+                          GSTIN <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                          id="modal-gstin"
+                          value="27ABCDE1234F1Z5"
+                          disabled={!isEditing}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Vendor & Buyer Information */}
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-sm text-muted-foreground">Parties</h4>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="modal-vendorName">
+                        Vendor Name <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="modal-vendorName"
+                        value={selectedHistory.vendorName || ''}
+                        disabled={!isEditing}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="modal-vendorAddress">Vendor Address</Label>
+                      <Input
+                        id="modal-vendorAddress"
+                        value="123 Business Park, Mumbai, Maharashtra 400001"
+                        disabled={!isEditing}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="modal-buyerName">
+                        Buyer Name <span className="text-red-500">*</span>
+                      </Label>
+                      <Input
+                        id="modal-buyerName"
+                        value={selectedHistory.buyerName || ''}
+                        disabled={!isEditing}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="modal-buyerAddress">Buyer Address</Label>
+                      <Input
+                        id="modal-buyerAddress"
+                        value="456 Corporate Plaza, Delhi, Delhi 110001"
+                        disabled={!isEditing}
+                      />
+                    </div>
+                  </div>
+
+                  {/* EWB Status and Actions */}
+                  <div className="space-y-4 pt-4 border-t">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="font-semibold text-sm text-muted-foreground mb-2">EWB Status</h4>
+                        {getEWBStatusBadge(selectedHistory.ewbStatus)}
+                      </div>
+                    </div>
+                    
+                    {/* Conditional EWB Generation Button */}
+                    {(selectedHistory.ewbStatus === 'failed' || selectedHistory.ewbStatus === 'not_attempted') && isEditing && (
+                      <Button onClick={handleGenerateEWB} className="w-full bg-green-600 hover:bg-green-700">
+                        <Download className="mr-2 h-4 w-4" />
+                        Generate EWB
+                      </Button>
+                    )}
+                    
+                    {selectedHistory.ewbStatus === 'success' && (
+                      <div className="text-sm text-green-600 bg-green-50 p-3 rounded-lg">
+                        <div className="flex items-center space-x-2">
+                          <CheckCircle className="h-4 w-4" />
+                          <span>EWB has been successfully generated for this document.</span>
+                        </div>
+                        <div className="mt-2 text-xs text-green-700">
+                          <strong>Note:</strong> Document details cannot be edited when EWB status is success.
+                        </div>
+                      </div>
+                    )}
+
+                    {(selectedHistory.ewbStatus === 'failed' || selectedHistory.ewbStatus === 'not_attempted') && (
+                      <div className="text-sm text-blue-600 bg-blue-50 p-3 rounded-lg">
+                        <div className="flex items-center space-x-2">
+                          <AlertCircle className="h-4 w-4" />
+                          <span>
+                            {selectedHistory.ewbStatus === 'failed' 
+                              ? 'EWB generation failed. You can edit document details and retry EWB generation.'
+                              : 'EWB has not been generated yet. You can edit document details and generate EWB.'
+                            }
+                          </span>
+                        </div>
+                        <div className="mt-2 text-xs text-blue-700">
+                          <strong>Tip:</strong> Click "Edit" to modify document details, then use "Generate EWB" to create the waybill.
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

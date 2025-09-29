@@ -16,7 +16,8 @@ export function UserManagement() {
   const [newUser, setNewUser] = useState({
     name: "",
     email: "",
-    department: ""
+    department: "",
+    role: ""
   });
   const { toast } = useToast();
 
@@ -32,6 +33,7 @@ export function UserManagement() {
         email: "john.smith@company.com",
         status: "active",
         department: "Accounts Payable",
+        role: "Admin",
         lastActivity: new Date(baseTime - 2 * 60 * 60 * 1000).toISOString()
       },
       {
@@ -40,6 +42,7 @@ export function UserManagement() {
         email: "sarah.johnson@company.com",
         status: "active",
         department: "Tax Compliance",
+        role: "Application Admin",
         lastActivity: new Date(baseTime - 4 * 60 * 60 * 1000).toISOString()
       },
       {
@@ -48,6 +51,7 @@ export function UserManagement() {
         email: "mike.chen@company.com", 
         status: "invited",
         department: "Financial Reporting",
+        role: "Business User",
         lastActivity: new Date(baseTime - 24 * 60 * 60 * 1000).toISOString()
       },
       {
@@ -56,6 +60,7 @@ export function UserManagement() {
         email: "emily.davis@company.com",
         status: "active", 
         department: "Accounts Receivable",
+        role: "Business User",
         lastActivity: new Date(baseTime - 1 * 60 * 60 * 1000).toISOString()
       },
       {
@@ -64,6 +69,7 @@ export function UserManagement() {
         email: "robert.wilson@company.com",
         status: "inactive",
         department: "Budget Planning",
+        role: "Application Admin",
         lastActivity: new Date(baseTime - 7 * 24 * 60 * 60 * 1000).toISOString()
       },
       {
@@ -72,6 +78,7 @@ export function UserManagement() {
         email: "lisa.brown@company.com",
         status: "active",
         department: "Internal Audit", 
+        role: "Business User",
         lastActivity: new Date(baseTime - 30 * 60 * 1000).toISOString()
       }
     ];
@@ -79,8 +86,17 @@ export function UserManagement() {
 
   const users = generateDummyUsers();
   const departments = ["Accounts Payable", "Accounts Receivable", "Tax Compliance", "Financial Reporting", "Budget Planning", "Internal Audit", "Treasury Management", "Cost Accounting"];
+  const roles = ["Admin", "Application Admin", "Business User"];
 
   // User management functions
+  const getUserRoleBadge = (role: string) => {
+    return (
+      <span className="text-sm font-medium text-gray-900">
+        {role}
+      </span>
+    );
+  };
+
   const getUserStatusBadge = (status: string) => {
     switch (status) {
       case 'active':
@@ -115,7 +131,7 @@ export function UserManagement() {
   };
 
   const handleAddUser = () => {
-    if (!newUser.name || !newUser.email || !newUser.department) {
+    if (!newUser.name || !newUser.email || !newUser.department || !newUser.role) {
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields",
@@ -131,7 +147,7 @@ export function UserManagement() {
     });
 
     // Reset form
-    setNewUser({ name: "", email: "", department: "" });
+    setNewUser({ name: "", email: "", department: "", role: "" });
     setIsAddUserOpen(false);
   };
 
@@ -210,6 +226,19 @@ export function UserManagement() {
             </SelectContent>
                     </Select>
                   </div>
+                  <div>
+                    <Label htmlFor="role">User Role</Label>
+                    <Select value={newUser.role} onValueChange={(value) => setNewUser({...newUser, role: value})}>
+                      <SelectTrigger className="h-12 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                        <SelectValue placeholder="Select user role" />
+                      </SelectTrigger>
+            <SelectContent className="bg-white border-2 border-gray-300 shadow-2xl rounded-lg z-[100] p-2">
+              {roles.map((role) => (
+                <SelectItem key={role} value={role} className="p-3 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer font-medium rounded-md transition-colors duration-150 data-[state=checked]:bg-blue-100 data-[state=checked]:text-blue-900">{role}</SelectItem>
+              ))}
+            </SelectContent>
+                    </Select>
+                  </div>
                   <Button onClick={handleAddUser} className="w-full">
                     <Mail className="mr-2 h-4 w-4" />
                     Send Invite
@@ -230,6 +259,7 @@ export function UserManagement() {
                   <TableHead className="font-semibold text-foreground">Email</TableHead>
                   <TableHead className="font-semibold text-foreground">Status</TableHead>
                   <TableHead className="font-semibold text-foreground">Department</TableHead>
+                  <TableHead className="font-semibold text-foreground">User Role</TableHead>
                   <TableHead className="font-semibold text-foreground">Last Activity</TableHead>
                   <TableHead className="font-semibold text-foreground">Actions</TableHead>
                 </TableRow>
@@ -243,6 +273,9 @@ export function UserManagement() {
                       {getUserStatusBadge(user.status)}
                     </TableCell>
                     <TableCell className="text-foreground py-4">{user.department}</TableCell>
+                    <TableCell className="py-4">
+                      {getUserRoleBadge(user.role)}
+                    </TableCell>
                     <TableCell className="text-sm py-4">
                       <div className="flex items-center">
                         <Clock className="h-3 w-3 mr-1 text-muted-foreground" />

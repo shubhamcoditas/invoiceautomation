@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,9 +6,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useAppState } from "@/hooks/use-app-state";
-import { QrCode, Upload, FileSpreadsheet, FileText, Clock, CheckCircle, XCircle, AlertCircle, Download, Eye, User, CheckCircle2, AlertTriangle } from "lucide-react";
+import { useEntity } from "@/hooks/use-entity";
+import { QrCode, Upload, FileSpreadsheet, FileText, Clock, CheckCircle, Download, Eye, User, CheckCircle2, AlertTriangle } from "lucide-react";
 import { generateDummyQRData } from "@/lib/dummy-data";
 import { exportQRDataToExcel } from "@/lib/excel-export";
 import { parseExcelForQRStrings, validateQRString } from "@/lib/excel-parser";
@@ -70,6 +72,7 @@ const generateEGAMData = (qrData: any) => {
 };
 
 export function QRScanner() {
+  const { currentEntityId } = useEntity();
   const [currentView, setCurrentView] = useState<'history' | 'newQR' | 'bulkImport'>('history');
   const [manualData, setManualData] = useState("");
   const [egamData, setEgamData] = useState<any>(null);
@@ -79,11 +82,60 @@ export function QRScanner() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingProgress, setProcessingProgress] = useState(0);
   const [visibleRecords, setVisibleRecords] = useState<any[]>([]);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [selectedQRData, setSelectedQRData] = useState<QRData | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const { state, dispatch } = useAppState();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Debug modal state changes
+  useEffect(() => {
+    console.log('🔍 Modal state changed - isViewModalOpen:', isViewModalOpen);
+  }, [isViewModalOpen]);
+
+  useEffect(() => {
+    console.log('🔍 Selected QR data changed:', selectedQRData);
+  }, [selectedQRData]);
+
+  // Function to handle opening the view modal
+  const handleViewQRData = (qrData: QRData) => {
+    setSelectedQRData(qrData);
+    setIsViewModalOpen(true);
+  };
+
+  // Function to handle opening the view modal for bulk processing data
+  const handleViewBulkQRData = (bulkData: BulkQRProcessing) => {
+    console.log('🔍 handleViewBulkQRData called with:', bulkData);
+    console.log('🔍 extractedData exists:', !!bulkData.extractedData);
+    console.log('🔍 extractedData content:', bulkData.extractedData);
+    
+    if (bulkData.extractedData) {
+      // Convert bulk processing data to QRData format for the modal
+      const qrData: QRData = {
+        id: bulkData.id,
+        irn: bulkData.extractedData.irn || '',
+        gstin: bulkData.extractedData.gstin || '',
+        invoiceNo: bulkData.extractedData.invoiceNo || '',
+        date: bulkData.extractedData.date || '',
+        totalAmount: bulkData.extractedData.totalAmount || '',
+        buyerGstin: bulkData.extractedData.buyerGstin || '',
+        sellerGstin: bulkData.extractedData.sellerGstin || '',
+        invoiceType: bulkData.extractedData.invoiceType || '',
+        qrString: bulkData.qrString,
+        processedBy: bulkData.extractedData.processedBy || 'System',
+        status: bulkData.status === 'success' ? 'success' : 'failed',
+        extractedAt: bulkData.processedAt || new Date()
+      };
+      console.log('🔍 Converted QRData:', qrData);
+      setSelectedQRData(qrData);
+      setIsViewModalOpen(true);
+      console.log('🔍 Modal state set to open, selectedQRData:', qrData);
+    } else {
+      console.log('❌ No extractedData found in bulkData');
+    }
+  };
 
   // Fetch historical QR data
   const { data: qrHistoryData, isLoading: isHistoryLoading, refetch: refetchQRHistory } = useQuery<QRData[]>({
@@ -168,7 +220,7 @@ export function QRScanner() {
           } else {
             // Simulate successful processing
             status = 'in_progress';
-            extractedData = generateDummyQRData(); // Simulate data extraction
+            extractedData = generateDummyQRData(currentEntityId); // Simulate data extraction
           }
 
           // No API call needed - just simulate the processing
@@ -204,7 +256,8 @@ export function QRScanner() {
             processedBy: 'admin',
             status: 'success',
             processedAt: new Date(),
-            errorMessage: null
+            errorMessage: null,
+            extractedData: generateDummyQRData(currentEntityId)
           },
           {
             id: '2',
@@ -212,7 +265,8 @@ export function QRScanner() {
             processedBy: 'john_doe',
             status: 'success',
             processedAt: new Date(),
-            errorMessage: null
+            errorMessage: null,
+            extractedData: generateDummyQRData(currentEntityId)
           },
           {
             id: '3',
@@ -220,7 +274,8 @@ export function QRScanner() {
             processedBy: 'jane_smith',
             status: 'failed',
             processedAt: new Date(),
-            errorMessage: 'Invalid QR format'
+            errorMessage: 'Invalid QR format',
+            extractedData: null
           },
           {
             id: '4',
@@ -228,7 +283,8 @@ export function QRScanner() {
             processedBy: 'mike_wilson',
             status: 'success',
             processedAt: new Date(),
-            errorMessage: null
+            errorMessage: null,
+            extractedData: generateDummyQRData(currentEntityId)
           },
           {
             id: '5',
@@ -236,7 +292,8 @@ export function QRScanner() {
             processedBy: 'sarah_jones',
             status: 'success',
             processedAt: new Date(),
-            errorMessage: null
+            errorMessage: null,
+            extractedData: generateDummyQRData(currentEntityId)
           }
         ];
         
@@ -286,7 +343,7 @@ export function QRScanner() {
       return;
     }
 
-    const qrData = generateDummyQRData();
+    const qrData = generateDummyQRData(currentEntityId);
     processQRMutation.mutate(qrData, {
       onSuccess: () => {
         setManualData("");
@@ -302,16 +359,7 @@ export function QRScanner() {
     setCurrentView('newQR');
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'success':
-        return <CheckCircle2 className="h-4 w-4 text-green-600" />;
-      case 'failed':
-        return <XCircle className="h-4 w-4 text-red-600" />;
-      default:
-        return <AlertCircle className="h-4 w-4 text-yellow-600" />;
-    }
-  };
+  // Removed getStatusIcon function - no external icons needed
 
   const getStatusBadge = (status: string) => {
     const config = statusBadgeConfig[status.toLowerCase() as keyof typeof statusBadgeConfig] || statusBadgeConfig.error;
@@ -636,6 +684,31 @@ export function QRScanner() {
                       <span>File: {selectedFile.name}</span>
                       <span>Records: {bulkProcessingData.length}</span>
                       <span>Success: {visibleRecords.filter(item => item.status === 'success').length}</span>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          console.log('🔍 Test button clicked');
+                          setSelectedQRData({
+                            id: 'test',
+                            irn: 'test-irn',
+                            gstin: 'test-gstin',
+                            invoiceNo: 'test-invoice',
+                            date: '2024-01-01',
+                            totalAmount: '₹1000',
+                            buyerGstin: 'test-buyer',
+                            sellerGstin: 'test-seller',
+                            invoiceType: 'test',
+                            qrString: 'test-qr',
+                            processedBy: 'test',
+                            status: 'success',
+                            extractedAt: new Date()
+                          });
+                          setIsViewModalOpen(true);
+                        }}
+                      >
+                        Test Modal
+                      </Button>
                     </div>
                   </CardTitle>
                 </CardHeader>
@@ -667,6 +740,7 @@ export function QRScanner() {
                           <th className="text-left py-4 px-4 font-semibold text-foreground">QR String</th>
                           <th className="text-left py-4 px-4 font-semibold text-foreground">Status</th>
                           <th className="text-left py-4 px-4 font-semibold text-foreground">Error Message</th>
+                          <th className="text-left py-4 px-4 font-semibold text-foreground">Actions</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -681,19 +755,38 @@ export function QRScanner() {
                               </div>
                             </td>
                             <td className="py-4 px-4">
-                              <div className="flex items-center space-x-2">
-                                {getStatusIcon(item.status)}
-                                {getStatusBadge(item.status)}
-                              </div>
+                              {getStatusBadge(item.status)}
                             </td>
                             <td className="py-4 px-4 text-sm text-muted-foreground">
                               {item.errorMessage || '-'}
+                            </td>
+                            <td className="py-4 px-4">
+                              <div className="flex items-center space-x-2">
+                                {item.status === 'success' && item.extractedData ? (
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      console.log('🔍 View button clicked for item:', item);
+                                      handleViewBulkQRData(item);
+                                    }}
+                                    className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                                  >
+                                    <Eye className="h-4 w-4 mr-1" />
+                                    View
+                                  </Button>
+                                ) : (
+                                  <span className="text-xs text-muted-foreground">
+                                    {item.status === 'success' ? 'No data' : 'Failed'}
+                                  </span>
+                                )}
+                              </div>
                             </td>
                           </tr>
                         ))}
                         {isProcessing && visibleRecords.length < bulkProcessingData.length && (
                           <tr>
-                            <td colSpan={3} className="py-8 text-center text-muted-foreground">
+                            <td colSpan={4} className="py-8 text-center text-muted-foreground">
                               <div className="flex items-center justify-center space-x-2">
                                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[#00338D]"></div>
                                 <span>Processing next record...</span>
@@ -745,7 +838,7 @@ export function QRScanner() {
         </CardHeader>
         <CardContent>
           {isHistoryLoading ? (
-            <TableLoading columns={7} rows={5} />
+            <TableLoading columns={6} rows={5} />
           ) : qrHistoryData && qrHistoryData.length > 0 ? (
             <div className="space-y-4">
               <div className="flex justify-between items-center">
@@ -770,8 +863,8 @@ export function QRScanner() {
                       <th className="text-left py-4 px-4 font-semibold text-foreground">Status</th>
                       <th className="text-left py-4 px-4 font-semibold text-foreground">Invoice No</th>
                       <th className="text-left py-4 px-4 font-semibold text-foreground">Amount</th>
-                      <th className="text-left py-4 px-4 font-semibold text-foreground">Date</th>
                       <th className="text-left py-4 px-4 font-semibold text-foreground">Processed At</th>
+                      <th className="text-left py-4 px-4 font-semibold text-foreground">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -792,10 +885,7 @@ export function QRScanner() {
                           </div>
                         </td>
                         <td className="py-4 px-4">
-                          <div className="flex items-center space-x-2">
-                            {getStatusIcon(item.status)}
-                            {getStatusBadge(item.status)}
-                          </div>
+                          {getStatusBadge(item.status)}
                         </td>
                         <td className="py-4 px-4 text-sm text-muted-foreground">
                           {item.invoiceNo}
@@ -803,13 +893,25 @@ export function QRScanner() {
                         <td className="py-4 px-4 text-sm text-muted-foreground">
                           {item.totalAmount}
                         </td>
-                        <td className="py-4 px-4 text-sm text-muted-foreground">
-                          {item.date}
-                        </td>
                         <td className="py-4 px-4">
                           <div className="flex items-center space-x-2 text-sm text-muted-foreground">
                             <Clock className="h-4 w-4" />
                             <span>{formatDateTime(item.extractedAt)}</span>
+                          </div>
+                        </td>
+                        <td className="py-4 px-4">
+                          <div className="flex items-center space-x-2">
+                            {item.status === 'success' && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleViewQRData(item)}
+                                className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                              >
+                                <Eye className="h-4 w-4 mr-1" />
+                                View
+                              </Button>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -834,6 +936,149 @@ export function QRScanner() {
       )}
         </CardContent>
       </Card>
+
+      {/* QR Data View Modal */}
+      <Dialog open={isViewModalOpen} onOpenChange={setIsViewModalOpen}>
+        <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+          {console.log('🔍 Modal rendering - isViewModalOpen:', isViewModalOpen, 'selectedQRData:', selectedQRData)}
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-2">
+              <QrCode className="h-5 w-5" />
+              <span>QR Code Details</span>
+            </DialogTitle>
+            <DialogDescription>
+              View extracted QR data and additional EGAM information
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedQRData ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* QR Extracted Data Section */}
+              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                <div className="flex items-center space-x-2 mb-4">
+                  <QrCode className="h-5 w-5 text-blue-600" />
+                  <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-100">QR Extracted Data</h3>
+                </div>
+                <div className="space-y-4">
+                  <div>
+                    <label className="text-sm font-medium text-gray-600 dark:text-gray-400">IRN</label>
+                    <p className="text-sm font-mono bg-white dark:bg-gray-800 p-2 rounded border break-all">{selectedQRData.irn}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Invoice No</label>
+                      <p className="text-sm">{selectedQRData.invoiceNo}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Date</label>
+                      <p className="text-sm">{selectedQRData.date}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Amount</label>
+                    <p className="text-sm font-semibold text-green-600">{selectedQRData.totalAmount}</p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">GSTIN</label>
+                      <p className="text-xs font-mono break-all">{selectedQRData.gstin}</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Buyer GSTIN</label>
+                      <p className="text-xs font-mono break-all">{selectedQRData.buyerGstin}</p>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Invoice Type</label>
+                    <p className="text-sm">{selectedQRData.invoiceType}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* EGAM Additional Data Section */}
+              <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+                <div className="flex items-center space-x-2 mb-4">
+                  <CheckCircle className="h-5 w-5 text-green-600" />
+                  <h3 className="text-lg font-semibold text-green-900 dark:text-green-100">EGAM Additional Data</h3>
+                </div>
+                
+                {/* Invoice & Tax Details */}
+                <div className="mb-6">
+                  <h4 className="text-md font-semibold text-green-800 dark:text-green-200 mb-3">INVOICE & TAX DETAILS</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Invoice Status</label>
+                        <p className="text-sm font-semibold text-green-600">Verified</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Tax Amount</label>
+                        <p className="text-sm">₹18,750.00</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-600 dark:text-gray-400">CGST</label>
+                        <p className="text-sm">₹9,375.00</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-600 dark:text-gray-400">SGST</label>
+                        <p className="text-sm">₹9,375.00</p>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="text-sm font-medium text-gray-600 dark:text-gray-400">IGST</label>
+                        <p className="text-sm">₹0.00</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-600 dark:text-gray-400">CESS</label>
+                        <p className="text-sm">₹1,250.00</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Payment Status</label>
+                        <p className="text-sm font-semibold text-orange-600">Pending</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Vendor Information */}
+                <div className="mb-6">
+                  <h4 className="text-md font-semibold text-green-800 dark:text-green-200 mb-3">VENDOR INFORMATION</h4>
+                  <div className="space-y-2">
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Name</label>
+                      <p className="text-sm">ABC Technologies Pvt Ltd</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Address</label>
+                      <p className="text-sm">123 Business Park, Mumbai, Maharashtra 400001</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Buyer Information */}
+                <div>
+                  <h4 className="text-md font-semibold text-green-800 dark:text-green-200 mb-3">BUYER INFORMATION</h4>
+                  <div className="space-y-2">
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Name</label>
+                      <p className="text-sm">XYZ Corporation Ltd</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-600 dark:text-gray-400">Address</label>
+                      <p className="text-sm">456 Corporate Plaza, Delhi, Delhi 110001</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">No data available to display</p>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

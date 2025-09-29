@@ -10,6 +10,12 @@ interface AppState {
   systemLogs: any[];
   isLoading: boolean;
   isTransitioning: boolean;
+  currentUser: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+  } | null;
 }
 
 type AppAction = 
@@ -23,7 +29,9 @@ type AppAction =
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_TRANSITIONING'; payload: boolean }
   | { type: 'ADD_SYSTEM_LOG'; payload: any }
-  | { type: 'ADD_API_LOG'; payload: any };
+  | { type: 'ADD_API_LOG'; payload: any }
+  | { type: 'SET_CURRENT_USER'; payload: { id: string; name: string; email: string; role: string } | null }
+  | { type: 'SWITCH_USER_ROLE'; payload: string };
 
 const initialState: AppState = {
   currentTab: 'qr-scanner',
@@ -35,6 +43,12 @@ const initialState: AppState = {
   systemLogs: [],
   isLoading: false,
   isTransitioning: false,
+  currentUser: {
+    id: '1',
+    name: 'Sarah Johnson',
+    email: 'sarah.johnson@company.com',
+    role: 'Application Admin'
+  },
 };
 
 const appReducer = (state: AppState, action: AppAction): AppState => {
@@ -61,6 +75,13 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
       return { ...state, systemLogs: [action.payload, ...state.systemLogs] };
     case 'ADD_API_LOG':
       return { ...state, apiLogs: [action.payload, ...state.apiLogs] };
+    case 'SET_CURRENT_USER':
+      return { ...state, currentUser: action.payload };
+    case 'SWITCH_USER_ROLE':
+      return { 
+        ...state, 
+        currentUser: state.currentUser ? { ...state.currentUser, role: action.payload } : null 
+      };
     default:
       return state;
   }
