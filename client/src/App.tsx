@@ -9,6 +9,7 @@ import { AppStateProvider } from "@/hooks/use-app-state";
 import { SidebarProvider } from "@/hooks/use-sidebar";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
 import { InvoiceTracker } from "@/components/invoice-tracker/invoice-tracker";
 import { QRScanner } from "@/components/qr-scanner/qr-scanner";
 import { PDFUpload } from "@/components/pdf-upload/pdf-upload";
@@ -25,7 +26,6 @@ import { UserProfile } from "@/components/user-profile/user-profile";
 import { Integrations } from "@/components/integrations/integrations";
 import { useAppState } from "@/hooks/use-app-state";
 import { useSidebar } from "@/hooks/use-sidebar";
-import { CoditasWatermark } from "@/components/ui/coditas-watermark";
 import NotFound from "@/pages/not-found";
 
 function MainContent() {
@@ -88,11 +88,11 @@ function MainContent() {
       
       {/* Main Content Area with proper margin for sidebar */}
       <div className={cn(
-        "relative z-10 transition-all duration-300",
+        "relative z-10 transition-all duration-300 pb-24",
         isCollapsed ? "lg:ml-16" : "lg:ml-72"
       )}>
         <Header />
-        <main className="p-4 w-full">
+        <main className="p-4 w-full min-h-screen">
           <div className={cn(
             "page-transition w-full",
             state.isTransitioning ? "opacity-0 scale-95" : "opacity-100 scale-100",
@@ -103,6 +103,7 @@ function MainContent() {
         </main>
       </div>
       
+      <Footer />
     </div>
   );
 }

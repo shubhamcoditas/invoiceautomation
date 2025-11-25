@@ -33,7 +33,12 @@ import {
   User,
   Hash,
   FileBarChart,
-  RefreshCw
+  RefreshCw,
+  ChevronLeft,
+  ChevronRight,
+  Copy,
+  Save,
+  Edit
 } from "lucide-react";
 import { formatDateTime } from "@/lib/utils";
 
@@ -50,10 +55,11 @@ interface ConsolidatedInvoice {
   dueDate: string;
   source: 'qr' | 'pdf' | 'email';
   sourceDetails: string;
-  status: 'processed' | 'pending' | 'error' | 'ready_for_review';
+  status: 'success' | 'failure' | 'processing' | 'processed' | 'ready_for_review' | 'ewb_generated' | 'fail';
   processingDate: string;
   qrCode?: string;
   irn?: string;
+  ewbNumber?: string;
   attachments: string[];
   paymentTerms: string;
   itemDescription: string;
@@ -86,10 +92,11 @@ const fetchQRData = (): ConsolidatedInvoice[] => {
       dueDate: "2024-02-15",
       source: 'qr',
       sourceDetails: "QR Scanner - Batch 001",
-      status: 'processed',
+      status: 'success',
       processingDate: "2024-01-18T10:30:00Z",
       qrCode: "1a2b3c4d5e6f7g8h9i0j1k2l3m4n",
       irn: "1a2b3c4d5e6f7g8h9i0j1k2l3m4n",
+      ewbNumber: "EWB123456789012",
       attachments: ["invoice_001.pdf"],
       paymentTerms: "Net 30",
       itemDescription: "Software Development Services",
@@ -117,7 +124,7 @@ const fetchQRData = (): ConsolidatedInvoice[] => {
       dueDate: "2024-02-14",
       source: 'qr',
       sourceDetails: "QR Scanner - Batch 002",
-      status: 'error',
+      status: 'failure',
       processingDate: "2024-01-18T06:30:00Z",
       qrCode: "2b3c4d5e6f7g8h9i0j1k2l3m4n5o",
       attachments: ["delivery_challan_015.pdf"],
@@ -148,7 +155,7 @@ const fetchQRData = (): ConsolidatedInvoice[] => {
       dueDate: "2024-02-17",
       source: 'qr',
       sourceDetails: "QR Scanner - Batch 003",
-      status: 'processed',
+      status: 'success',
       processingDate: "2024-01-18T11:15:00Z",
       qrCode: "3c4d5e6f7g8h9i0j1k2l3m4n5o6p",
       irn: "3c4d5e6f7g8h9i0j1k2l3m4n5o6p",
@@ -165,6 +172,38 @@ const fetchQRData = (): ConsolidatedInvoice[] => {
       validationStatus: 'valid',
       processedBy: "QR Scanner",
       lastModified: "2024-01-18T11:15:00Z"
+    },
+    {
+      id: "qr-4",
+      invoiceNumber: "INV-2024-020",
+      vendorName: "Unknown Vendor Ltd",
+      vendorEmail: "billing@unknown.com",
+      vendorGstin: "29UNKNOWN1234567",
+      amount: 32000,
+      taxAmount: 5760,
+      totalAmount: 37760,
+      invoiceDate: "2024-01-16",
+      dueDate: "2024-02-16",
+      source: 'qr',
+      sourceDetails: "QR Scanner - Batch 004",
+      status: 'failure',
+      processingDate: "2024-01-18T14:20:00Z",
+      qrCode: "4d5e6f7g8h9i0j1k2l3m4n5o6p7q",
+      irn: "4d5e6f7g8h9i0j1k2l3m4n5o6p7q",
+      attachments: ["invoice_020.pdf"],
+      paymentTerms: "Net 30",
+      itemDescription: "Unknown Services",
+      quantity: 1,
+      unitPrice: 32000,
+      cgst: 2880,
+      sgst: 2880,
+      igst: 0,
+      hasQrInEgam: false,
+      egamStatus: 'not_found',
+      validationStatus: 'invalid',
+      errorMessage: "QR code not found in EGAM",
+      processedBy: "QR Scanner",
+      lastModified: "2024-01-18T14:20:00Z"
     }
   ];
 };
@@ -184,7 +223,7 @@ const fetchPDFData = (): ConsolidatedInvoice[] => {
       dueDate: "2024-02-16",
       source: 'pdf',
       sourceDetails: "PDF Upload - invoice_002.pdf",
-      status: 'ready_for_review',
+      status: 'processing',
       processingDate: "2024-01-18T09:15:00Z",
       attachments: ["tax_invoice_jan.pdf"],
       paymentTerms: "Net 30",
@@ -213,7 +252,7 @@ const fetchPDFData = (): ConsolidatedInvoice[] => {
       dueDate: "2024-02-18",
       source: 'pdf',
       sourceDetails: "PDF Upload - invoice_004.pdf",
-      status: 'processed',
+      status: 'ready_for_review',
       processingDate: "2024-01-18T12:30:00Z",
       attachments: ["invoice_004.pdf", "terms_conditions.pdf"],
       paymentTerms: "Net 45",
@@ -228,6 +267,357 @@ const fetchPDFData = (): ConsolidatedInvoice[] => {
       validationStatus: 'valid',
       processedBy: "OCR Engine",
       lastModified: "2024-01-18T12:30:00Z"
+    },
+    {
+      id: "pdf-3",
+      invoiceNumber: "INV-2024-005",
+      vendorName: "Tech Corp Ltd",
+      vendorEmail: "billing@techcorp.com",
+      vendorGstin: "29TECHCORP1234567",
+      amount: 75000,
+      taxAmount: 13500,
+      totalAmount: 88500,
+      invoiceDate: "2024-01-19",
+      dueDate: "2024-02-19",
+      source: 'pdf',
+      sourceDetails: "PDF Upload - invoice_005.pdf",
+      status: 'ewb_generated',
+      processingDate: "2024-01-18T15:45:00Z",
+      ewbNumber: "EWB555666777888",
+      attachments: ["invoice_005.pdf"],
+      paymentTerms: "Net 30",
+      itemDescription: "Software License",
+      quantity: 1,
+      unitPrice: 75000,
+      cgst: 6750,
+      sgst: 6750,
+      igst: 0,
+      hasQrInEgam: true,
+      egamStatus: 'found',
+      validationStatus: 'valid',
+      processedBy: "OCR Engine",
+      lastModified: "2024-01-18T15:45:00Z"
+    },
+    {
+      id: "pdf-4",
+      invoiceNumber: "INV-2024-006",
+      vendorName: "Failed Corp Ltd",
+      vendorEmail: "billing@failed.com",
+      vendorGstin: "29FAILED1234567",
+      amount: 50000,
+      taxAmount: 9000,
+      totalAmount: 59000,
+      invoiceDate: "2024-01-20",
+      dueDate: "2024-02-20",
+      source: 'pdf',
+      sourceDetails: "PDF Upload - invoice_006.pdf",
+      status: 'fail',
+      processingDate: "2024-01-18T16:30:00Z",
+      attachments: ["invoice_006.pdf"],
+      paymentTerms: "Net 30",
+      itemDescription: "Failed Services",
+      quantity: 1,
+      unitPrice: 50000,
+      cgst: 4500,
+      sgst: 4500,
+      igst: 0,
+      hasQrInEgam: false,
+      egamStatus: 'not_found',
+      validationStatus: 'invalid',
+      errorMessage: "PDF processing failed - corrupted file",
+      processedBy: "OCR Engine",
+      lastModified: "2024-01-18T16:30:00Z"
+    },
+    // 10 Dummy records for EWB generation testing
+    {
+      id: "pdf-dummy-1",
+      invoiceNumber: "INV-2024-100",
+      vendorName: "Alpha Solutions Ltd",
+      vendorEmail: "billing@alphasolutions.com",
+      vendorGstin: "29ALPHA1234567A1",
+      amount: 45000,
+      taxAmount: 8100,
+      totalAmount: 53100,
+      invoiceDate: "2024-01-21",
+      dueDate: "2024-02-21",
+      source: 'pdf',
+      sourceDetails: "PDF Upload - invoice_100.pdf",
+      status: 'ready_for_review',
+      processingDate: "2024-01-21T09:00:00Z",
+      attachments: ["invoice_100.pdf"],
+      paymentTerms: "Net 30",
+      itemDescription: "Software Development Services",
+      quantity: 1,
+      unitPrice: 45000,
+      cgst: 4050,
+      sgst: 4050,
+      igst: 0,
+      hasQrInEgam: false,
+      egamStatus: 'not_found',
+      validationStatus: 'valid',
+      processedBy: "OCR Engine",
+      lastModified: "2024-01-21T09:00:00Z"
+    },
+    {
+      id: "pdf-dummy-2",
+      invoiceNumber: "INV-2024-101",
+      vendorName: "Beta Technologies Inc",
+      vendorEmail: "billing@betatech.com",
+      vendorGstin: "07BETA1234567A1B",
+      amount: 78000,
+      taxAmount: 14040,
+      totalAmount: 92040,
+      invoiceDate: "2024-01-21",
+      dueDate: "2024-02-21",
+      source: 'pdf',
+      sourceDetails: "PDF Upload - invoice_101.pdf",
+      status: 'ready_for_review',
+      processingDate: "2024-01-21T09:15:00Z",
+      attachments: ["invoice_101.pdf"],
+      paymentTerms: "Net 30",
+      itemDescription: "Cloud Infrastructure Services",
+      quantity: 1,
+      unitPrice: 78000,
+      cgst: 7020,
+      sgst: 7020,
+      igst: 0,
+      hasQrInEgam: false,
+      egamStatus: 'not_found',
+      validationStatus: 'valid',
+      processedBy: "OCR Engine",
+      lastModified: "2024-01-21T09:15:00Z"
+    },
+    {
+      id: "pdf-dummy-3",
+      invoiceNumber: "INV-2024-102",
+      vendorName: "Gamma Systems Pvt Ltd",
+      vendorEmail: "billing@gammasystems.com",
+      vendorGstin: "19GAMMA1234567A1",
+      amount: 125000,
+      taxAmount: 22500,
+      totalAmount: 147500,
+      invoiceDate: "2024-01-21",
+      dueDate: "2024-02-21",
+      source: 'pdf',
+      sourceDetails: "PDF Upload - invoice_102.pdf",
+      status: 'ready_for_review',
+      processingDate: "2024-01-21T09:30:00Z",
+      attachments: ["invoice_102.pdf"],
+      paymentTerms: "Net 45",
+      itemDescription: "Enterprise Software Solutions",
+      quantity: 1,
+      unitPrice: 125000,
+      cgst: 11250,
+      sgst: 11250,
+      igst: 0,
+      hasQrInEgam: false,
+      egamStatus: 'not_found',
+      validationStatus: 'valid',
+      processedBy: "OCR Engine",
+      lastModified: "2024-01-21T09:30:00Z"
+    },
+    {
+      id: "pdf-dummy-4",
+      invoiceNumber: "INV-2024-103",
+      vendorName: "Delta Consulting Ltd",
+      vendorEmail: "billing@deltaconsulting.com",
+      vendorGstin: "33DELTA1234567A1",
+      amount: 95000,
+      taxAmount: 17100,
+      totalAmount: 112100,
+      invoiceDate: "2024-01-21",
+      dueDate: "2024-02-21",
+      source: 'pdf',
+      sourceDetails: "PDF Upload - invoice_103.pdf",
+      status: 'ready_for_review',
+      processingDate: "2024-01-21T09:45:00Z",
+      attachments: ["invoice_103.pdf"],
+      paymentTerms: "Net 30",
+      itemDescription: "Business Consulting Services",
+      quantity: 1,
+      unitPrice: 95000,
+      cgst: 8550,
+      sgst: 8550,
+      igst: 0,
+      hasQrInEgam: false,
+      egamStatus: 'not_found',
+      validationStatus: 'valid',
+      processedBy: "OCR Engine",
+      lastModified: "2024-01-21T09:45:00Z"
+    },
+    {
+      id: "pdf-dummy-5",
+      invoiceNumber: "INV-2024-104",
+      vendorName: "Epsilon Digital Corp",
+      vendorEmail: "billing@epsilondigital.com",
+      vendorGstin: "29EPSILON1234567A",
+      amount: 65000,
+      taxAmount: 11700,
+      totalAmount: 76700,
+      invoiceDate: "2024-01-21",
+      dueDate: "2024-02-21",
+      source: 'pdf',
+      sourceDetails: "PDF Upload - invoice_104.pdf",
+      status: 'ready_for_review',
+      processingDate: "2024-01-21T10:00:00Z",
+      attachments: ["invoice_104.pdf"],
+      paymentTerms: "Net 30",
+      itemDescription: "Digital Marketing Services",
+      quantity: 1,
+      unitPrice: 65000,
+      cgst: 5850,
+      sgst: 5850,
+      igst: 0,
+      hasQrInEgam: false,
+      egamStatus: 'not_found',
+      validationStatus: 'valid',
+      processedBy: "OCR Engine",
+      lastModified: "2024-01-21T10:00:00Z"
+    },
+    {
+      id: "pdf-dummy-6",
+      invoiceNumber: "INV-2024-105",
+      vendorName: "Zeta Analytics Ltd",
+      vendorEmail: "billing@zetaanalytics.com",
+      vendorGstin: "07ZETA1234567A1B",
+      amount: 110000,
+      taxAmount: 19800,
+      totalAmount: 129800,
+      invoiceDate: "2024-01-21",
+      dueDate: "2024-02-21",
+      source: 'pdf',
+      sourceDetails: "PDF Upload - invoice_105.pdf",
+      status: 'ready_for_review',
+      processingDate: "2024-01-21T10:15:00Z",
+      attachments: ["invoice_105.pdf"],
+      paymentTerms: "Net 30",
+      itemDescription: "Data Analytics Platform",
+      quantity: 1,
+      unitPrice: 110000,
+      cgst: 9900,
+      sgst: 9900,
+      igst: 0,
+      hasQrInEgam: false,
+      egamStatus: 'not_found',
+      validationStatus: 'valid',
+      processedBy: "OCR Engine",
+      lastModified: "2024-01-21T10:15:00Z"
+    },
+    {
+      id: "pdf-dummy-7",
+      invoiceNumber: "INV-2024-106",
+      vendorName: "Eta Security Inc",
+      vendorEmail: "billing@etasecurity.com",
+      vendorGstin: "19ETA1234567A1B2",
+      amount: 85000,
+      taxAmount: 15300,
+      totalAmount: 100300,
+      invoiceDate: "2024-01-21",
+      dueDate: "2024-02-21",
+      source: 'pdf',
+      sourceDetails: "PDF Upload - invoice_106.pdf",
+      status: 'ready_for_review',
+      processingDate: "2024-01-21T10:30:00Z",
+      attachments: ["invoice_106.pdf"],
+      paymentTerms: "Net 30",
+      itemDescription: "Cybersecurity Services",
+      quantity: 1,
+      unitPrice: 85000,
+      cgst: 7650,
+      sgst: 7650,
+      igst: 0,
+      hasQrInEgam: false,
+      egamStatus: 'not_found',
+      validationStatus: 'valid',
+      processedBy: "OCR Engine",
+      lastModified: "2024-01-21T10:30:00Z"
+    },
+    {
+      id: "pdf-dummy-8",
+      invoiceNumber: "INV-2024-107",
+      vendorName: "Theta Networks Pvt Ltd",
+      vendorEmail: "billing@thetanetworks.com",
+      vendorGstin: "33THETA1234567A1",
+      amount: 72000,
+      taxAmount: 12960,
+      totalAmount: 84960,
+      invoiceDate: "2024-01-21",
+      dueDate: "2024-02-21",
+      source: 'pdf',
+      sourceDetails: "PDF Upload - invoice_107.pdf",
+      status: 'ready_for_review',
+      processingDate: "2024-01-21T10:45:00Z",
+      attachments: ["invoice_107.pdf"],
+      paymentTerms: "Net 30",
+      itemDescription: "Network Infrastructure Services",
+      quantity: 1,
+      unitPrice: 72000,
+      cgst: 6480,
+      sgst: 6480,
+      igst: 0,
+      hasQrInEgam: false,
+      egamStatus: 'not_found',
+      validationStatus: 'valid',
+      processedBy: "OCR Engine",
+      lastModified: "2024-01-21T10:45:00Z"
+    },
+    {
+      id: "pdf-dummy-9",
+      invoiceNumber: "INV-2024-108",
+      vendorName: "Iota Solutions Ltd",
+      vendorEmail: "billing@iotasolutions.com",
+      vendorGstin: "29IOTA1234567A1B",
+      amount: 58000,
+      taxAmount: 10440,
+      totalAmount: 68440,
+      invoiceDate: "2024-01-21",
+      dueDate: "2024-02-21",
+      source: 'pdf',
+      sourceDetails: "PDF Upload - invoice_108.pdf",
+      status: 'ready_for_review',
+      processingDate: "2024-01-21T11:00:00Z",
+      attachments: ["invoice_108.pdf"],
+      paymentTerms: "Net 30",
+      itemDescription: "IoT Development Services",
+      quantity: 1,
+      unitPrice: 58000,
+      cgst: 5220,
+      sgst: 5220,
+      igst: 0,
+      hasQrInEgam: false,
+      egamStatus: 'not_found',
+      validationStatus: 'valid',
+      processedBy: "OCR Engine",
+      lastModified: "2024-01-21T11:00:00Z"
+    },
+    {
+      id: "pdf-dummy-10",
+      invoiceNumber: "INV-2024-109",
+      vendorName: "Kappa Innovations Inc",
+      vendorEmail: "billing@kappainnovations.com",
+      vendorGstin: "07KAPPA1234567A1",
+      amount: 135000,
+      taxAmount: 24300,
+      totalAmount: 159300,
+      invoiceDate: "2024-01-21",
+      dueDate: "2024-02-21",
+      source: 'pdf',
+      sourceDetails: "PDF Upload - invoice_109.pdf",
+      status: 'ready_for_review',
+      processingDate: "2024-01-21T11:15:00Z",
+      attachments: ["invoice_109.pdf"],
+      paymentTerms: "Net 45",
+      itemDescription: "AI/ML Platform Development",
+      quantity: 1,
+      unitPrice: 135000,
+      cgst: 12150,
+      sgst: 12150,
+      igst: 0,
+      hasQrInEgam: false,
+      egamStatus: 'not_found',
+      validationStatus: 'valid',
+      processedBy: "OCR Engine",
+      lastModified: "2024-01-21T11:15:00Z"
     }
   ];
 };
@@ -247,7 +637,7 @@ const fetchEmailData = (): ConsolidatedInvoice[] => {
       dueDate: "2024-02-10",
       source: 'email',
       sourceDetails: "Email Queue - Billing Statement Q4 2023",
-      status: 'pending',
+      status: 'processing',
       processingDate: "2024-01-18T08:45:00Z",
       attachments: ["billing_q4.pdf", "payment_terms.pdf"],
       paymentTerms: "Net 45",
@@ -305,7 +695,7 @@ const fetchEmailData = (): ConsolidatedInvoice[] => {
       dueDate: "2024-02-19",
       source: 'email',
       sourceDetails: "Email Queue - Cloud Services Invoice",
-      status: 'ready_for_review',
+      status: 'processing',
       processingDate: "2024-01-19T09:00:00Z",
       attachments: ["cloud_invoice_005.pdf"],
       paymentTerms: "Net 30",
@@ -320,6 +710,35 @@ const fetchEmailData = (): ConsolidatedInvoice[] => {
       validationStatus: 'pending',
       processedBy: "Email Processor",
       lastModified: "2024-01-19T09:00:00Z"
+    },
+    {
+      id: "email-4",
+      invoiceNumber: "INV-2024-006",
+      vendorName: "Data Analytics Corp",
+      vendorEmail: "billing@dataanalytics.com",
+      vendorGstin: "29DATA1234567A1B",
+      amount: 95000,
+      taxAmount: 17100,
+      totalAmount: 112100,
+      invoiceDate: "2024-01-20",
+      dueDate: "2024-02-20",
+      source: 'email',
+      sourceDetails: "Email Queue - Data Analytics Invoice",
+      status: 'processed',
+      processingDate: "2024-01-19T11:30:00Z",
+      attachments: ["data_analytics_invoice.pdf"],
+      paymentTerms: "Net 30",
+      itemDescription: "Data Analytics Services",
+      quantity: 1,
+      unitPrice: 95000,
+      cgst: 8550,
+      sgst: 8550,
+      igst: 0,
+      hasQrInEgam: true,
+      egamStatus: 'found',
+      validationStatus: 'valid',
+      processedBy: "Email Processor",
+      lastModified: "2024-01-19T11:30:00Z"
     }
   ];
 };
@@ -346,6 +765,9 @@ export function InvoiceTracker() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<ConsolidatedInvoice | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentInvoiceIndex, setCurrentInvoiceIndex] = useState(0);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedInvoice, setEditedInvoice] = useState<ConsolidatedInvoice | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [consolidatedData, setConsolidatedData] = useState<ConsolidatedInvoice[]>(mockConsolidatedInvoices);
   const { toast } = useToast();
@@ -379,8 +801,8 @@ export function InvoiceTracker() {
   const summaryMetrics = useMemo(() => {
     const totalInvoices = consolidatedData.length;
     const processedInvoices = consolidatedData.filter(inv => inv.status === 'processed').length;
-    const pendingInvoices = consolidatedData.filter(inv => inv.status === 'pending').length;
-    const errorInvoices = consolidatedData.filter(inv => inv.status === 'error').length;
+    const processingInvoices = consolidatedData.filter(inv => inv.status === 'processing').length;
+    const failureInvoices = consolidatedData.filter(inv => inv.status === 'failure').length;
     const readyForReview = consolidatedData.filter(inv => inv.status === 'ready_for_review').length;
     
     const totalAmount = consolidatedData.reduce((sum, inv) => sum + inv.totalAmount, 0);
@@ -396,8 +818,8 @@ export function InvoiceTracker() {
     return {
       totalInvoices,
       processedInvoices,
-      pendingInvoices,
-      errorInvoices,
+      processingInvoices,
+      failureInvoices,
       readyForReview,
       totalAmount,
       totalTaxAmount,
@@ -432,14 +854,20 @@ export function InvoiceTracker() {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
+      case 'success':
+        return <Badge className="bg-green-100 text-green-800 border-green-200 flex items-center gap-1"><CheckCircle className="h-3 w-3" />Success</Badge>;
+      case 'failure':
+        return <Badge className="bg-red-100 text-red-800 border-red-200 flex items-center gap-1"><XCircle className="h-3 w-3" />Failure</Badge>;
+      case 'processing':
+        return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 flex items-center gap-1"><Clock className="h-3 w-3" />Processing</Badge>;
       case 'processed':
         return <Badge className="bg-green-100 text-green-800 border-green-200 flex items-center gap-1"><CheckCircle className="h-3 w-3" />Processed</Badge>;
-      case 'pending':
-        return <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200 flex items-center gap-1"><Clock className="h-3 w-3" />Pending</Badge>;
       case 'ready_for_review':
         return <Badge className="bg-blue-100 text-blue-800 border-blue-200 flex items-center gap-1"><Eye className="h-3 w-3" />Ready for Review</Badge>;
-      case 'error':
-        return <Badge className="bg-red-100 text-red-800 border-red-200 flex items-center gap-1"><XCircle className="h-3 w-3" />Error</Badge>;
+      case 'ewb_generated':
+        return <Badge className="bg-purple-100 text-purple-800 border-purple-200 flex items-center gap-1"><CheckCircle className="h-3 w-3" />EWB Generated</Badge>;
+      case 'fail':
+        return <Badge className="bg-red-100 text-red-800 border-red-200 flex items-center gap-1"><XCircle className="h-3 w-3" />Fail</Badge>;
       default:
         return <Badge className="bg-gray-100 text-gray-800 border-gray-200 flex items-center gap-1"><AlertCircle className="h-3 w-3" />Unknown</Badge>;
     }
@@ -605,11 +1033,113 @@ export function InvoiceTracker() {
 
   const handleInvoiceClick = (invoice: ConsolidatedInvoice) => {
     // Don't open modal for QR invoices with error status and EGAM not found
-    if (invoice.source === 'qr' && invoice.status === 'error' && invoice.egamStatus === 'not_found') {
+    if (invoice.source === 'qr' && invoice.status === 'failure' && invoice.egamStatus === 'not_found') {
       return;
     }
+    const index = filteredInvoices.findIndex(inv => inv.id === invoice.id);
+    setCurrentInvoiceIndex(index);
     setSelectedInvoice(invoice);
     setIsModalOpen(true);
+  };
+
+  const handleNextInvoice = () => {
+    const nextIndex = (currentInvoiceIndex + 1) % filteredInvoices.length;
+    setCurrentInvoiceIndex(nextIndex);
+    setSelectedInvoice(filteredInvoices[nextIndex]);
+  };
+
+  const handlePreviousInvoice = () => {
+    const prevIndex = currentInvoiceIndex === 0 ? filteredInvoices.length - 1 : currentInvoiceIndex - 1;
+    setCurrentInvoiceIndex(prevIndex);
+    setSelectedInvoice(filteredInvoices[prevIndex]);
+    setIsEditing(false);
+    setEditedInvoice(null);
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+    setEditedInvoice({ ...selectedInvoice! });
+  };
+
+  const handleSave = () => {
+    if (editedInvoice) {
+      setSelectedInvoice(editedInvoice);
+      setIsEditing(false);
+      setEditedInvoice(null);
+      toast({
+        title: "Invoice Updated",
+        description: "Invoice details have been saved successfully.",
+        variant: "success",
+      });
+    }
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setEditedInvoice(null);
+  };
+
+  const handleFieldChange = (field: keyof ConsolidatedInvoice, value: string) => {
+    if (editedInvoice) {
+      setEditedInvoice({ ...editedInvoice, [field]: value });
+    }
+  };
+
+  const handleCopyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copied to Clipboard",
+      description: "Text has been copied to clipboard.",
+      variant: "success",
+    });
+  };
+
+  const handleGenerateEWB = async () => {
+    if (!selectedInvoice) return;
+
+    try {
+      // Generate a random EWB number
+      const ewbNumber = `EWB${Math.random().toString().substr(2, 12)}`;
+      
+      // Update the invoice status and EWB number
+      const updatedInvoice = {
+        ...selectedInvoice,
+        status: 'ewb_generated' as const,
+        ewbNumber: ewbNumber,
+        egamStatus: 'found' as const,
+        hasQrInEgam: true
+      };
+
+      // Update the selected invoice
+      setSelectedInvoice(updatedInvoice);
+
+      // Update the consolidated data
+      setConsolidatedData(prevData => 
+        prevData.map(invoice => 
+          invoice.id === selectedInvoice.id ? updatedInvoice : invoice
+        )
+      );
+
+      toast({
+        title: "EWB Generated Successfully",
+        description: `E-Way Bill generated with number: ${ewbNumber}`,
+        variant: "success",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate EWB. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const getDisplayIRN = (invoice: ConsolidatedInvoice) => {
+    // If EWB is generated, EGAM must be found, so ensure IRN is not null/NA
+    if (invoice.ewbNumber && invoice.egamStatus === 'found') {
+      return invoice.irn || invoice.qrCode || `IRN${Math.random().toString().substr(2, 12)}`;
+    }
+    return invoice.irn || invoice.qrCode || 'N/A';
   };
 
   const formatCurrency = (amount: number) => {
@@ -770,10 +1300,13 @@ export function InvoiceTracker() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Statuses</SelectItem>
+                  <SelectItem value="success">Success</SelectItem>
+                  <SelectItem value="failure">Failure</SelectItem>
+                  <SelectItem value="processing">Processing</SelectItem>
                   <SelectItem value="processed">Processed</SelectItem>
-                  <SelectItem value="pending">Pending</SelectItem>
                   <SelectItem value="ready_for_review">Ready for Review</SelectItem>
-                  <SelectItem value="error">Error</SelectItem>
+                  <SelectItem value="ewb_generated">EWB Generated</SelectItem>
+                  <SelectItem value="fail">Fail</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -816,7 +1349,7 @@ export function InvoiceTracker() {
                       onClick={() => handleSort('invoiceNumber')}
                       className="h-auto p-0 font-semibold hover:bg-transparent"
                     >
-                      Invoice #
+                      IRN
                       {getSortIcon('invoiceNumber')}
                     </Button>
                   </TableHead>
@@ -844,7 +1377,7 @@ export function InvoiceTracker() {
                     </Button>
                   </TableHead>
                   <TableHead className="font-semibold text-foreground">Status</TableHead>
-                  <TableHead className="font-semibold text-foreground">EGAM</TableHead>
+                  <TableHead className="font-semibold text-foreground">EWB</TableHead>
                   <TableHead className="font-semibold text-foreground">
                     <Button
                       variant="ghost"
@@ -864,7 +1397,7 @@ export function InvoiceTracker() {
                   <TableRow 
                     key={invoice.id} 
                     className={`table-row-hover ${
-                      !(invoice.source === 'qr' && invoice.status === 'error' && invoice.egamStatus === 'not_found') 
+                      !(invoice.source === 'qr' && invoice.status === 'failure' && invoice.egamStatus === 'not_found') 
                         ? 'cursor-pointer' 
                         : 'cursor-default opacity-60'
                     }`}
@@ -885,10 +1418,29 @@ export function InvoiceTracker() {
                     </TableCell>
                     <TableCell className="text-sm">{formatDateTime(invoice.invoiceDate)}</TableCell>
                     <TableCell>{getStatusBadge(invoice.status)}</TableCell>
-                    <TableCell>{getEgamBadge(invoice.egamStatus)}</TableCell>
+                    <TableCell>
+                      {invoice.ewbNumber ? (
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm font-mono">{invoice.ewbNumber}</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCopyToClipboard(invoice.ewbNumber!);
+                            }}
+                            className="p-1 h-6 w-6"
+                          >
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-400">-</span>
+                      )}
+                    </TableCell>
                     <TableCell className="text-sm">{formatDateTime(invoice.processingDate)}</TableCell>
                     <TableCell>
-                      {!(invoice.source === 'qr' && invoice.status === 'error' && invoice.egamStatus === 'not_found') && (
+                      {!(invoice.source === 'qr' && invoice.status === 'failure' && invoice.egamStatus === 'not_found') && (
                         <Button size="sm" variant="outline">
                           <Eye className="h-4 w-4 mr-2" />
                           View
@@ -913,7 +1465,8 @@ export function InvoiceTracker() {
       {/* Invoice Detail Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+          <DialogHeader className="space-y-4">
+            <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center space-x-2">
               {selectedInvoice?.source === 'qr' && selectedInvoice?.status === 'processed' ? (
                 <>
@@ -927,286 +1480,360 @@ export function InvoiceTracker() {
                 </>
               )}
             </DialogTitle>
+              <div className="flex items-center space-x-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handlePreviousInvoice}
+                  disabled={filteredInvoices.length <= 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleNextInvoice}
+                  disabled={filteredInvoices.length <= 1}
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
           </DialogHeader>
           
           {selectedInvoice && (
-            <div className="space-y-6">
-              {selectedInvoice.source === 'qr' && selectedInvoice.status === 'processed' ? (
-                // QR Code Details View
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* QR Extracted Data */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-h-[70vh] overflow-y-auto">
+              {/* Document Preview - Left Panel */}
                   <Card>
                     <CardHeader>
-                      <CardTitle className="flex items-center space-x-2">
-                        <QrCode className="h-5 w-5" />
-                        <span>QR Extracted Data</span>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>Document Preview</span>
+                    <div className="flex items-center space-x-2">
+                      <Button variant="outline" size="sm">
+                        <Eye className="h-4 w-4 mr-2" />
+                        View
+                      </Button>
+                      <Button variant="outline" size="sm">
+                        <Download className="h-4 w-4 mr-2" />
+                        Download
+                      </Button>
+                    </div>
                       </CardTitle>
+                  <div className="text-sm text-muted-foreground">
+                    {selectedInvoice.attachments[0] || 'invoice.pdf'} • Processed by: {selectedInvoice.processedBy}
+                  </div>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">IRN</label>
-                        <Input 
-                          value={selectedInvoice.irn || selectedInvoice.qrCode || ''} 
-                          readOnly 
-                          className="font-mono text-xs"
-                        />
+                <CardContent>
+                  {/* Invoice Preview */}
+                  <div className="border rounded-lg p-4 bg-gray-50 dark:bg-gray-900">
+                    <div className="text-center mb-4">
+                      <h2 className="text-lg font-bold text-gray-900 dark:text-white">TAX INVOICE</h2>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">GST Invoice</p>
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">Invoice No</label>
-                          <p className="text-sm font-mono">{selectedInvoice.invoiceNumber}</p>
+                    
+                    {/* From Section */}
+                    <div className="mb-4">
+                      <h3 className="font-semibold text-sm text-gray-700 dark:text-gray-300 mb-2">From:</h3>
+                      <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                        <p className="font-medium">{selectedInvoice.vendorName}</p>
+                        <p>123 Business Park, Mumbai, Maharashtra 400001</p>
+                        <p>GSTIN: {selectedInvoice.vendorGstin}</p>
                         </div>
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">Date</label>
-                          <p className="text-sm">{formatDateTime(selectedInvoice.invoiceDate)}</p>
                         </div>
+                    
+                    {/* Bill To Section */}
+                    <div className="mb-4">
+                      <h3 className="font-semibold text-sm text-gray-700 dark:text-gray-300 mb-2">Bill To:</h3>
+                      <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                        <p className="font-medium">XYZ Corporation Ltd</p>
+                        <p>456 Corporate Plaza, Delhi, Delhi 110001</p>
                       </div>
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Total Amount</label>
-                        <p className="text-2xl font-bold text-green-600">{formatCurrency(selectedInvoice.totalAmount)}</p>
                       </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">GSTIN</label>
-                          <p className="text-sm font-mono">{selectedInvoice.vendorGstin}</p>
+                    
+                    {/* Invoice Details */}
+                    <div className="mb-4">
+                      <h3 className="font-semibold text-sm text-gray-700 dark:text-gray-300 mb-2">Invoice Details:</h3>
+                       <div className="text-xs text-gray-600 dark:text-gray-400 space-y-1">
+                         <p><span className="font-medium">Invoice No:</span> {selectedInvoice.invoiceNumber}</p>
+                         <p><span className="font-medium">Date:</span> {formatDateTime(selectedInvoice.invoiceDate)}</p>
+                         <p><span className="font-medium">IRN:</span> {getDisplayIRN(selectedInvoice)}</p>
+                         {selectedInvoice.ewbNumber && (
+                           <p><span className="font-medium">EWB:</span> {selectedInvoice.ewbNumber}</p>
+                         )}
                         </div>
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">Buyer GSTIN</label>
-                          <p className="text-sm font-mono">29XYZAB5678P1Q2</p>
                         </div>
+                    
+                    {/* Line Items Table */}
+                    <div className="mb-4">
+                      <table className="w-full text-xs">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="text-left py-1">Description</th>
+                            <th className="text-center py-1">Qty</th>
+                            <th className="text-right py-1">Rate</th>
+                            <th className="text-right py-1">Amount</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td className="py-1">{selectedInvoice.itemDescription}</td>
+                            <td className="text-center py-1">{selectedInvoice.quantity}</td>
+                            <td className="text-right py-1">{formatCurrency(selectedInvoice.unitPrice)}</td>
+                            <td className="text-right py-1">{formatCurrency(selectedInvoice.amount)}</td>
+                          </tr>
+                        </tbody>
+                      </table>
                       </div>
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Invoice Type</label>
-                        <p className="text-sm">B2B</p>
+                    
+                    {/* Summary */}
+                    <div className="text-right text-xs space-y-1">
+                      <div className="flex justify-between">
+                        <span>CGST (9%):</span>
+                        <span>{formatCurrency(selectedInvoice.cgst)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>SGST (9%):</span>
+                        <span>{formatCurrency(selectedInvoice.sgst)}</span>
+                      </div>
+                      <div className="flex justify-between font-bold border-t pt-1">
+                        <span>Total:</span>
+                        <span>{formatCurrency(selectedInvoice.totalAmount)}</span>
+                      </div>
+                    </div>
+                    
+                    {/* Footer */}
+                    <div className="mt-4 text-center text-xs text-gray-600 dark:text-gray-400">
+                      <p>Thank you for your business!</p>
+                      <p>Payment Terms: {selectedInvoice.paymentTerms}</p>
+                    </div>
                       </div>
                     </CardContent>
                   </Card>
 
-                  {/* EGAM Additional Data */}
+              {/* Document Details - Right Panel */}
                   <Card>
                     <CardHeader>
-                      <CardTitle className="flex items-center space-x-2">
-                        {selectedInvoice.egamStatus === 'found' ? (
-                          <CheckCircle className="h-5 w-5 text-green-600" />
-                        ) : (
-                          <XCircle className="h-5 w-5 text-red-600" />
-                        )}
-                        <span>EGAM Additional Data</span>
+                  <CardTitle className="flex items-center justify-between">
+                    <span>Document Details</span>
+                    <div className="flex items-center space-x-2">
+                      {isEditing ? (
+                        <>
+                          <Button variant="outline" size="sm" onClick={handleCancel}>
+                            <X className="h-4 w-4 mr-2" />
+                            Cancel
+                          </Button>
+                          <Button size="sm" onClick={handleSave}>
+                            <Save className="h-4 w-4 mr-2" />
+                            Save
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button variant="outline" size="sm" onClick={handleEdit}>
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit
+                          </Button>
+                          {selectedInvoice.status === 'ready_for_review' && (
+                            <Button size="sm" onClick={handleGenerateEWB} className="bg-purple-600 hover:bg-purple-700">
+                              <CheckCircle className="h-4 w-4 mr-2" />
+                              Generate EWB
+                            </Button>
+                          )}
+                        </>
+                      )}
+                    </div>
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                      {selectedInvoice.egamStatus === 'found' ? (
-                        <>
-                          {/* Invoice & Tax Details */}
-                          <div>
-                            <h4 className="font-semibold text-sm mb-3">INVOICE & TAX DETAILS</h4>
-                            <div className="space-y-3">
-                              <div className="flex justify-between">
-                                <span className="text-sm text-muted-foreground">Invoice Status</span>
-                                <span className="text-sm font-medium text-green-600">Verified</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-sm text-muted-foreground">Tax Amount</span>
-                                <span className="text-sm font-medium">{formatCurrency(selectedInvoice.taxAmount)}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-sm text-muted-foreground">CGST</span>
-                                <span className="text-sm font-medium">{formatCurrency(selectedInvoice.cgst)}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-sm text-muted-foreground">SGST</span>
-                                <span className="text-sm font-medium">{formatCurrency(selectedInvoice.sgst)}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-sm text-muted-foreground">IGST</span>
-                                <span className="text-sm font-medium">{formatCurrency(selectedInvoice.igst)}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-sm text-muted-foreground">CESS</span>
-                                <span className="text-sm font-medium">{formatCurrency(1250)}</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-sm text-muted-foreground">Payment Status</span>
-                                <span className="text-sm font-medium text-orange-600">Pending</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Vendor Information */}
-                          <div>
-                            <h4 className="font-semibold text-sm mb-3">VENDOR INFORMATION</h4>
-                            <div className="space-y-2">
-                              <div>
-                                <span className="text-sm text-muted-foreground">Name: </span>
-                                <span className="text-sm font-medium">{selectedInvoice.vendorName}</span>
-                              </div>
-                              <div>
-                                <span className="text-sm text-muted-foreground">Address: </span>
-                                <span className="text-sm">123 Business Park, Mumbai, Maharashtra 400001</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Buyer Information */}
-                          <div>
-                            <h4 className="font-semibold text-sm mb-3">BUYER INFORMATION</h4>
-                            <div className="space-y-2">
-                              <div>
-                                <span className="text-sm text-muted-foreground">Name: </span>
-                                <span className="text-sm font-medium">XYZ Corporation Ltd</span>
-                              </div>
-                              <div>
-                                <span className="text-sm text-muted-foreground">Address: </span>
-                                <span className="text-sm">456 Corporate Plaza, Delhi, Delhi 110001</span>
-                              </div>
-                            </div>
-                          </div>
-                        </>
-                      ) : (
-                        // EGAM Not Found
-                        <div className="flex flex-col items-center justify-center py-12 text-center">
-                          <XCircle className="h-16 w-16 text-red-500 mb-4" />
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">EGAM Data Not Found</h3>
-                          <p className="text-sm text-muted-foreground mb-4">
-                            The invoice data could not be found in the EGAM system.
-                          </p>
-                          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 w-full">
-                            <div className="flex items-center space-x-2">
-                              <XCircle className="h-4 w-4 text-red-600" />
-                              <span className="text-sm font-medium text-red-800 dark:text-red-200">
-                                Status: Not Found
-                              </span>
-                            </div>
-                            <p className="text-xs text-red-600 dark:text-red-400 mt-1">
-                              This invoice may need manual verification or the data may not be available in EGAM.
-                            </p>
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                </div>
-              ) : (
-                // Standard Invoice Details View
-                <div className="space-y-6">
                   {/* Basic Information */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Basic Information</CardTitle>
-                    </CardHeader>
-                    <CardContent className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Invoice Number</label>
-                        <p className="font-medium">{selectedInvoice.invoiceNumber}</p>
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-sm text-muted-foreground">Basic Information</h4>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Invoice No*</label>
+                        <Input 
+                          value={isEditing ? editedInvoice?.invoiceNumber || '' : selectedInvoice.invoiceNumber} 
+                          onChange={(e) => handleFieldChange('invoiceNumber', e.target.value)}
+                          readOnly={!isEditing}
+                        />
+                              </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Date*</label>
+                        <Input 
+                          value={isEditing ? editedInvoice?.invoiceDate || '' : formatDateTime(selectedInvoice.invoiceDate)} 
+                          onChange={(e) => handleFieldChange('invoiceDate', e.target.value)}
+                          readOnly={!isEditing}
+                        />
+                              </div>
+                              </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">IRN*</label>
+                        <div className="flex items-center space-x-2">
+                          <Input 
+                            value={isEditing ? editedInvoice?.irn || '' : getDisplayIRN(selectedInvoice)} 
+                            onChange={(e) => handleFieldChange('irn', e.target.value)}
+                            readOnly={!isEditing}
+                          />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleCopyToClipboard(getDisplayIRN(selectedInvoice))}
+                            className="p-1"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                              </div>
+                              </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">GSTIN*</label>
+                        <Input 
+                          value={isEditing ? editedInvoice?.vendorGstin || '' : selectedInvoice.vendorGstin} 
+                          onChange={(e) => handleFieldChange('vendorGstin', e.target.value)}
+                          readOnly={!isEditing}
+                        />
+                              </div>
+                              </div>
+
+                    {/* EWB Number Display */}
+                    {selectedInvoice.ewbNumber && (
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">EWB Number</label>
+                        <div className="flex items-center space-x-2">
+                          <Input 
+                            value={selectedInvoice.ewbNumber} 
+                            readOnly
+                            className="bg-green-50 border-green-200"
+                          />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleCopyToClipboard(selectedInvoice.ewbNumber!)}
+                            className="p-1"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                            </div>
                       </div>
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Source</label>
+                    )}
+                          </div>
+
+                  {/* Parties */}
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-sm text-muted-foreground">Parties</h4>
+                    
+                            <div className="space-y-2">
+                      <label className="text-sm font-medium">Vendor Name*</label>
+                      <Input 
+                        value={isEditing ? editedInvoice?.vendorName || '' : selectedInvoice.vendorName} 
+                        onChange={(e) => handleFieldChange('vendorName', e.target.value)}
+                        readOnly={!isEditing}
+                      />
+                              </div>
+                    
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Vendor Address</label>
+                      <Input 
+                        value="123 Business Park, Mumbai, Maharashtra 400001" 
+                        readOnly
+                      />
+                              </div>
+
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Buyer Name*</label>
+                      <Input 
+                        value="XYZ Corporation Ltd" 
+                        readOnly
+                      />
+                          </div>
+
+                            <div className="space-y-2">
+                      <label className="text-sm font-medium">Buyer Address</label>
+                      <Input 
+                        value="456 Corporate Plaza, Delhi, Delhi 110001" 
+                        readOnly
+                      />
+                              </div>
+                              </div>
+
+                  {/* Financial Information */}
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-sm text-muted-foreground">Financial Details</h4>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Amount*</label>
+                        <Input 
+                          value={isEditing ? editedInvoice?.amount?.toString() || '' : formatCurrency(selectedInvoice.amount)} 
+                          onChange={(e) => handleFieldChange('amount', e.target.value)}
+                          readOnly={!isEditing}
+                        />
+                            </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Tax Amount</label>
+                        <Input 
+                          value={isEditing ? editedInvoice?.taxAmount?.toString() || '' : formatCurrency(selectedInvoice.taxAmount)} 
+                          onChange={(e) => handleFieldChange('taxAmount', e.target.value)}
+                          readOnly={!isEditing}
+                        />
+                          </div>
+                            </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Payment Terms</label>
+                        <Input 
+                          value={isEditing ? editedInvoice?.paymentTerms || '' : selectedInvoice.paymentTerms} 
+                          onChange={(e) => handleFieldChange('paymentTerms', e.target.value)}
+                          readOnly={!isEditing}
+                        />
+                          </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Due Date</label>
+                        <Input 
+                          value={isEditing ? editedInvoice?.dueDate || '' : formatDateTime(selectedInvoice.dueDate)} 
+                          onChange={(e) => handleFieldChange('dueDate', e.target.value)}
+                          readOnly={!isEditing}
+                        />
+                        </div>
+                </div>
+                      </div>
+
+                  {/* Processing Information */}
+                  <div className="space-y-4">
+                    <h4 className="font-semibold text-sm text-muted-foreground">Processing Information</h4>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Source</label>
                         <div className="flex items-center space-x-2">
                           {getSourceIcon(selectedInvoice.source)}
                           <span className="text-sm">{getSourceLabel(selectedInvoice.source)}</span>
                         </div>
                       </div>
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Invoice Date</label>
-                        <p>{formatDateTime(selectedInvoice.invoiceDate)}</p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Due Date</label>
-                        <p>{formatDateTime(selectedInvoice.dueDate)}</p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Status</label>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Status</label>
                         <div>{getStatusBadge(selectedInvoice.status)}</div>
                       </div>
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Processing Date</label>
-                        <p>{formatDateTime(selectedInvoice.processingDate)}</p>
                       </div>
-                    </CardContent>
-                  </Card>
 
-                  {/* Vendor Information */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Vendor Information</CardTitle>
-                    </CardHeader>
-                    <CardContent className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Vendor Name</label>
-                        <p className="font-medium">{selectedInvoice.vendorName}</p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Email</label>
-                        <p>{selectedInvoice.vendorEmail}</p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">GSTIN</label>
-                        <p className="font-mono">{selectedInvoice.vendorGstin}</p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Payment Terms</label>
-                        <p>{selectedInvoice.paymentTerms}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Financial Information */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Financial Details</CardTitle>
-                    </CardHeader>
-                    <CardContent className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Base Amount</label>
-                        <p className="font-medium text-lg">{formatCurrency(selectedInvoice.amount)}</p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Tax Amount</label>
-                        <p className="font-medium text-lg">{formatCurrency(selectedInvoice.taxAmount)}</p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Total Amount</label>
-                        <p className="font-bold text-xl text-green-600">{formatCurrency(selectedInvoice.totalAmount)}</p>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Item Description</label>
-                        <p>{selectedInvoice.itemDescription}</p>
-                      </div>
-                    </CardContent>
-                  </Card>
-
-                  {/* Validation & Processing */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Validation & Processing</CardTitle>
-                    </CardHeader>
-                    <CardContent className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Validation Status</label>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Validation Status</label>
                         <div>{getValidationBadge(selectedInvoice.validationStatus)}</div>
                       </div>
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">EGAM Status</label>
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">EGAM Status</label>
                         <div>{getEgamBadge(selectedInvoice.egamStatus)}</div>
                       </div>
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Processed By</label>
-                        <p>{selectedInvoice.processedBy}</p>
                       </div>
-                      <div>
-                        <label className="text-sm font-medium text-muted-foreground">Last Modified</label>
-                        <p>{formatDateTime(selectedInvoice.lastModified)}</p>
                       </div>
-                      {selectedInvoice.errorMessage && (
-                        <div className="col-span-2">
-                          <label className="text-sm font-medium text-muted-foreground">Error Message</label>
-                          <p className="text-red-600 text-sm">{selectedInvoice.errorMessage}</p>
-                        </div>
-                      )}
                     </CardContent>
                   </Card>
-                </div>
-              )}
             </div>
           )}
         </DialogContent>

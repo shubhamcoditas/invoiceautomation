@@ -54,11 +54,6 @@ const getNavigationGroups = (userRole: string) => {
     { id: 'notice-apis', label: 'Notice APIs', icon: Bell },
   ];
 
-  // Only Application Admin and Admin can see API Usage
-  if (userRole === 'Application Admin' || userRole === 'Admin') {
-    apiPlaygroundItems.push({ id: 'api-usage', label: 'API Usage', icon: BarChart3 });
-  }
-
   baseGroups.push({
     title: "API Playground",
     items: apiPlaygroundItems
@@ -67,16 +62,23 @@ const getNavigationGroups = (userRole: string) => {
   // System group - only for Application Admin and Admin
   if (userRole !== 'Business User') {
     const systemItems = [
-      { id: 'logs', label: 'System Logs', icon: FileBarChart },
       { id: 'user-management', label: 'User Management', icon: User },
       { id: 'email-settings', label: 'Email Settings', icon: Mail },
     ];
 
-    // Only Application Admin can see Integrations and Settings
+    // Only Application Admin and Admin can see API Usage
+    if (userRole === 'Application Admin' || userRole === 'Admin') {
+      systemItems.push({ id: 'api-usage', label: 'API Usage', icon: BarChart3 });
+    }
+
+    // Add System Logs at the end
+    systemItems.push({ id: 'logs', label: 'System Logs', icon: FileBarChart });
+
+    // Only Application Admin can see Integrations and Settings at the top
     if (userRole === 'Application Admin') {
       systemItems.unshift(
-        { id: 'integrations', label: 'Integrations', icon: Building2 },
-        { id: 'settings', label: 'Settings and Config', icon: Settings }
+        { id: 'settings', label: 'Settings and Config', icon: Settings },
+        { id: 'integrations', label: 'Integrations', icon: Building2 }
       );
     }
 
@@ -141,7 +143,7 @@ export function Sidebar() {
       {/* Sidebar */}
       <div 
         className={cn(
-          "fixed left-0 top-0 h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 z-40 transition-all duration-300 ease-out",
+          "fixed left-0 top-0 h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 z-40 transition-all duration-300 ease-out flex flex-col",
           "lg:translate-x-0",
           isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
           isCollapsed ? "w-16" : "w-72"
@@ -165,7 +167,7 @@ export function Sidebar() {
                 </div>
                 <div className="flex-1">
                   <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {config.displayName}
+                    KPMG
                   </h1>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     Invoice Automation Portal
@@ -173,17 +175,6 @@ export function Sidebar() {
                 </div>
               </div>
               
-              {/* KPMG Branding - Position based on config */}
-              {isKpmgBrandingVisible && kpmgPosition === 'top' && (
-                <div className="flex items-center space-x-2 px-2 py-1 bg-gray-50 dark:bg-gray-800 rounded-md">
-                  <div className="w-4 h-4 bg-gradient-to-br from-[#00338D] to-[#4A90E2] rounded flex items-center justify-center">
-                    <FileText className="h-2.5 w-2.5 text-white" />
-                  </div>
-                  <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
-                    Powered by KPMG
-                  </span>
-                </div>
-              )}
             </div>
           )}
           
@@ -216,8 +207,8 @@ export function Sidebar() {
         </div>
 
 
-        {/* Navigation */}
-        <nav className="px-2 py-4 space-y-3">
+        {/* Navigation - Scrollable area */}
+        <nav className="flex-1 px-2 py-4 space-y-3 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
           {isCollapsed ? (
             // Collapsed view with icons only
             <div className="space-y-1">
@@ -357,22 +348,10 @@ export function Sidebar() {
           )}
         </nav>
 
-        {/* KPMG Branding and Watermark - Only show when expanded */}
+        {/* Footer - Sticky at bottom */}
         {!isCollapsed && (
-          <div className="absolute bottom-4 left-2 right-2 space-y-2">
-            {/* KPMG Branding - Bottom position */}
-            {isKpmgBrandingVisible && kpmgPosition === 'bottom' && (
-              <div className="flex items-center justify-center space-x-2 px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                <div className="w-4 h-4 bg-gradient-to-br from-[#00338D] to-[#4A90E2] rounded flex items-center justify-center">
-                  <FileText className="h-2.5 w-2.5 text-white" />
-                </div>
-                <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
-                  Powered by KPMG
-                </span>
-              </div>
-            )}
-            
-            {/* Coditas Watermark - Below KPMG branding */}
+          <div className="flex-shrink-0 px-2 py-4 space-y-2 border-t border-gray-200 dark:border-gray-700">
+            {/* Coditas Watermark */}
             <div className="flex items-center justify-center space-x-2 px-3 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg shadow-lg">
               <div className="w-2 h-2 bg-white rounded-full"></div>
               <div className="text-xs font-medium">

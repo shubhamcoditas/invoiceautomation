@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAppState } from "@/hooks/use-app-state";
 import { useEntity } from "@/hooks/use-entity";
+import { isApplicationAdmin } from "@/lib/entity-config";
 import { Database, RefreshCw, Search, Loader2, Clock, CheckCircle, AlertTriangle } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -23,6 +24,9 @@ export function EGAMRepository() {
   const { state, dispatch } = useAppState();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+
+  // Check if current user has Application Admin role
+  const canPerformManualPull = state.currentUser && isApplicationAdmin(state.currentUser.role);
 
   // Fetch EGAM audit logs
   const { data: auditLogs = [], isLoading: auditLogsLoading } = useQuery({
@@ -128,7 +132,7 @@ export function EGAMRepository() {
   };
 
   return (
-    <div className="w-full" data-testid="egam-repository">
+    <div className="w-full mb-8" data-testid="egam-repository">
       {/* Combined Container */}
       <Card className="modern-card animate-fade-in">
         <CardHeader className="modern-card-header">
@@ -141,19 +145,21 @@ export function EGAMRepository() {
                 Historical audit data of EGAM data pulls from KIGS
               </p>
             </div>
-            <Button 
-              onClick={handleFetchEGAMData} 
-              disabled={isFetching}
-              data-testid="button-fetch-egam"
-              className="bg-gradient-to-r from-[#00338D] to-[#4A90E2] hover:from-[#001F5C] hover:to-[#00338D] text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isFetching ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <RefreshCw className="mr-2 h-4 w-4" />
-              )}
-              Manual Pull from KIGS
-            </Button>
+            {canPerformManualPull && (
+              <Button 
+                onClick={handleFetchEGAMData} 
+                disabled={isFetching}
+                data-testid="button-fetch-egam"
+                className="bg-gradient-to-r from-[#00338D] to-[#4A90E2] hover:from-[#001F5C] hover:to-[#00338D] text-white shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isFetching ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                )}
+                Manual Pull from KIGS
+              </Button>
+            )}
           </div>
         </CardHeader>
         

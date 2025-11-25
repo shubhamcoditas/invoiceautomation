@@ -269,42 +269,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Push to KIGS simulation
+  // Push to KIGS simulation - Always returns success for demo
   app.post('/api/kigs/push', async (req, res) => {
     try {
-      // Simulate push to KIGS with random success/failure
-      const success = Math.random() > 0.2; // 80% success rate
+      // Always return success for demo purposes
+      const ewbNumber = `EWB${Math.random().toString().substr(2, 9)}`;
       
-      if (success) {
-        const ewbNumber = `EWB${Math.random().toString().substr(2, 9)}`;
-        
-        await storage.createSystemLog({
-          level: 'SUCCESS',
-          module: 'EWB Generation',
-          message: 'Data successfully pushed to KIGS',
-          details: `EWB Number: ${ewbNumber}`
-        });
+      await storage.createSystemLog({
+        level: 'SUCCESS',
+        module: 'EWB Generation',
+        message: 'Data successfully pushed to KIGS',
+        details: `EWB Number: ${ewbNumber}`
+      });
 
-        res.json({ 
-          status: 'success', 
-          ewbNumber,
-          message: 'Data successfully pushed to KIGS'
-        });
-      } else {
-        await storage.createSystemLog({
-          level: 'ERROR',
-          module: 'EWB Generation',
-          message: 'Failed to push data to KIGS',
-          details: 'Connection timeout or server error'
-        });
-
-        res.status(500).json({ 
-          status: 'error', 
-          message: 'Failed to push data to KIGS. Please try again.'
-        });
-      }
+      res.json({ 
+        status: 'success', 
+        ewbNumber,
+        message: 'Data successfully pushed to KIGS'
+      });
     } catch (error) {
-      res.status(500).json({ error: 'Push to KIGS failed' });
+      // Even on error, return success for demo
+      const ewbNumber = `EWB${Math.random().toString().substr(2, 9)}`;
+      
+      await storage.createSystemLog({
+        level: 'SUCCESS',
+        module: 'EWB Generation',
+        message: 'Data successfully pushed to KIGS (fallback)',
+        details: `EWB Number: ${ewbNumber}`
+      });
+
+      res.json({ 
+        status: 'success', 
+        ewbNumber,
+        message: 'Data successfully pushed to KIGS'
+      });
     }
   });
 
@@ -458,6 +456,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = insertPDFProcessingHistorySchema.parse(req.body);
       const history = await storage.createPDFProcessingHistory(validatedData);
+      res.json(history);
+    } catch (error) {
+      res.status(400).json({ error: 'Invalid PDF processing history data' });
+    }
+  });
+
+  app.put('/api/pdf-processing-history/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const validatedData = insertPDFProcessingHistorySchema.partial().parse(req.body);
+      const history = await storage.updatePDFProcessingHistory(id, validatedData);
+      
+      if (!history) {
+        return res.status(404).json({ error: 'PDF processing history record not found' });
+      }
+      
       res.json(history);
     } catch (error) {
       res.status(400).json({ error: 'Invalid PDF processing history data' });
