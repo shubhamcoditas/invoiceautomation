@@ -522,7 +522,7 @@ export function ServiceGroupDetail({ serviceGroupId }: ServiceGroupDetailProps) 
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
                       className={`h-2 rounded-full transition-all ${
-                        (actualCost / budgetAmount) * 100 > 100 ? 'bg-red-600' : 'bg-blue-600'
+                        (actualCost / budgetAmount) * 100 > 100 ? 'bg-red-600' : 'bg-[#D71921]'
                       }`}
                       style={{
                         width: `${Math.min((actualCost / budgetAmount) * 100, 100)}%`,
@@ -606,7 +606,7 @@ export function ServiceGroupDetail({ serviceGroupId }: ServiceGroupDetailProps) 
                             <div className="flex items-center justify-end gap-2">
                               <div className="w-24 bg-gray-200 rounded-full h-2">
                                 <div
-                                  className="bg-blue-600 h-2 rounded-full"
+                                  className="bg-[#D71921] h-2 rounded-full"
                                   style={{ width: `${Math.min(contributionPercentage, 100)}%` }}
                                 />
                               </div>

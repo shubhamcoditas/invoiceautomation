@@ -9,7 +9,8 @@ const Table = React.forwardRef<
   <div className="relative w-full overflow-auto">
     <table
       ref={ref}
-      className={cn("w-full caption-bottom text-sm", className)}
+      className={cn("w-full caption-bottom text-[14px] border-collapse", className)}
+      style={{ borderSpacing: 0 }}
       {...props}
     />
   </div>
@@ -20,7 +21,7 @@ const TableHeader = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, ref) => (
-  <thead ref={ref} className={cn("border-b border-border", className)} {...props} />
+  <thead ref={ref} className={cn("border-b border-[#E6E6E6] bg-[#F2F2F2]", className)} {...props} />
 ))
 TableHeader.displayName = "TableHeader"
 
@@ -30,7 +31,7 @@ const TableBody = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tbody
     ref={ref}
-    className={cn("divide-y divide-border/50", className)}
+    className={cn("divide-y divide-[#E6E6E6]", className)}
     {...props}
   />
 ))
@@ -58,7 +59,7 @@ const TableRow = React.forwardRef<
   <tr
     ref={ref}
     className={cn(
-      "transition-colors duration-150 hover:bg-muted/30 data-[state=selected]:bg-muted/50",
+      "transition-colors duration-150 hover:bg-[#FBEAEC] data-[state=selected]:bg-[#FBEAEC] border-b border-[#E6E6E6]",
       className
     )}
     {...props}
@@ -73,7 +74,7 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      "h-12 px-4 text-left align-middle font-medium text-muted-foreground bg-muted/30 [&:has([role=checkbox])]:pr-0",
+      "h-12 px-4 text-left align-middle font-semibold text-[#1A1A1A] bg-[#F2F2F2] [&:has([role=checkbox])]:pr-0 border-0",
       className
     )}
     {...props}
@@ -87,7 +88,7 @@ const TableCell = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <td
     ref={ref}
-    className={cn("px-4 py-3 align-middle text-sm [&:has([role=checkbox])]:pr-0", className)}
+    className={cn("px-4 py-3 align-middle text-[14px] text-[#1A1A1A] [&:has([role=checkbox])]:pr-0 border-0", className)}
     {...props}
   />
 ))

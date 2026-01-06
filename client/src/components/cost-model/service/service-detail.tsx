@@ -323,7 +323,7 @@ export function ServiceDetail({ serviceId }: ServiceDetailProps) {
                 <CardContent className="pt-6">
                   <div className="space-y-2">
                     <div className="text-sm font-medium text-muted-foreground">Cost Per Unit</div>
-                    <div className="text-2xl font-bold text-blue-600">{formatCurrency(serviceCost.costPerUnit)}</div>
+                    <div className="text-2xl font-bold text-[#D71921]">{formatCurrency(serviceCost.costPerUnit)}</div>
                   </div>
                 </CardContent>
               </Card>
@@ -331,7 +331,7 @@ export function ServiceDetail({ serviceId }: ServiceDetailProps) {
                 <CardContent className="pt-6">
                   <div className="space-y-2">
                     <div className="text-sm font-medium text-muted-foreground">Direct Costs</div>
-                    <div className="text-2xl font-bold text-blue-600">{formatCurrency(serviceCost.directCosts)}</div>
+                    <div className="text-2xl font-bold text-[#D71921]">{formatCurrency(serviceCost.directCosts)}</div>
                     {serviceCost.totalCost > 0 && (
                       <div className="text-xs text-muted-foreground">
                         {((serviceCost.directCosts / serviceCost.totalCost) * 100).toFixed(1)}% of total
@@ -445,7 +445,7 @@ export function ServiceDetail({ serviceId }: ServiceDetailProps) {
                               <div className="flex items-center justify-end gap-2">
                                 <div className="w-20 bg-gray-200 rounded-full h-2">
                                   <div
-                                    className="bg-blue-600 h-2 rounded-full"
+                                    className="bg-[#D71921] h-2 rounded-full"
                                     style={{ width: `${Math.min(percentage, 100)}%` }}
                                   />
                                 </div>

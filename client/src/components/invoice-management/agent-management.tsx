@@ -402,7 +402,7 @@ export function AgentManagement() {
                       value={newAgent.username}
                       onChange={(e) => setNewAgent({...newAgent, username: e.target.value})}
                       placeholder="Enter username"
-                      className="h-12 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                      className="h-12 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-[#D71921] focus:ring-2 focus:ring-[#FBEAEC]"
                     />
                   </div>
                   <div>
@@ -412,7 +412,7 @@ export function AgentManagement() {
                       value={newAgent.companyName}
                       onChange={(e) => setNewAgent({...newAgent, companyName: e.target.value})}
                       placeholder="Enter company name"
-                      className="h-12 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                      className="h-12 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-[#D71921] focus:ring-2 focus:ring-[#FBEAEC]"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -620,7 +620,7 @@ export function AgentManagement() {
                   value={newAgent.firstName}
                   onChange={(e) => setNewAgent({...newAgent, firstName: e.target.value})}
                   placeholder="Enter first name"
-                  className="h-12 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  className="h-12 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-[#D71921] focus:ring-2 focus:ring-[#FBEAEC]"
                 />
               </div>
               <div>
@@ -630,7 +630,7 @@ export function AgentManagement() {
                   value={newAgent.lastName}
                   onChange={(e) => setNewAgent({...newAgent, lastName: e.target.value})}
                   placeholder="Enter last name"
-                  className="h-12 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  className="h-12 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-[#D71921] focus:ring-2 focus:ring-[#FBEAEC]"
                 />
               </div>
             </div>
@@ -641,7 +641,7 @@ export function AgentManagement() {
                 value={newAgent.username}
                 onChange={(e) => setNewAgent({...newAgent, username: e.target.value})}
                 placeholder="Enter username"
-                className="h-12 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="h-12 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-[#D71921] focus:ring-2 focus:ring-[#FBEAEC]"
               />
             </div>
             <div>
@@ -651,7 +651,7 @@ export function AgentManagement() {
                 value={newAgent.companyName}
                 onChange={(e) => setNewAgent({...newAgent, companyName: e.target.value})}
                 placeholder="Enter company name"
-                className="h-12 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="h-12 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-[#D71921] focus:ring-2 focus:ring-[#FBEAEC]"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -663,7 +663,7 @@ export function AgentManagement() {
                   value={newAgent.email}
                   onChange={(e) => setNewAgent({...newAgent, email: e.target.value})}
                   placeholder="Enter email address"
-                  className="h-12 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  className="h-12 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-[#D71921] focus:ring-2 focus:ring-[#FBEAEC]"
                 />
               </div>
               <div>
@@ -673,7 +673,7 @@ export function AgentManagement() {
                   value={newAgent.phone}
                   onChange={(e) => setNewAgent({...newAgent, phone: e.target.value})}
                   placeholder="Enter phone number"
-                  className="h-12 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  className="h-12 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-[#D71921] focus:ring-2 focus:ring-[#FBEAEC]"
                 />
               </div>
             </div>
@@ -685,19 +685,19 @@ export function AgentManagement() {
                   value={newAgent.department}
                   onChange={(e) => setNewAgent({...newAgent, department: e.target.value})}
                   placeholder="Enter department"
-                  className="h-12 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  className="h-12 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-[#D71921] focus:ring-2 focus:ring-[#FBEAEC]"
                 />
               </div>
               <div>
                 <Label htmlFor="edit-status">Status</Label>
                 <Select value={newAgent.status} onValueChange={(value) => setNewAgent({...newAgent, status: value})}>
-                  <SelectTrigger className="h-12 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                  <SelectTrigger className="h-12 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-[#D71921] focus:ring-2 focus:ring-[#FBEAEC]">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent className="bg-white border-2 border-gray-300 shadow-2xl rounded-lg z-[100] p-2">
-                    <SelectItem value="active" className="p-3 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer font-medium rounded-md transition-colors duration-150">Active</SelectItem>
-                    <SelectItem value="inactive" className="p-3 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer font-medium rounded-md transition-colors duration-150">Inactive</SelectItem>
-                    <SelectItem value="invited" className="p-3 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer font-medium rounded-md transition-colors duration-150">Invited</SelectItem>
+                    <SelectItem value="active" className="p-3 hover:bg-[#FBEAEC] focus:bg-[#FBEAEC] cursor-pointer font-medium rounded-md transition-colors duration-150">Active</SelectItem>
+                    <SelectItem value="inactive" className="p-3 hover:bg-[#FBEAEC] focus:bg-[#FBEAEC] cursor-pointer font-medium rounded-md transition-colors duration-150">Inactive</SelectItem>
+                    <SelectItem value="invited" className="p-3 hover:bg-[#FBEAEC] focus:bg-[#FBEAEC] cursor-pointer font-medium rounded-md transition-colors duration-150">Invited</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -709,7 +709,7 @@ export function AgentManagement() {
                 value={newAgent.comments}
                 onChange={(e) => setNewAgent({...newAgent, comments: e.target.value})}
                 placeholder="Enter comments about this agent"
-                className="min-h-[80px] bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="min-h-[80px] bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-[#D71921] focus:ring-2 focus:ring-[#FBEAEC]"
               />
               <p className="text-xs text-muted-foreground mt-1">Optional: Comments about this agent</p>
             </div>
@@ -720,7 +720,7 @@ export function AgentManagement() {
                 value={newAgent.notes}
                 onChange={(e) => setNewAgent({...newAgent, notes: e.target.value})}
                 placeholder="Enter any additional notes about this agent"
-                className="min-h-[80px] bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                className="min-h-[80px] bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-[#D71921] focus:ring-2 focus:ring-[#FBEAEC]"
               />
               <p className="text-xs text-muted-foreground mt-1">Optional: Additional notes about this agent</p>
             </div>

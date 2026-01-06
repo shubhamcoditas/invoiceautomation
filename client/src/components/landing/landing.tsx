@@ -73,10 +73,10 @@ export function Landing() {
     switch (color) {
       case 'blue':
         return {
-          card: 'border-blue-200 hover:border-blue-300 dark:border-blue-800 dark:hover:border-blue-700',
-          icon: 'text-blue-600 dark:text-blue-400',
-          button: 'bg-blue-600 hover:bg-blue-700 text-white',
-          gradient: 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20'
+          card: 'border-[#E6E6E6] hover:border-[#D71921] dark:border-[#E6E6E6] dark:hover:border-[#D71921]',
+          icon: 'text-[#D71921] dark:text-[#D71921]',
+          button: 'bg-[#D71921] hover:bg-[#B3131B] text-white',
+          gradient: 'from-[#FBEAEC] to-[#FBEAEC] dark:from-[#FBEAEC] dark:to-[#FBEAEC]'
         };
       case 'green':
         return {
@@ -169,7 +169,7 @@ export function Landing() {
                       <li key={index} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                         <div className={cn(
                           "h-1.5 w-1.5 rounded-full",
-                          module.color === 'blue' ? 'bg-blue-500' : 
+                          module.color === 'blue' ? 'bg-[#D71921]' : 
                           module.color === 'green' ? 'bg-green-500' : 
                           module.color === 'purple' ? 'bg-purple-500' : 
                           module.color === 'red' ? 'bg-[#D71921]' : 'bg-gray-500'

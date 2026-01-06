@@ -588,8 +588,8 @@ export function Service() {
             </div>
           )}
           {verticals.length > 0 && serviceGroups.length === 0 && (
-            <div className="mb-4 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-              <p className="text-sm text-blue-800 dark:text-blue-200">
+            <div className="mb-4 p-4 bg-[#FBEAEC] dark:bg-[#FBEAEC] border border-[#E6E6E6] dark:border-[#E6E6E6] rounded-lg">
+              <p className="text-sm text-[#1A1A1A] dark:text-[#1A1A1A]">
                 No Service Groups found. Click "Add Service Group" to create one.
               </p>
             </div>
@@ -687,7 +687,7 @@ export function Service() {
                                       {cost.costPerUnit > 0 && (
                                         <div className="flex items-center justify-between text-sm">
                                           <span className="text-muted-foreground">Cost/Unit:</span>
-                                          <span className="font-semibold text-blue-600">{formatCurrency(cost.costPerUnit)}</span>
+                                          <span className="font-semibold text-[#D71921]">{formatCurrency(cost.costPerUnit)}</span>
                                         </div>
                                       )}
                                     </>

@@ -1,68 +1,77 @@
 /* EA Invoice Downloader Component Styles */
 
-/* Color Variables */
+/* Color Variables - Emirates Design System */
 :root {
-  --ea-primary: #1964d7;
-  --ea-primary-dark: #1582b0;
+  --ea-primary: #D71921;
+  --ea-primary-dark: #B3131B;
   --ea-primary-darker: #8B1015;
-  --ea-primary-light: rgba(25, 100, 215, 0.1);
-  --ea-primary-border: rgba(25, 100, 215, 0.2);
-  --ea-primary-text: #1964d7;
+  --ea-primary-light: #FBEAEC;
+  --ea-primary-border: rgba(215, 25, 33, 0.2);
+  --ea-primary-text: #D71921;
   
+  /* Legacy red variables - now same as primary */
   --ea-red-primary: #D71921;
-  --ea-red-primary-dark: #B0151C;
-  --ea-red-primary-light: rgba(215, 25, 33, 0.1);
+  --ea-red-primary-dark: #B3131B;
+  --ea-red-primary-light: #FBEAEC;
   --ea-red-primary-border: rgba(215, 25, 33, 0.2);
   --ea-red-primary-text: #D71921;
 }
 
-/* Card Styles */
+/* Card Styles - Emirates Design System */
 .ea-card {
-  border: 1px solid var(--ea-primary-border);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid #E6E6E6;
+  box-shadow: none;
 }
 
 .ea-card-red {
-  border: 1px solid var(--ea-red-primary-border);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid #E6E6E6;
+  box-shadow: none;
 }
 
-/* Card Header Styles */
+/* Card Header Styles - No Gradients */
 .ea-card-header {
-  background: linear-gradient(135deg, var(--ea-primary) 0%, var(--ea-primary-dark) 100%);
+  background: #D71921;
   color: white;
-  border-top-left-radius: 0.5rem;
-  border-top-right-radius: 0.5rem;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
 }
 
 .ea-card-header-red {
-  background: linear-gradient(135deg, var(--ea-red-primary) 0%, var(--ea-red-primary-dark) 100%);
+  background: #D71921;
   color: white;
-  border-top-left-radius: 0.5rem;
-  border-top-right-radius: 0.5rem;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
 }
 
-/* Button Styles */
+/* Button Styles - Emirates Design System */
 .ea-button-primary {
-  background: linear-gradient(135deg, var(--ea-primary) 0%, var(--ea-primary-dark) 100%);
+  background: #D71921;
   color: white;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
+  box-shadow: none;
+  transition: all 0.15s ease-out;
+  border-radius: 6px;
+  height: 40px;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .ea-button-primary:hover {
-  background: linear-gradient(135deg, var(--ea-primary-dark) 0%, var(--ea-primary) 100%);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  background: #B3131B;
+  box-shadow: none;
 }
 
 .ea-button-primary-red {
-  background: var(--ea-red-primary);
+  background: #D71921;
   color: white;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease-out;
+  border-radius: 6px;
+  height: 40px;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .ea-button-primary-red:hover {
-  background: var(--ea-red-primary-dark);
+  background: #B3131B;
 }
 
 .ea-button-white-red {
@@ -76,15 +85,20 @@
 }
 
 .ea-button-outline-primary {
-  border: 2px solid var(--ea-primary);
-  color: var(--ea-primary);
-  background: transparent;
-  transition: all 0.2s ease;
+  border: 1px solid #D71921;
+  color: #D71921;
+  background: white;
+  transition: all 0.15s ease-out;
+  border-radius: 6px;
+  height: 40px;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .ea-button-outline-primary:hover {
-  background: var(--ea-primary);
-  color: white;
+  background: white;
+  color: #D71921;
+  border-color: #D71921;
 }
 
 /* Text Styles */
@@ -145,24 +159,24 @@
   border-color: var(--ea-red-primary);
 }
 
-/* Background Gradient Styles */
+/* Background Styles - No Gradients */
 .ea-bg-gradient-primary {
-  background: linear-gradient(135deg, var(--ea-primary) 0%, var(--ea-primary-dark) 100%);
+  background: #D71921;
 }
 
 .ea-bg-gradient-primary-red {
-  background: linear-gradient(135deg, var(--ea-red-primary) 0%, var(--ea-red-primary-dark) 100%);
+  background: #D71921;
 }
 
 .ea-bg-gradient-blur {
-  background: linear-gradient(135deg, var(--ea-primary) 0%, var(--ea-primary-dark) 100%);
+  background: #D71921;
   filter: blur(16px);
   opacity: 0.5;
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 .ea-bg-gradient-blur-red {
-  background: linear-gradient(135deg, var(--ea-red-primary) 0%, var(--ea-red-primary-dark) 100%);
+  background: #D71921;
   filter: blur(16px);
   opacity: 0.5;
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
@@ -179,7 +193,7 @@
 }
 
 .ea-header-logo {
-  background: linear-gradient(135deg, var(--ea-primary) 0%, var(--ea-primary-dark) 100%);
+  background: #D71921;
 }
 
 .ea-header-button {
@@ -201,7 +215,7 @@
 }
 
 .ea-sidebar-logo {
-  background: linear-gradient(135deg, var(--ea-primary) 0%, var(--ea-primary-dark) 100%);
+  background: #D71921;
 }
 
 .ea-sidebar-button {
@@ -232,19 +246,23 @@
 }
 
 .ea-search-input:focus {
-  border-color: var(--ea-primary);
-  box-shadow: 0 0 0 3px var(--ea-primary-light);
+  border-color: #D71921;
+  box-shadow: 0 0 0 2px #FBEAEC;
 }
 
 /* Ticket Search Button */
 .ea-ticket-search-button {
-  background: linear-gradient(135deg, var(--ea-primary) 0%, var(--ea-primary-dark) 100%);
+  background: #D71921;
   color: white;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease-out;
+  border-radius: 6px;
+  height: 40px;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .ea-ticket-search-button:hover {
-  background: linear-gradient(135deg, var(--ea-primary-dark) 0%, var(--ea-primary) 100%);
+  background: #B3131B;
 }
 
 /* Audit Logs Styles */
@@ -255,7 +273,7 @@
 }
 
 .ea-audit-header {
-  background: linear-gradient(135deg, var(--ea-primary) 0%, var(--ea-primary-dark) 100%);
+  background: #D71921;
   color: white;
 }
 
@@ -306,7 +324,7 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, var(--ea-primary) 0%, var(--ea-primary-dark) 50%, var(--ea-primary) 100%);
+  background: #D71921;
 }
 
 .ea-download-header {
@@ -319,7 +337,7 @@
 }
 
 .ea-download-icon-bg {
-  background: linear-gradient(135deg, var(--ea-primary) 0%, var(--ea-primary-dark) 100%);
+  background: #D71921;
 }
 
 .ea-download-input {
@@ -328,8 +346,8 @@
 }
 
 .ea-download-input:focus {
-  border-color: var(--ea-primary);
-  box-shadow: 0 0 0 3px var(--ea-primary-light);
+  border-color: #D71921;
+  box-shadow: 0 0 0 2px #FBEAEC;
 }
 
 .ea-download-or-badge {
@@ -354,15 +372,19 @@
 }
 
 .ea-download-button-primary {
-  background: linear-gradient(135deg, var(--ea-primary) 0%, var(--ea-primary-dark) 100%);
+  background: #D71921;
   color: white;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
+  box-shadow: none;
+  transition: all 0.15s ease-out;
+  border-radius: 6px;
+  height: 40px;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .ea-download-button-primary:hover {
-  background: linear-gradient(135deg, var(--ea-primary-dark) 0%, #8B1015 100%);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  background: #B3131B;
+  box-shadow: none;
 }
 
 .ea-download-button-secondary {
@@ -378,7 +400,7 @@
 }
 
 .ea-download-feature-icon {
-  background: linear-gradient(135deg, var(--ea-primary) 0%, var(--ea-primary-dark) 100%);
+  background: #D71921;
 }
 
 .ea-download-feature-text {
@@ -414,24 +436,25 @@
 }
 
 .ea-signin-header {
-  background: linear-gradient(135deg, var(--ea-primary) 0%, var(--ea-primary-dark) 100%);
+  background: #D71921;
   color: white;
-  border-top-left-radius: 0.5rem;
-  border-top-right-radius: 0.5rem;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
   padding: 1.25rem;
 }
 
 .ea-signin-input {
-  height: 3rem;
+  height: 42px;
   padding-left: 2.75rem;
   padding-right: 1rem;
-  border: 2px solid #d1d5db;
-  transition: all 0.2s ease;
+  border: 1px solid #CCCCCC;
+  transition: all 0.15s ease-out;
+  border-radius: 6px;
 }
 
 .ea-signin-input:focus {
-  border-color: var(--ea-primary);
-  box-shadow: 0 0 0 3px var(--ea-primary-light);
+  border-color: #D71921;
+  box-shadow: 0 0 0 2px #FBEAEC;
 }
 
 /* Input with Icon Styles */
@@ -454,33 +477,35 @@
 
 .ea-signin-button {
   width: 100%;
-  height: 3rem;
-  background: linear-gradient(135deg, var(--ea-primary) 0%, var(--ea-primary-dark) 100%);
+  height: 40px;
+  background: #D71921;
   color: white;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
-  font-size: 1rem;
+  box-shadow: none;
+  transition: all 0.15s ease-out;
+  font-size: 14px;
   font-weight: 600;
+  border-radius: 6px;
 }
 
 .ea-signin-button:hover {
-  background: linear-gradient(135deg, var(--ea-primary-dark) 0%, var(--ea-primary) 100%);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  background: #B3131B;
+  box-shadow: none;
 }
 
 .ea-signin-otp-input {
-  height: 3.5rem;
+  height: 42px;
   text-align: center;
   font-size: 1.5rem;
   font-family: monospace;
   letter-spacing: 0.5em;
-  border: 2px solid #d1d5db;
-  transition: all 0.2s ease;
+  border: 1px solid #CCCCCC;
+  transition: all 0.15s ease-out;
+  border-radius: 6px;
 }
 
 .ea-signin-otp-input:focus {
-  border-color: var(--ea-primary);
-  box-shadow: 0 0 0 3px var(--ea-primary-light);
+  border-color: #D71921;
+  box-shadow: 0 0 0 2px #FBEAEC;
 }
 
 .ea-signin-link {
@@ -501,37 +526,41 @@
 }
 
 .ea-agent-signin-header {
-  background: linear-gradient(135deg, var(--ea-primary) 0%, var(--ea-primary-dark) 100%);
+  background: #D71921;
   color: white;
-  border-top-left-radius: 0.5rem;
-  border-top-right-radius: 0.5rem;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
 }
 
 .ea-agent-signin-input {
-  height: 3rem;
+  height: 42px;
   padding-left: 2.5rem;
-  border: 2px solid #d1d5db;
-  transition: all 0.2s ease;
+  border: 1px solid #CCCCCC;
+  transition: all 0.15s ease-out;
   text-transform: uppercase;
+  border-radius: 6px;
 }
 
 .ea-agent-signin-input:focus {
-  border-color: var(--ea-primary);
-  box-shadow: 0 0 0 3px var(--ea-primary-light);
+  border-color: #D71921;
+  box-shadow: 0 0 0 2px #FBEAEC;
 }
 
 .ea-agent-signin-button {
   width: 100%;
-  height: 3rem;
-  background: linear-gradient(135deg, var(--ea-primary) 0%, var(--ea-primary-dark) 100%);
+  height: 40px;
+  background: #D71921;
   color: white;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
+  box-shadow: none;
+  transition: all 0.15s ease-out;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .ea-agent-signin-button:hover {
-  background: linear-gradient(135deg, var(--ea-primary-dark) 0%, var(--ea-primary) 100%);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  background: #B3131B;
+  box-shadow: none;
 }
 
 .ea-agent-signin-icon {
@@ -549,17 +578,21 @@
 }
 
 .ea-raise-ticket-input:focus {
-  border-color: var(--ea-primary);
-  box-shadow: 0 0 0 3px var(--ea-primary-light);
+  border-color: #D71921;
+  box-shadow: 0 0 0 2px #FBEAEC;
 }
 
 .ea-raise-ticket-button {
-  background: var(--ea-primary);
+  background: #D71921;
   color: white;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease-out;
+  border-radius: 6px;
+  height: 40px;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .ea-raise-ticket-button:hover {
-  background: var(--ea-primary-dark);
+  background: #B3131B;
 }
 

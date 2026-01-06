@@ -154,7 +154,7 @@ export function AgentTickets() {
   const getStatusBadge = (status: string) => {
     switch (status?.toLowerCase()) {
       case 'open':
-        return <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"><Clock className="h-3 w-3 mr-1" />Open</Badge>;
+        return <Badge className="bg-[#FBEAEC] text-[#D71921] dark:bg-[#FBEAEC] dark:text-[#D71921]"><Clock className="h-3 w-3 mr-1" />Open</Badge>;
       case 'in_progress':
         return <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200"><AlertCircle className="h-3 w-3 mr-1" />In Progress</Badge>;
       case 'resolved':
@@ -175,7 +175,7 @@ export function AgentTickets() {
       case 'medium':
         return <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">Medium</Badge>;
       case 'low':
-        return <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">Low</Badge>;
+        return <Badge className="bg-[#FBEAEC] text-[#D71921] dark:bg-[#FBEAEC] dark:text-[#D71921]">Low</Badge>;
       default:
         return <Badge variant="outline">{priority}</Badge>;
     }

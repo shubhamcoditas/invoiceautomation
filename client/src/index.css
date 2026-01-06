@@ -62,8 +62,8 @@
 }
 
 [data-radix-select-item][data-state="checked"] {
-  background-color: rgba(37, 99, 235, 0.1) !important;
-  color: var(--primary) !important;
+  background-color: #FBEAEC !important;
+  color: var(--emirates-red) !important;
   font-weight: 600 !important;
 }
 
@@ -150,58 +150,58 @@
 /* Modern Input Field Styling - Removed heavy borders and updated to match design system */
 
 :root {
-  /* Blue Theme Colors - Flattened, Softer */
-  --blue-primary: #2563eb;
-  --blue-primary-light: #3b82f6;
-  --blue-primary-dark: #1d4ed8;
-  --blue-secondary: #60a5fa;
-  --blue-secondary-light: #93c5fd;
-  --blue-secondary-dark: #3b82f6;
-  --blue-accent: #dbeafe;
-  --blue-accent-light: #eff6ff;
-  --blue-accent-dark: #bfdbfe;
+  /* Emirates Brand Colors */
+  --emirates-red: #D71921;
+  --emirates-red-hover: #B3131B;
+  --emirates-red-light: #FBEAEC;
   
   /* Modern Color Palette - Flat, Minimal */
   --background: #F7F9FC;
   --background-solid: #F7F9FC;
-  --foreground: #1e293b;
+  --foreground: #1A1A1A;
   --card: #ffffff;
-  --card-foreground: #1e293b;
+  --card-foreground: #1A1A1A;
   --popover: #ffffff;
-  --popover-foreground: #1e293b;
-  --primary: var(--blue-primary);
+  --popover-foreground: #1A1A1A;
+  --primary: var(--emirates-red);
   --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
-  --secondary-foreground: #1e293b;
-  --muted: #f8fafc;
-  --muted-foreground: #64748b;
-  --accent: #e2e8f0;
-  --accent-foreground: #1e293b;
+  --secondary: #ffffff;
+  --secondary-foreground: var(--emirates-red);
+  --muted: #F2F2F2;
+  --muted-foreground: #888888;
+  --accent: #E6E6E6;
+  --accent-foreground: #1A1A1A;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
   --success: #10b981;
   --success-foreground: #ffffff;
   --warning: #f59e0b;
   --warning-foreground: #ffffff;
-  --border: #e2e8f0;
+  --border: #CCCCCC;
   --input: #ffffff;
-  --ring: var(--blue-primary);
-  --chart-1: var(--blue-primary);
-  --chart-2: var(--blue-secondary);
+  --ring: var(--emirates-red);
+  --chart-1: var(--emirates-red);
+  --chart-2: #60a5fa;
   --chart-3: #10b981;
   --chart-4: #f59e0b;
   --chart-5: #8b5cf6;
   
+  /* Table Colors */
+  --table-border: #E6E6E6;
+  --table-header-bg: #F2F2F2;
+  --table-row-hover: #FBEAEC;
+  --table-text: #1A1A1A;
+  
   /* Sidebar - Flat, No Gradients */
-  --sidebar: #2563eb;
-  --sidebar-solid: #2563eb;
+  --sidebar: var(--emirates-red);
+  --sidebar-solid: var(--emirates-red);
   --sidebar-foreground: #ffffff;
-  --sidebar-primary: var(--blue-secondary);
+  --sidebar-primary: var(--emirates-red);
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: rgba(255, 255, 255, 0.1);
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: rgba(255, 255, 255, 0.1);
-  --sidebar-ring: var(--blue-secondary);
+  --sidebar-ring: var(--emirates-red);
   --sidebar-muted: rgba(255, 255, 255, 0.6);
   
   /* Modern Typography */
@@ -209,32 +209,55 @@
   --font-serif: 'Playfair Display', 'Georgia', serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', 'Monaco', monospace;
   
-  /* Spacing Scale - 8px System */
+  /* Typography Scale - Emirates Design System */
+  --font-hero: 40px;
+  --font-hero-weight: 600;
+  --font-page-title: 28px;
+  --font-page-title-weight: 600;
+  --font-section-header: 20px;
+  --font-section-header-weight: 600;
+  --font-subsection-header: 16px;
+  --font-subsection-header-weight: 600;
+  --font-body: 14px;
+  --font-body-weight: 400;
+  --font-secondary: 13px;
+  --font-secondary-weight: 400;
+  --font-metadata: 12px;
+  --font-metadata-weight: 400;
+  --font-button: 14px;
+  --font-button-weight: 600;
+  
+  /* Spacing Scale - Emirates Design System (4, 8, 12, 16, 24, 32, 40, 48, 64) */
   --spacing-1: 0.25rem;  /* 4px */
   --spacing-2: 0.5rem;   /* 8px */
   --spacing-3: 0.75rem;  /* 12px */
   --spacing-4: 1rem;     /* 16px */
-  --spacing-5: 1.25rem;  /* 20px */
-  --spacing-6: 1.5rem;   /* 24px */
-  --spacing-8: 2rem;     /* 32px */
-  --spacing-10: 2.5rem;  /* 40px */
-  --spacing-12: 3rem;    /* 48px */
-  --spacing-16: 4rem;    /* 64px */
+  --spacing-6: 1.5rem;    /* 24px */
+  --spacing-8: 2rem;      /* 32px */
+  --spacing-10: 2.5rem;   /* 40px */
+  --spacing-12: 3rem;     /* 48px */
+  --spacing-16: 4rem;     /* 64px */
   
-  /* Border Radius - Medium, Modern */
-  --radius: 0.5rem;
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
+  /* Default Spacing */
+  --page-padding: 32px;
+  --section-spacing: 48px;
+  --card-padding: 24px;
+  --button-height: 40px;
   
-  /* Shadows - Subtle, Minimal */
-  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  /* Border Radius - Emirates Design System */
+  --radius: 6px;
+  --radius-sm: 6px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 8px;
+  
+  /* Shadows - Removed for Emirates Design System */
+  --shadow-xs: none;
+  --shadow-sm: none;
+  --shadow: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-xl: none;
   
   --tracking-normal: 0em;
   --spacing: 0.25rem;
@@ -296,65 +319,163 @@
     box-sizing: border-box;
   }
 
-  /* Typography Hierarchy - Modern, Clean */
+  /* Typography Hierarchy - Emirates Design System */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold text-foreground;
+    font-weight: 600;
+    color: var(--foreground);
     line-height: 1.2;
+    text-transform: none;
+    font-style: normal;
   }
 
   h1 {
-    @apply text-3xl;
+    font-size: var(--font-hero);
+    font-weight: var(--font-hero-weight);
   }
 
   h2 {
-    @apply text-2xl;
+    font-size: var(--font-page-title);
+    font-weight: var(--font-page-title-weight);
   }
 
   h3 {
-    @apply text-xl;
+    font-size: var(--font-section-header);
+    font-weight: var(--font-section-header-weight);
   }
 
   h4 {
-    @apply text-lg;
+    font-size: var(--font-subsection-header);
+    font-weight: var(--font-subsection-header-weight);
   }
 
   p {
-    @apply text-sm text-foreground;
+    font-size: var(--font-body);
+    font-weight: var(--font-body-weight);
+    color: var(--foreground);
     line-height: 1.5;
   }
 
-  /* Page titles - strong but not oversized */
+  /* Hero / Marketing Headline */
+  .hero-headline {
+    font-size: var(--font-hero);
+    font-weight: var(--font-hero-weight);
+    color: var(--foreground);
+    line-height: 1.2;
+  }
+
+  /* Page titles */
   .page-title {
-    @apply text-2xl font-semibold text-foreground;
+    font-size: var(--font-page-title);
+    font-weight: var(--font-page-title-weight);
+    color: var(--foreground);
   }
 
-  /* Section headers - medium weight */
+  /* Section headers */
   .section-header {
-    @apply text-lg font-medium text-foreground;
+    font-size: var(--font-section-header);
+    font-weight: var(--font-section-header-weight);
+    color: var(--foreground);
   }
 
-  /* Table text - neutral, highly readable */
-  .table-text {
-    @apply text-sm text-foreground;
+  /* Subsection headers */
+  .subsection-header {
+    font-size: var(--font-subsection-header);
+    font-weight: var(--font-subsection-header-weight);
+    color: var(--foreground);
+  }
+
+  /* Body text */
+  .body-text {
+    font-size: var(--font-body);
+    font-weight: var(--font-body-weight);
+    color: var(--foreground);
     line-height: 1.5;
+  }
+
+  /* Secondary text */
+  .secondary-text {
+    font-size: var(--font-secondary);
+    font-weight: var(--font-secondary-weight);
+    color: var(--muted-foreground);
+    line-height: 1.5;
+  }
+
+  /* Metadata / Caption */
+  .metadata-text {
+    font-size: var(--font-metadata);
+    font-weight: var(--font-metadata-weight);
+    color: var(--muted-foreground);
+    line-height: 1.5;
+  }
+
+  /* Table text */
+  .table-text {
+    font-size: var(--font-body);
+    font-weight: var(--font-body-weight);
+    color: var(--table-text);
+    line-height: 1.5;
+  }
+  
+  /* Table styling - No vertical borders */
+  table {
+    border-collapse: collapse;
+  }
+  
+  table th,
+  table td {
+    border-left: none;
+    border-right: none;
+  }
+  
+  table th:first-child,
+  table td:first-child {
+    border-left: none;
+  }
+  
+  table th:last-child,
+  table td:last-child {
+    border-right: none;
   }
 
   body {
-    @apply font-sans antialiased text-foreground;
+    font-family: var(--font-sans);
+    font-size: var(--font-body);
+    font-weight: var(--font-body-weight);
+    color: var(--foreground);
     background: var(--background-solid) !important;
     min-height: 100vh;
-    /* Smooth scrolling */
-    scroll-behavior: smooth;
-    /* Hardware acceleration */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* Better text rendering */
     text-rendering: optimizeLegibility;
-    /* Prevent horizontal scroll */
     overflow-x: hidden;
-    /* Better performance */
     -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
+    scroll-behavior: smooth;
+  }
+  
+  /* Page padding default */
+  main, .page-content {
+    padding: var(--page-padding);
+  }
+  
+  /* Section spacing */
+  section {
+    margin-bottom: var(--section-spacing);
+  }
+  
+  section:last-child {
+    margin-bottom: 0;
+  }
+  
+  /* Remove ALL CAPS, italics, and bold paragraphs */
+  * {
+    text-transform: none !important;
+    font-style: normal !important;
+  }
+  
+  /* Only allow weight and spacing for hierarchy */
+  strong, b {
+    font-weight: 600;
   }
 
   /* Smooth scrolling for all elements */
@@ -390,15 +511,20 @@
 }
 
 @layer components {
-  /* Modern Card Components - Flat, Clean */
+  /* Modern Card Components - Emirates Design System */
   .glass {
     background: var(--card);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--table-border);
+    border-radius: var(--radius-lg);
+    box-shadow: none;
   }
 
   .glass-card {
-    @apply glass rounded-lg p-6;
+    background: var(--card);
+    border: 1px solid var(--table-border);
+    border-radius: var(--radius-lg);
+    padding: var(--card-padding);
+    box-shadow: none;
   }
 
   /* Removed gradient text and glow effects for modern, flat design */
@@ -491,10 +617,12 @@
     background-color: var(--muted);
   }
 
-  /* Modern Cards - Flat, Clean */
+  /* Modern Cards - Emirates Design System */
   .modern-card {
-    @apply bg-card border border-border rounded-lg shadow-sm;
     background: var(--card) !important;
+    border: 1px solid var(--table-border) !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow: none !important;
   }
 
   .modern-card .modern-card-header,
@@ -539,7 +667,7 @@
   }
 
   .status-info {
-    @apply text-blue-600 bg-blue-50 border-blue-200;
+    @apply text-[#D71921] bg-[#FBEAEC] border-[#D71921];
   }
 
   /* Performance optimizations */

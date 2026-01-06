@@ -110,11 +110,11 @@ export function DownloadProgressBar({ downloads, onRemove, onCancel }: DownloadP
                             strokeDasharray={`${2 * Math.PI * 14}`}
                             strokeDashoffset={`${2 * Math.PI * 14 * (1 - download.progress / 100)}`}
                             strokeLinecap="round"
-                            className="text-blue-600 dark:text-blue-400 transition-all duration-300"
+                            className="text-[#D71921] dark:text-[#D71921] transition-all duration-300"
                           />
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <Loader2 className="h-3 w-3 animate-spin text-blue-600 dark:text-blue-400" />
+                          <Loader2 className="h-3 w-3 animate-spin text-[#D71921] dark:text-[#D71921]" />
                         </div>
                       </div>
                     )}

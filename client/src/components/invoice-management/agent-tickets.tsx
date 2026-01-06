@@ -167,7 +167,7 @@ export function AgentTickets() {
     switch (status.toLowerCase()) {
       case 'open':
         return (
-          <Badge className="bg-blue-100 text-blue-800 border-blue-200 flex items-center gap-1">
+          <Badge className="bg-[#FBEAEC] text-[#D71921] border-[#D71921] flex items-center gap-1">
             <AlertCircle className="h-3 w-3" />
             Open
           </Badge>
@@ -225,7 +225,7 @@ export function AgentTickets() {
         );
       case 'low':
         return (
-          <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+          <Badge className="bg-[#FBEAEC] text-[#D71921] border-[#D71921]">
             Low
           </Badge>
         );
@@ -392,7 +392,7 @@ export function AgentTickets() {
                   handleSearchByInvoiceId();
                 }
               }}
-              className="flex-1 h-12 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              className="flex-1 h-12 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-[#D71921] focus:ring-2 focus:ring-[#FBEAEC]"
               disabled={searchLoading}
             />
             <Button 

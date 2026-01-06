@@ -364,11 +364,12 @@ export function Sidebar() {
                     <Tooltip key={item.id} delayDuration={300}>
                       <TooltipTrigger asChild>
                         <Button
-                          variant={isActive ? "default" : "ghost"}
+                          variant="ghost"
                           className={cn(
-                            "w-full justify-center h-10 px-3 mb-1 transition-all duration-150",
-                            isActive && "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90",
-                            !isActive && "text-sidebar-foreground hover:bg-sidebar-accent"
+                            "w-full justify-center h-10 px-3 mb-1 transition-all duration-150 relative",
+                            isActive && "text-[#D71921] hover:text-[#D71921] hover:bg-transparent",
+                            !isActive && "text-sidebar-foreground hover:bg-sidebar-accent",
+                            isActive && "after:content-[''] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-[#D71921]"
                           )}
                           onClick={() => handleTabChange(item.id)}
                           data-testid={`nav-${item.id}`}
@@ -400,11 +401,12 @@ export function Sidebar() {
                       return (
                         <Button
                           key={item.id}
-                          variant={isActive ? "default" : "ghost"}
+                          variant="ghost"
                           className={cn(
-                            "w-full justify-start h-10 px-3 transition-all duration-150",
-                            isActive && "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90",
-                            !isActive && "text-sidebar-foreground hover:bg-sidebar-accent"
+                            "w-full justify-start h-10 px-3 transition-all duration-150 relative",
+                            isActive && "text-[#D71921] hover:text-[#D71921] hover:bg-transparent",
+                            !isActive && "text-sidebar-foreground hover:bg-sidebar-accent",
+                            isActive && "after:content-[''] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-[#D71921]"
                           )}
                           onClick={() => handleTabChange(item.id)}
                           data-testid={`nav-${item.id}`}
@@ -449,22 +451,23 @@ export function Sidebar() {
                         const isActive = state.currentTab === item.id;
                         
                         return (
-                          <Button
-                            key={item.id}
-                            variant={isActive ? "default" : "ghost"}
-                            className={cn(
-                              "w-full justify-start h-10 px-3 transition-all duration-150",
-                              isActive && "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90",
-                              !isActive && "text-sidebar-foreground hover:bg-sidebar-accent"
-                            )}
-                            onClick={() => handleTabChange(item.id)}
-                            data-testid={`nav-${item.id}`}
-                            aria-label={`Navigate to ${item.label}`}
-                            aria-current={isActive ? "page" : undefined}
-                          >
-                            <Icon className="mr-3 h-5 w-5" />
-                            {item.label}
-                          </Button>
+                        <Button
+                          key={item.id}
+                          variant="ghost"
+                          className={cn(
+                            "w-full justify-start h-10 px-3 transition-all duration-150 relative",
+                            isActive && "text-[#D71921] hover:text-[#D71921] hover:bg-transparent",
+                            !isActive && "text-sidebar-foreground hover:bg-sidebar-accent",
+                            isActive && "after:content-[''] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-[#D71921]"
+                          )}
+                          onClick={() => handleTabChange(item.id)}
+                          data-testid={`nav-${item.id}`}
+                          aria-label={`Navigate to ${item.label}`}
+                          aria-current={isActive ? "page" : undefined}
+                        >
+                          <Icon className="mr-3 h-5 w-5" />
+                          {item.label}
+                        </Button>
                         );
                       })}
                     </div>

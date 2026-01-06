@@ -45,8 +45,8 @@ type CategoryFilter = 'all' | 'authentication' | 'download' | 'sync';
 const categoryConfig: Record<string, { label: string; color: string; bgColor: string; icon: typeof LogIn }> = {
   authentication: { 
     label: 'Login', 
-    color: 'text-blue-700 dark:text-blue-300', 
-    bgColor: 'bg-blue-100 dark:bg-blue-900/50 border-blue-200 dark:border-blue-800',
+    color: 'text-[#D71921] dark:text-[#D71921]', 
+    bgColor: 'bg-[#FBEAEC] dark:bg-[#FBEAEC] border-[#E6E6E6] dark:border-[#E6E6E6]',
     icon: LogIn 
   },
   download: { 
@@ -306,7 +306,7 @@ export function AuditLogs() {
               checked={categoryFilter === 'authentication'}
               onCheckedChange={() => setCategoryFilter('authentication')}
             >
-              <LogIn className="h-4 w-4 mr-2 text-blue-600" />
+              <LogIn className="h-4 w-4 mr-2 text-[#D71921]" />
               Login Activities
             </DropdownMenuCheckboxItem>
             <DropdownMenuCheckboxItem

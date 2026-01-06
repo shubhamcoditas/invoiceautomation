@@ -36,11 +36,11 @@ export const entityConfigs: Record<string, EntityConfig> = {
     id: 'emirates',
     name: 'Emirates',
     displayName: 'Emirates Invoice Downloader',
-    primaryColor: '#2563eb', // Blue primary
-    secondaryColor: '#60a5fa', // Blue secondary
-    accentColor: '#dbeafe', // Light blue accent
-    textColor: '#1e293b',
-    backgroundColor: '#f0f9ff', // Light blue background
+    primaryColor: '#D71921', // Emirates red
+    secondaryColor: '#B3131B', // Emirates red hover
+    accentColor: '#FBEAEC', // Light red accent
+    textColor: '#1A1A1A',
+    backgroundColor: '#F7F9FC', // Light background
     onboardingDate: '05 Jan 2026',
     features: {
       qrScanner: true,

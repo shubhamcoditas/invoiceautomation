@@ -252,14 +252,14 @@ export function EASignIn({ onSignInSuccess }: EASignInProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blue-50 via-blue-100 to-sky-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-700">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-[#FBEAEC] via-[#FBEAEC] to-[#FBEAEC] dark:from-slate-900 dark:via-slate-800 dark:to-slate-700">
       <div className="w-full max-w-md space-y-5 -mt-16">
         {/* Emirates Branding */}
         <div className="text-center">
           <div className="inline-flex items-center justify-center mb-5">
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-[#1964d7] to-[#1582b0] rounded-xl blur-lg opacity-50 animate-pulse"></div>
-              <div className="relative bg-gradient-to-br from-[#1964d7] to-[#1582b0] p-4 rounded-xl shadow-xl">
+              <div className="absolute inset-0 bg-gradient-to-br from-[#D71921] to-[#B3131B] rounded-xl blur-lg opacity-50 animate-pulse"></div>
+              <div className="relative bg-gradient-to-br from-[#D71921] to-[#B3131B] p-4 rounded-xl shadow-xl">
                 <Plane className="h-8 w-8 text-white" />
               </div>
             </div>
@@ -270,14 +270,14 @@ export function EASignIn({ onSignInSuccess }: EASignInProps) {
           <p className="text-lg text-gray-700 dark:text-gray-300 font-medium mb-1">
             Invoice Downloader Portal
           </p>
-          <p className="text-sm text-[#1964d7] dark:text-blue-400 font-semibold">
+          <p className="text-sm text-[#D71921] dark:text-[#D71921] font-semibold">
             {isSignUp ? "User Sign Up" : "User Login"}
           </p>
         </div>
 
         {/* Sign In/Sign Up Card */}
-        <Card className="border-2 border-[#1964d7]/20 shadow-xl">
-          <CardHeader className="bg-gradient-to-r from-[#1964d7] to-[#1582b0] text-white rounded-t-lg py-5">
+        <Card className="border-2 border-[#D71921]/20 shadow-xl">
+          <CardHeader className="bg-gradient-to-r from-[#D71921] to-[#B3131B] text-white rounded-t-lg py-5">
             <div className="flex items-center gap-3">
               <div className="p-2 rounded-lg bg-white/20">
                 <Shield className="h-5 w-5" />
@@ -353,7 +353,7 @@ export function EASignIn({ onSignInSuccess }: EASignInProps) {
                 </div>
 
                 {/* Dummy CAPTCHA */}
-                <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800/50 border-2 border-gray-200 dark:border-gray-700 rounded-lg">
+                <div className="flex items-center gap-3 p-4 bg-white dark:bg-gray-800/50 border-2 border-[#E6E6E6] dark:border-gray-700 rounded-lg">
                   <Checkbox
                     id="captcha"
                     checked={captchaVerified}
@@ -386,7 +386,7 @@ export function EASignIn({ onSignInSuccess }: EASignInProps) {
                 <Button
                   onClick={isSignUp ? handleSignUp : handleSendOTP}
                   disabled={isSendingOTP || !email.trim() || (isSignUp && !username.trim()) || !captchaVerified}
-                  className="w-full h-12 bg-gradient-to-r from-[#1964d7] to-[#1582b0] hover:from-[#1582b0] hover:to-[#1964d7] text-white shadow-lg hover:shadow-xl transition-all duration-200 text-base font-semibold"
+                  className="w-full h-12 bg-gradient-to-r from-[#D71921] to-[#B3131B] hover:from-[#B3131B] hover:to-[#D71921] text-white shadow-lg hover:shadow-xl transition-all duration-200 text-base font-semibold"
                 >
                   {isSendingOTP ? (
                     <>
@@ -415,7 +415,7 @@ export function EASignIn({ onSignInSuccess }: EASignInProps) {
                         setUsernameError("");
                         setCaptchaVerified(false);
                       }}
-                      className="h-auto p-0 text-[#1964d7] hover:text-[#1582b0] font-medium"
+                      className="h-auto p-0 text-[#D71921] hover:text-[#B3131B] font-medium"
                     >
                       Sign Up
                     </Button>
@@ -438,7 +438,7 @@ export function EASignIn({ onSignInSuccess }: EASignInProps) {
                     onKeyPress={handleKeyPress}
                     maxLength={6}
                     className={cn(
-                      "h-14 text-center text-2xl font-mono tracking-[0.5em] border-2 focus:border-[#1964d7] focus:ring-[#1964d7]/20",
+                      "h-14 text-center text-2xl font-mono tracking-[0.5em] border-2 focus:border-[#D71921] focus:ring-[#D71921]/20",
                       otpError && "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                     )}
                     disabled={isVerifyingOTP || isActivating}
@@ -459,7 +459,7 @@ export function EASignIn({ onSignInSuccess }: EASignInProps) {
                         setOtpError("");
                         setCaptchaVerified(false);
                       }}
-                      className="h-auto p-0 text-[#1964d7] hover:text-[#1582b0] font-medium"
+                      className="h-auto p-0 text-[#D71921] hover:text-[#B3131B] font-medium"
                     >
                       Change {isSignUp ? "Email" : "Email"}
                     </Button>
@@ -469,7 +469,7 @@ export function EASignIn({ onSignInSuccess }: EASignInProps) {
                 <Button
                   onClick={isSignUp ? handleActivateAccount : handleVerifyOTP}
                   disabled={(isVerifyingOTP || isActivating) || !otp.trim() || otp.length !== 6}
-                  className="w-full h-12 bg-gradient-to-r from-[#1964d7] to-[#1582b0] hover:from-[#1582b0] hover:to-[#1964d7] text-white shadow-lg hover:shadow-xl transition-all duration-200 text-base font-semibold"
+                  className="w-full h-12 bg-gradient-to-r from-[#D71921] to-[#B3131B] hover:from-[#B3131B] hover:to-[#D71921] text-white shadow-lg hover:shadow-xl transition-all duration-200 text-base font-semibold"
                 >
                   {(isVerifyingOTP || isActivating) ? (
                     <>

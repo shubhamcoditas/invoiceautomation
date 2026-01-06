@@ -237,7 +237,7 @@ export function ServiceLevelCost() {
                           <TableCell className="text-right font-semibold text-base">
                             {formatCurrency(cost.totalCost)}
                           </TableCell>
-                          <TableCell className="text-right font-semibold text-base text-blue-600">
+                          <TableCell className="text-right font-semibold text-base text-[#D71921]">
                             {formatCurrency(cost.costPerUnit)}
                           </TableCell>
                         </TableRow>
@@ -252,7 +252,7 @@ export function ServiceLevelCost() {
                                     {cost.totalCost > 0 && (
                                       <div className="w-full bg-gray-200 rounded-full h-2">
                                         <div 
-                                          className="bg-blue-600 h-2 rounded-full" 
+                                          className="bg-[#D71921] h-2 rounded-full" 
                                           style={{ width: `${directPct}%` }}
                                         />
                                       </div>
@@ -304,7 +304,7 @@ export function ServiceLevelCost() {
                                     {cost.uom && parseFloat(cost.uom) > 0 && (
                                       <div className="text-right">
                                         <div className="text-sm font-medium text-muted-foreground">Cost Per Unit</div>
-                                        <div className="text-2xl font-bold text-blue-600">{formatCurrency(cost.costPerUnit)}</div>
+                                        <div className="text-2xl font-bold text-[#D71921]">{formatCurrency(cost.costPerUnit)}</div>
                                         <div className="text-xs text-muted-foreground mt-1">UOM: {cost.uom}</div>
                                       </div>
                                     )}

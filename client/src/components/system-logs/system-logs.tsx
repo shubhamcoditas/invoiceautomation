@@ -121,23 +121,23 @@ export function SystemLogs() {
             </div>
             <div className="flex items-center space-x-3">
               <Select value={filterLevel} onValueChange={setFilterLevel}>
-                <SelectTrigger className="w-32 h-10 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200" data-testid="select-filter-level">
+                <SelectTrigger className="w-32 h-10 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-[#D71921] focus:ring-2 focus:ring-[#FBEAEC]" data-testid="select-filter-level">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-2 border-gray-300 shadow-2xl rounded-lg z-[100] p-2">
-                  <SelectItem value="all" className="p-3 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer font-medium rounded-md transition-colors duration-150 data-[state=checked]:bg-blue-100 data-[state=checked]:text-blue-900">All Levels</SelectItem>
-                  <SelectItem value="success" className="p-3 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer font-medium rounded-md transition-colors duration-150 data-[state=checked]:bg-blue-100 data-[state=checked]:text-blue-900">Success</SelectItem>
-                  <SelectItem value="error" className="p-3 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer font-medium rounded-md transition-colors duration-150 data-[state=checked]:bg-blue-100 data-[state=checked]:text-blue-900">Error</SelectItem>
+                  <SelectItem value="all" className="p-3 hover:bg-[#FBEAEC] focus:bg-[#FBEAEC] cursor-pointer font-medium rounded-md transition-colors duration-150 data-[state=checked]:bg-[#FBEAEC] data-[state=checked]:text-[#D71921]">All Levels</SelectItem>
+                  <SelectItem value="success" className="p-3 hover:bg-[#FBEAEC] focus:bg-[#FBEAEC] cursor-pointer font-medium rounded-md transition-colors duration-150 data-[state=checked]:bg-[#FBEAEC] data-[state=checked]:text-[#D71921]">Success</SelectItem>
+                  <SelectItem value="error" className="p-3 hover:bg-[#FBEAEC] focus:bg-[#FBEAEC] cursor-pointer font-medium rounded-md transition-colors duration-150 data-[state=checked]:bg-[#FBEAEC] data-[state=checked]:text-[#D71921]">Error</SelectItem>
                 </SelectContent>
               </Select>
               <Select value={filterModule} onValueChange={setFilterModule}>
-                <SelectTrigger className="w-40 h-10 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200" data-testid="select-filter-module">
+                <SelectTrigger className="w-40 h-10 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-[#D71921] focus:ring-2 focus:ring-[#FBEAEC]" data-testid="select-filter-module">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-2 border-gray-300 shadow-2xl rounded-lg z-[100] p-2">
-                  <SelectItem value="all" className="p-3 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer font-medium rounded-md transition-colors duration-150 data-[state=checked]:bg-blue-100 data-[state=checked]:text-blue-900">All Modules</SelectItem>
+                  <SelectItem value="all" className="p-3 hover:bg-[#FBEAEC] focus:bg-[#FBEAEC] cursor-pointer font-medium rounded-md transition-colors duration-150 data-[state=checked]:bg-[#FBEAEC] data-[state=checked]:text-[#D71921]">All Modules</SelectItem>
                   {uniqueModules.map((module) => (
-                    <SelectItem key={module} value={module} className="p-3 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer font-medium rounded-md transition-colors duration-150 data-[state=checked]:bg-blue-100 data-[state=checked]:text-blue-900">{module}</SelectItem>
+                    <SelectItem key={module} value={module} className="p-3 hover:bg-[#FBEAEC] focus:bg-[#FBEAEC] cursor-pointer font-medium rounded-md transition-colors duration-150 data-[state=checked]:bg-[#FBEAEC] data-[state=checked]:text-[#D71921]">{module}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -147,7 +147,7 @@ export function SystemLogs() {
                   placeholder="Filter by Request ID..."
                   value={requestIdFilter}
                   onChange={(e) => setRequestIdFilter(e.target.value)}
-                  className="w-48 h-10 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 font-mono text-sm"
+                  className="w-48 h-10 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-[#D71921] focus:ring-2 focus:ring-[#FBEAEC] font-mono text-sm"
                   data-testid="input-filter-request-id"
                 />
                 {requestIdFilter && (
@@ -167,7 +167,7 @@ export function SystemLogs() {
                   placeholder="Search logs..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-64 h-10 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                  className="w-64 h-10 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-[#D71921] focus:ring-2 focus:ring-[#FBEAEC]"
                   data-testid="input-search-logs"
                 />
               </div>
@@ -229,7 +229,7 @@ export function SystemLogs() {
                               <div className="flex items-center">
                                 <Hash className="h-3 w-3 mr-1 text-muted-foreground" />
                                 <span 
-                                  className="text-foreground font-mono text-xs cursor-pointer hover:text-blue-600 hover:underline"
+                                  className="text-foreground font-mono text-xs cursor-pointer hover:text-[#D71921] hover:underline"
                                   onClick={() => {
                                     setRequestIdFilter(log.requestId || '');
                                     toast({

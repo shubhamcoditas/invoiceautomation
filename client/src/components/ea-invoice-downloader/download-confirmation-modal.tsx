@@ -62,17 +62,17 @@ export function DownloadConfirmationModal({
 
         <div className="space-y-6 py-4">
           {/* Download Summary */}
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+          <div className="bg-gradient-to-br from-[#FBEAEC] to-[#FBEAEC] dark:from-[#FBEAEC] dark:to-[#FBEAEC] rounded-lg p-4 border border-[#E6E6E6] dark:border-[#E6E6E6]">
             <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                <DocumentIcon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <div className="p-2 rounded-lg bg-[#FBEAEC] dark:bg-[#FBEAEC]">
+                <DocumentIcon className="h-5 w-5 text-[#D71921] dark:text-[#D71921]" />
               </div>
               <div>
                 <p className="font-semibold text-gray-900 dark:text-white">{documentLabel}</p>
-                <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{count} documents</p>
+                <p className="text-2xl font-bold text-[#D71921] dark:text-[#D71921]">{count} documents</p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3 pt-3 border-t border-blue-200 dark:border-blue-800">
+            <div className="grid grid-cols-2 gap-3 pt-3 border-t border-[#E6E6E6] dark:border-[#E6E6E6]">
               <div>
                 <p className="text-xs text-gray-600 dark:text-gray-400">Total Files</p>
                 <p className="text-sm font-semibold text-gray-900 dark:text-white">{totalFiles}</p>
@@ -104,11 +104,11 @@ export function DownloadConfirmationModal({
               </div>
             </div>
 
-            <div className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-              <Wifi className="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+            <div className="flex items-start gap-3 p-3 bg-[#FBEAEC] dark:bg-[#FBEAEC] rounded-lg border border-[#E6E6E6] dark:border-[#E6E6E6]">
+              <Wifi className="h-5 w-5 text-[#D71921] dark:text-[#D71921] flex-shrink-0 mt-0.5" />
               <div className="text-sm">
-                <p className="font-semibold text-blue-900 dark:text-blue-100 mb-1">Network Requirements</p>
-                <p className="text-blue-800 dark:text-blue-200">
+                <p className="font-semibold text-[#1A1A1A] dark:text-[#1A1A1A] mb-1">Network Requirements</p>
+                <p className="text-[#1A1A1A] dark:text-[#1A1A1A]">
                   A stable connection is recommended for large downloads. The download progress will be shown in a floating bar at the bottom of the screen.
                 </p>
               </div>

@@ -119,8 +119,8 @@ export function Header() {
   const defaultRole = isInvoiceManagement ? 'Admin' : 'Application Admin';
 
   return (
-    <header className="bg-card border-b border-border px-6 py-4 transition-all duration-200" data-testid="header">
-      <div className="flex justify-between items-center">
+    <header className="bg-white border-b border-[#E6E6E6] px-8 h-[64px] flex items-center transition-all duration-200 shadow-none" data-testid="header">
+      <div className="flex justify-between items-center w-full">
         <div className="flex items-center space-x-4">
           {/* Current Tab Icon */}
           <div className="flex items-center space-x-3">
@@ -133,10 +133,10 @@ export function Header() {
               })()}
             </div>
             <div>
-              <h2 className="text-2xl font-semibold text-foreground" data-testid="page-title">
+              <h2 className="text-[28px] font-semibold text-[#1A1A1A]" data-testid="page-title">
                 {currentTabInfo.title}
               </h2>
-              <p className="text-muted-foreground text-sm mt-0.5" data-testid="page-subtitle">
+              <p className="text-[#888888] text-[13px] mt-0.5" data-testid="page-subtitle">
                 {currentTabInfo.subtitle}
               </p>
             </div>

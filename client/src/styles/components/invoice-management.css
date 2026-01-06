@@ -1,46 +1,38 @@
 /* Invoice Management Component Styles */
 
-/* Color Variables */
+/* Color Variables - Emirates Design System */
 :root {
-  --im-primary: #2563eb;
-  --im-primary-light: #60a5fa;
-  --im-primary-dark: #1d4ed8;
-  --im-primary-darker: #1e40af;
-  --im-primary-light-bg: rgba(37, 99, 235, 0.08);
-  --im-primary-border: rgba(37, 99, 235, 0.1);
-  --im-primary-text: #2563eb;
-  
-  --im-blue-primary: #00338D;
-  --im-blue-primary-light: #4A90E2;
-  --im-blue-primary-dark: #001F5C;
-  --im-blue-primary-border: rgba(0, 51, 141, 0.2);
-  --im-blue-primary-text: #00338D;
+  --im-primary: #D71921;
+  --im-primary-light: #FBEAEC;
+  --im-primary-dark: #B3131B;
+  --im-primary-darker: #8B1015;
+  --im-primary-light-bg: #FBEAEC;
+  --im-primary-border: rgba(215, 25, 33, 0.2);
+  --im-primary-text: #D71921;
 }
 
-/* Card Styles */
+/* Card Styles - Emirates Design System */
 .im-card {
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  border: 1px solid #E6E6E6;
+  box-shadow: none;
   animation: fadeIn 0.3s ease-in;
 }
 
 .im-card-header {
-  background: linear-gradient(135deg, var(--im-primary-light-bg) 0%, rgba(96, 165, 250, 0.12) 50%, rgba(219, 234, 254, 0.15) 100%);
-  border-bottom: 1px solid var(--im-primary-border);
-  margin-left: -1.5rem;
-  margin-right: -1.5rem;
-  margin-top: -1.5rem;
-  padding: 1.5rem;
-  padding-bottom: 1rem;
-  border-radius: 0.75rem 0.75rem 0 0;
+  background: #F2F2F2;
+  border-bottom: 1px solid #E6E6E6;
+  margin-left: -24px;
+  margin-right: -24px;
+  margin-top: -24px;
+  padding: 24px;
+  padding-bottom: 16px;
+  border-radius: 8px 8px 0 0;
 }
 
 .im-card-title {
-  background: linear-gradient(135deg, var(--im-primary) 0%, var(--im-primary-light) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  color: transparent;
+  color: #1A1A1A;
+  font-size: 20px;
+  font-weight: 600;
 }
 
 .im-card-subtitle {
@@ -53,29 +45,37 @@
   color: #9ca3af;
 }
 
-/* Button Styles */
+/* Button Styles - Emirates Design System */
 .im-button-primary {
-  background: linear-gradient(135deg, var(--im-primary) 0%, var(--im-primary-light) 100%);
+  background: #D71921;
   color: white;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
+  box-shadow: none;
+  transition: all 0.15s ease-out;
   border: 0;
+  border-radius: 6px;
+  height: 40px;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .im-button-primary:hover {
-  background: linear-gradient(135deg, var(--im-primary-dark) 0%, var(--im-primary) 100%);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  transform: scale(1.05);
+  background: #B3131B;
+  box-shadow: none;
+  transform: none;
 }
 
 .im-button-blue {
-  background: linear-gradient(135deg, var(--im-blue-primary) 0%, var(--im-blue-primary-light) 100%);
+  background: #D71921;
   color: white;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease-out;
+  border-radius: 6px;
+  height: 40px;
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .im-button-blue:hover {
-  background: linear-gradient(135deg, var(--im-blue-primary-dark) 0%, var(--im-blue-primary) 100%);
+  background: #B3131B;
 }
 
 /* Input Styles */
@@ -91,8 +91,8 @@
 }
 
 .im-input:focus {
-  border-color: var(--im-primary);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+  border-color: #D71921;
+  box-shadow: 0 0 0 2px #FBEAEC;
 }
 
 /* Select Styles */
@@ -108,8 +108,8 @@
 }
 
 .im-select-trigger:focus {
-  border-color: var(--im-primary);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+  border-color: #D71921;
+  box-shadow: 0 0 0 2px #FBEAEC;
 }
 
 .im-select-content {
@@ -131,7 +131,7 @@
 
 .im-select-item:hover,
 .im-select-item:focus {
-  background-color: rgba(37, 99, 235, 0.05);
+  background-color: #FBEAEC;
 }
 
 /* Textarea Styles */
@@ -147,8 +147,8 @@
 }
 
 .im-textarea:focus {
-  border-color: var(--im-primary);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+  border-color: #D71921;
+  box-shadow: 0 0 0 2px #FBEAEC;
 }
 
 /* Table Row Hover */
@@ -157,11 +157,11 @@
 }
 
 .im-table-row-hover:hover {
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.05) 0%, rgba(99, 102, 241, 0.05) 100%);
+  background: #FBEAEC;
 }
 
 .dark .im-table-row-hover:hover {
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
+  background: #FBEAEC;
 }
 
 /* Animations */
