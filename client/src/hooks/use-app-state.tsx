@@ -34,7 +34,7 @@ type AppAction =
   | { type: 'SWITCH_USER_ROLE'; payload: string };
 
 const initialState: AppState = {
-  currentTab: 'qr-scanner',
+  currentTab: 'landing',
   extractedQRData: null,
   extractedPDFData: [],
   egamData: [],
@@ -54,7 +54,20 @@ const initialState: AppState = {
 const appReducer = (state: AppState, action: AppAction): AppState => {
   switch (action.type) {
     case 'SET_CURRENT_TAB':
-      return { ...state, currentTab: action.payload, isTransitioning: true };
+      // Check if entering Emirates Airline module - auto-set role to Admin
+      const isEAModule = action.payload?.startsWith('ea-') || 
+                         action.payload === 'ea-invoice-downloader' ||
+                         action.payload === 'ea-agent-tickets' ||
+                         action.payload === 'ea-audit-logs';
+      
+      const updatedState = { ...state, currentTab: action.payload, isTransitioning: true };
+      
+      // Auto-set role to Admin when entering EA module
+      if (isEAModule && state.currentUser) {
+        updatedState.currentUser = { ...state.currentUser, role: 'Admin' };
+      }
+      
+      return updatedState;
     case 'SET_QR_DATA':
       return { ...state, extractedQRData: action.payload };
     case 'SET_PDF_DATA':

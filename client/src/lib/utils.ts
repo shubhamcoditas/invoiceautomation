@@ -43,6 +43,23 @@ export function formatDateTime(dateString: string | Date): string {
 }
 
 /**
+ * Formats a number as Indian Rupee currency
+ * @param amount - The amount to format
+ * @returns Formatted currency string (e.g., "₹1,23,456.78")
+ */
+export function formatCurrency(amount: number | string): string {
+  const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  if (isNaN(numAmount)) return '₹0.00';
+  
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 2,
+    minimumFractionDigits: 2,
+  }).format(numAmount);
+}
+
+/**
  * Standard status badge configuration for success and error states
  */
 export const statusBadgeConfig = {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { FileBarChart, Search, Loader2, Clock, CheckCircle, AlertTriangle, User, Download } from "lucide-react";
+import { FileBarChart, Search, Loader2, Clock, CheckCircle, AlertTriangle, User, Download, Hash, X } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { formatDateTime, statusBadgeConfig } from "@/lib/utils";
@@ -14,93 +14,64 @@ import { exportToExcel } from "@/lib/excel-export";
 
 export function SystemLogs() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [requestIdFilter, setRequestIdFilter] = useState("");
   const [filterLevel, setFilterLevel] = useState("all");
   const [filterModule, setFilterModule] = useState("all");
   const { toast } = useToast();
 
-  // Generate dummy system logs data
-  const generateDummyLogs = () => {
-    const now = new Date();
-    const baseTime = now.getTime();
-    
-    const logTypes = [
-      // QR Scan logs
-      { module: 'QR Scanner', level: 'success', message: 'QR code scanned successfully', details: 'Invoice: INV-2024-001, Amount: ₹15,000', user: 'admin@company.com' },
-      { module: 'QR Scanner', level: 'error', message: 'QR code scan failed', details: 'Invalid QR format or corrupted data', user: 'vendor1@example.com' },
-      { module: 'QR Scanner', level: 'success', message: 'Bulk QR processing completed', details: 'Processed 25 QR codes in 2.3 seconds', user: 'admin@company.com' },
-      { module: 'QR Scanner', level: 'error', message: 'QR validation failed', details: 'Invalid QR string format detected', user: 'vendor2@example.com' },
-      { module: 'QR Scanner', level: 'success', message: 'QR data extraction completed', details: 'Successfully extracted invoice details', user: 'admin@company.com' },
-      
-      // PDF Upload logs
-      { module: 'PDF Upload', level: 'success', message: 'PDF uploaded and processed', details: 'Invoice PDF: invoice_2024_001.pdf, Type: Tax Invoice', user: 'vendor1@example.com' },
-      { module: 'PDF Upload', level: 'error', message: 'PDF processing failed', details: 'Corrupted PDF file or unsupported format', user: 'vendor3@example.com' },
-      { module: 'PDF Upload', level: 'success', message: 'PDF data validation passed', details: 'All required fields extracted successfully', user: 'admin@company.com' },
-      { module: 'PDF Upload', level: 'error', message: 'PDF text extraction failed', details: 'OCR processing failed for scanned document', user: 'vendor2@example.com' },
-      { module: 'PDF Upload', level: 'success', message: 'PDF invoice data extracted', details: 'Successfully extracted GST details from PDF', user: 'vendor1@example.com' },
-      
-      // EGAM Sync logs
-      { module: 'EGAM Sync', level: 'success', message: 'EGAM data sync completed', details: 'Synced 150 records from KIGS API', user: 'system@company.com' },
-      { module: 'EGAM Sync', level: 'error', message: 'EGAM sync failed', details: 'Connection timeout to KIGS API', user: 'system@company.com' },
-      { module: 'EGAM Sync', level: 'success', message: 'Manual EGAM pull completed', details: 'User initiated pull: 89 records processed', user: 'admin@company.com' },
-      { module: 'EGAM Sync', level: 'error', message: 'EGAM data validation failed', details: 'Invalid data format received from KIGS', user: 'system@company.com' },
-      { module: 'EGAM Sync', level: 'success', message: 'EGAM repository updated', details: 'Added 25 new invoice records', user: 'system@company.com' },
-      
-      // Validation API logs
-      { module: 'Validation API', level: 'success', message: 'Taxpayer validation completed', details: 'GSTIN: 27ABCDE1234F1Z5 validated successfully', user: 'vendor1@example.com' },
-      { module: 'Validation API', level: 'error', message: 'Validation API failed', details: 'Invalid GSTIN format provided', user: 'vendor2@example.com' },
-      { module: 'Validation API', level: 'success', message: 'Bulk validation completed', details: 'Validated 50 GSTINs in 3.2 seconds', user: 'admin@company.com' },
-      { module: 'Validation API', level: 'error', message: 'API request failed', details: 'Network timeout during validation request', user: 'vendor3@example.com' },
-      { module: 'Validation API', level: 'success', message: 'API response processed', details: 'Response time: 245ms, Status: 200', user: 'admin@company.com' },
-      
-      // Notice API logs
-      { module: 'Notice API', level: 'success', message: 'Notice generation completed', details: 'Generated 12 notices for compliance period', user: 'system@company.com' },
-      { module: 'Notice API', level: 'error', message: 'Notice generation failed', details: 'Database connection error during notice creation', user: 'system@company.com' },
-      { module: 'Notice API', level: 'success', message: 'Notice response processed', details: 'Received 5 responses from taxpayers', user: 'admin@company.com' },
-      { module: 'Notice API', level: 'error', message: 'Notice delivery failed', details: 'Email service temporarily unavailable', user: 'system@company.com' },
-      { module: 'Notice API', level: 'success', message: 'Notice tracking updated', details: '3 notices delivered, 2 pending', user: 'system@company.com' }
-    ];
-    
-    return logTypes.map((log, index) => ({
-      id: `log-${index + 1}`,
-      timestamp: new Date(baseTime - (index * 15 * 60 * 1000) - (Math.random() * 10 * 60 * 1000)).toISOString(),
-      module: log.module,
-      level: log.level,
-      message: log.message,
-      details: log.details,
-      user: log.user
-    }));
-  };
-
-  // Use dummy data instead of API call
-  const systemLogs = generateDummyLogs();
-  const isLoading = false;
-
-  // Filter logs based on search term, level, and module
-  const filteredLogs = systemLogs.filter((log: any) => {
-    const matchesSearch = searchTerm === "" || (
-      log.message.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.module.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      log.user.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (log.details && log.details.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-    
-    const matchesLevel = filterLevel === "all" || log.level.toLowerCase() === filterLevel.toLowerCase();
-    const matchesModule = filterModule === "all" || log.module === filterModule;
-    
-    return matchesSearch && matchesLevel && matchesModule;
+  // Fetch system logs from API
+  const { data: systemLogs = [], isLoading } = useQuery({
+    queryKey: ['system-logs', filterLevel, requestIdFilter],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (filterLevel !== 'all') {
+        params.append('level', filterLevel);
+      }
+      if (requestIdFilter) {
+        params.append('requestId', requestIdFilter);
+      }
+      const url = `/api/system-logs${params.toString() ? `?${params.toString()}` : ''}`;
+      return apiRequest<Array<{
+        id: string;
+        timestamp: string;
+        level: string;
+        module: string;
+        message: string;
+        details?: string | null;
+        requestId?: string | null;
+      }>>(url);
+    },
   });
 
+  // Filter logs based on search term and module (level and requestId are handled by API)
+  const filteredLogs = useMemo(() => {
+    return systemLogs.filter((log: any) => {
+      const matchesSearch = searchTerm === "" || (
+        log.message?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        log.module?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (log.details && log.details.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (log.requestId && log.requestId.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
+      
+      const matchesModule = filterModule === "all" || log.module === filterModule;
+      
+      return matchesSearch && matchesModule;
+    });
+  }, [systemLogs, searchTerm, filterModule]);
+
   // Get unique modules for filter dropdown
-  const uniqueModules = Array.from(new Set(systemLogs.map((log: any) => log.module))).sort();
+  const uniqueModules = useMemo(() => {
+    return Array.from(new Set(systemLogs.map((log: any) => log.module).filter(Boolean))).sort();
+  }, [systemLogs]);
 
   // Export logs to Excel
   const handleExportLogs = () => {
     const exportData = filteredLogs.map((log: any) => ({
       'Timestamp': formatDateTime(log.timestamp),
-      'Level': log.level.charAt(0).toUpperCase() + log.level.slice(1),
-      'Module': log.module,
-      'User': log.user,
-      'Message': log.message,
+      'Level': log.level?.charAt(0).toUpperCase() + log.level?.slice(1) || '-',
+      'Module': log.module || '-',
+      'Request ID': log.requestId || '-',
+      'Message': log.message || '-',
       'Details': log.details || '-'
     }));
 
@@ -171,6 +142,26 @@ export function SystemLogs() {
                 </SelectContent>
               </Select>
               <div className="flex items-center space-x-2">
+                <Hash className="h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Filter by Request ID..."
+                  value={requestIdFilter}
+                  onChange={(e) => setRequestIdFilter(e.target.value)}
+                  className="w-48 h-10 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 font-mono text-sm"
+                  data-testid="input-filter-request-id"
+                />
+                {requestIdFilter && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setRequestIdFilter("")}
+                    className="h-10 w-10 p-0"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+              <div className="flex items-center space-x-2">
                 <Search className="h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search logs..."
@@ -208,7 +199,7 @@ export function SystemLogs() {
                       <TableHead className="font-semibold text-foreground">Timestamp</TableHead>
                       <TableHead className="font-semibold text-foreground">Level</TableHead>
                       <TableHead className="font-semibold text-foreground">Module</TableHead>
-                      <TableHead className="font-semibold text-foreground">User</TableHead>
+                      <TableHead className="font-semibold text-foreground">Request ID</TableHead>
                       <TableHead className="font-semibold text-foreground">Message</TableHead>
                       <TableHead className="font-semibold text-foreground">Details</TableHead>
                     </TableRow>
@@ -232,14 +223,30 @@ export function SystemLogs() {
                           <TableCell className="py-4">
                             {getStatusBadge(log.level)}
                           </TableCell>
-                          <TableCell className="font-medium text-foreground py-4">{log.module}</TableCell>
+                          <TableCell className="font-medium text-foreground py-4">{log.module || '-'}</TableCell>
                           <TableCell className="py-4">
-                            <div className="flex items-center">
-                              <User className="h-4 w-4 text-muted-foreground mr-2" />
-                              <span className="text-foreground">{log.user}</span>
-                            </div>
+                            {log.requestId ? (
+                              <div className="flex items-center">
+                                <Hash className="h-3 w-3 mr-1 text-muted-foreground" />
+                                <span 
+                                  className="text-foreground font-mono text-xs cursor-pointer hover:text-blue-600 hover:underline"
+                                  onClick={() => {
+                                    setRequestIdFilter(log.requestId || '');
+                                    toast({
+                                      title: "Request ID Filter Applied",
+                                      description: `Filtering logs for Request ID: ${log.requestId}`,
+                                    });
+                                  }}
+                                  title="Click to filter by this Request ID"
+                                >
+                                  {log.requestId.substring(0, 8)}...
+                                </span>
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground text-xs">-</span>
+                            )}
                           </TableCell>
-                          <TableCell className="text-foreground py-4">{log.message}</TableCell>
+                          <TableCell className="text-foreground py-4">{log.message || '-'}</TableCell>
                           <TableCell className="text-xs text-muted-foreground max-w-xs truncate py-4">
                             {log.details || '-'}
                           </TableCell>

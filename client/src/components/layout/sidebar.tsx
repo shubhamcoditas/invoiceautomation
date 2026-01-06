@@ -20,11 +20,85 @@ import {
   Bell,
   Settings,
   Building2,
-  BarChart3
+  BarChart3,
+  Home,
+  ArrowLeft,
+  TrendingUp,
+  Layers,
+  Package,
+  Boxes,
+  Calculator,
+  DollarSign,
+  BarChart,
+  PieChart,
+  Archive,
+  Grid3x3
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
-const getNavigationGroups = (userRole: string) => {
+import { Receipt, Ticket } from "lucide-react";
+
+const getNavigationGroups = (userRole: string, isInvoiceManagement: boolean = false, isCostModel: boolean = false) => {
+  // Invoice Management navigation - no grouping, just items
+  if (isInvoiceManagement) {
+    const baseGroups = [
+      {
+        title: "", // Empty title means no grouping
+        items: [
+          { id: 'invoice-management', label: 'User Management', icon: Receipt },
+          { id: 'agent-tickets', label: 'Tickets Management', icon: Ticket },
+        ]
+      }
+    ];
+
+    // Add more groups based on role if needed
+    // For now, all roles see the same navigation
+    return baseGroups;
+  }
+
+  // Cost Model navigation
+  if (isCostModel) {
+    const baseGroups = [
+      {
+        title: "Dashboard",
+        items: [
+          { id: 'cost-model-dashboard', label: 'Cost Model Dashboard', icon: TrendingUp },
+        ]
+      },
+      {
+        title: "Master Data",
+        items: [
+          { id: 'verticals-master', label: 'Verticals', icon: Building2 },
+          { id: 'asset-management', label: 'Asset Management', icon: Package },
+          { id: 'asset-class', label: 'Asset Classes', icon: Boxes },
+          { id: 'asset-type', label: 'Asset Types', icon: Archive },
+          { id: 'assets', label: 'Assets', icon: Package },
+          { id: 'service-groups', label: 'Service Groups', icon: Layers },
+          { id: 'services', label: 'Services', icon: Grid3x3 },
+          { id: 'cost-groups', label: 'Cost Groups', icon: Calculator },
+          { id: 'budget-lines', label: 'Budget Lines', icon: FileText },
+          { id: 'cost-elements', label: 'Cost Elements', icon: DollarSign },
+        ]
+      },
+      {
+        title: "Cost Allocation",
+        items: [
+          { id: 'cost-rules', label: 'Cost Rules', icon: PieChart },
+        ]
+      },
+      {
+        title: "Reports & Analysis",
+        items: [
+          { id: 'service-costing', label: 'Service Costing', icon: BarChart },
+          { id: 'service-level-cost', label: 'Service Level Cost', icon: TrendingUp },
+        ]
+      }
+    ];
+
+    return baseGroups;
+  }
+
+  // EGAM navigation
   const baseGroups = [
     {
       title: "Invoice Tracker",
@@ -94,12 +168,58 @@ export function Sidebar() {
   const { isCollapsed, toggleCollapse } = useSidebar();
   const { config, applyEntityTheme, isKpmgBrandingVisible, kpmgPosition } = useEntity();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  // Check if we're in Invoice Management module
+  const isInvoiceManagement = state.currentTab?.startsWith('invoice-management') || 
+                              state.currentTab === 'invoice-management' || 
+                              state.currentTab === 'agent-tickets';
+  // Check if we're in Cost Model module
+  const isCostModel = state.currentTab?.startsWith('cost-model') || 
+                      state.currentTab === 'cost-model-dashboard' ||
+                      state.currentTab === 'verticals-master' ||
+                      state.currentTab === 'asset-management' ||
+                      state.currentTab === 'asset-class' ||
+                      state.currentTab === 'asset-type' ||
+                      state.currentTab === 'assets' ||
+                      state.currentTab === 'service-groups' ||
+                      state.currentTab === 'services' ||
+                      state.currentTab === 'cost-groups' ||
+                      state.currentTab === 'budget-lines' ||
+                      state.currentTab === 'cost-elements' ||
+                      state.currentTab === 'cost-rules' ||
+                      state.currentTab === 'service-costing' ||
+                      state.currentTab === 'service-level-cost';
+  const userRole = state.currentUser?.role || 'Admin';
+  
+  // Hide sidebar navigation for User role in Invoice Management
+  const shouldHideNavigation = isInvoiceManagement && userRole === 'User';
+  
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
-    new Set(["Invoice Tracker", "Document Processing", "Data Management", "API Playground"])
+    new Set(
+      isInvoiceManagement 
+        ? [] // No groups for invoice management
+        : isCostModel
+        ? ["Dashboard", "Master Data", "Cost Allocation", "Reports & Analysis"]
+        : ["Invoice Tracker", "Document Processing", "Data Management", "API Playground"]
+    )
+  );
+  
+  // Get navigation groups based on user role and module
+  const navigationGroups = getNavigationGroups(
+    state.currentUser?.role || (isInvoiceManagement ? 'Admin' : 'Application Admin'),
+    isInvoiceManagement,
+    isCostModel
   );
 
-  // Get navigation groups based on user role
-  const navigationGroups = getNavigationGroups(state.currentUser?.role || 'Application Admin');
+  // Update expanded groups when module changes
+  useEffect(() => {
+    if (isInvoiceManagement) {
+      setExpandedGroups(new Set([])); // No groups for invoice management
+    } else if (isCostModel) {
+      setExpandedGroups(new Set(["Dashboard", "Master Data", "Cost Allocation", "Reports & Analysis"]));
+    } else {
+      setExpandedGroups(new Set(["Invoice Tracker", "Document Processing", "Data Management", "API Playground"]));
+    }
+  }, [isInvoiceManagement, isCostModel]);
 
   // Apply entity theme on component mount
   useEffect(() => {
@@ -138,48 +258,46 @@ export function Sidebar() {
         </Button>
       </div>
 
-      {/* Sidebar */}
-      <div 
-        className={cn(
-          "fixed left-0 top-0 h-full bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 z-40 transition-all duration-300 ease-out",
-          "lg:translate-x-0",
-          isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
-          isCollapsed ? "w-16" : "w-72"
-        )} 
-        data-testid="sidebar"
-      >
+      {/* Sidebar - Hidden for User role in Invoice Management */}
+      {!shouldHideNavigation && (
+        <div 
+          className={cn(
+            "fixed left-0 top-0 h-full border-r z-40 transition-all duration-200 ease-out bg-sidebar",
+            "lg:translate-x-0",
+            isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
+            isCollapsed ? "w-16" : "w-72"
+          )}
+          data-testid="sidebar"
+        >
         
         {/* Header */}
-        <div className="flex items-center justify-between px-2 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between px-3 py-4 border-b border-sidebar-border">
           {!isCollapsed && (
             <div className="flex flex-col space-y-2 w-full">
               {/* Entity Branding */}
               <div className="flex items-center space-x-3">
                 <div 
-                  className="w-8 h-8 rounded-lg flex items-center justify-center"
-                  style={{ 
-                    background: `linear-gradient(135deg, ${config.primaryColor}, ${config.secondaryColor})` 
-                  }}
+                  className="w-8 h-8 rounded-md flex items-center justify-center bg-sidebar-primary"
                 >
-                  <Building2 className="h-5 w-5 text-white" />
+                  <Building2 className="h-4 w-4 text-sidebar-primary-foreground" />
                 </div>
                 <div className="flex-1">
-                  <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  <h1 className="text-base font-semibold text-sidebar-foreground">
                     {config.displayName}
                   </h1>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Invoice Automation Portal
+                  <p className="text-xs text-sidebar-muted">
+                    {isInvoiceManagement ? 'Invoice Management Portal' : isCostModel ? 'Cost Model Portal' : 'Invoice Automation Portal'}
                   </p>
                 </div>
               </div>
               
               {/* KPMG Branding - Position based on config */}
               {isKpmgBrandingVisible && kpmgPosition === 'top' && (
-                <div className="flex items-center space-x-2 px-2 py-1 bg-gray-50 dark:bg-gray-800 rounded-md">
-                  <div className="w-4 h-4 bg-gradient-to-br from-[#00338D] to-[#4A90E2] rounded flex items-center justify-center">
-                    <FileText className="h-2.5 w-2.5 text-white" />
+                <div className="flex items-center space-x-2 px-2 py-1.5 bg-sidebar-accent rounded-md border border-sidebar-border">
+                  <div className="w-3.5 h-3.5 bg-sidebar-primary rounded flex items-center justify-center">
+                    <FileText className="h-2 w-2 text-sidebar-primary-foreground" />
                   </div>
-                  <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+                  <span className="text-xs text-sidebar-foreground font-medium">
                     Powered by KPMG
                   </span>
                 </div>
@@ -190,16 +308,13 @@ export function Sidebar() {
           {isCollapsed && (
             <div className="flex flex-col items-center space-y-2">
               <div 
-                className="w-8 h-8 rounded-lg flex items-center justify-center mx-auto"
-                style={{ 
-                  background: `linear-gradient(135deg, ${config.primaryColor}, ${config.secondaryColor})` 
-                }}
+                className="w-8 h-8 rounded-md flex items-center justify-center mx-auto bg-sidebar-primary"
               >
-                <Building2 className="h-5 w-5 text-white" />
+                <Building2 className="h-4 w-4 text-sidebar-primary-foreground" />
               </div>
               {isKpmgBrandingVisible && (
-                <div className="w-4 h-4 bg-gradient-to-br from-[#00338D] to-[#4A90E2] rounded flex items-center justify-center">
-                  <FileText className="h-2.5 w-2.5 text-white" />
+                <div className="w-3.5 h-3.5 bg-sidebar-accent rounded flex items-center justify-center">
+                  <FileText className="h-2 w-2 text-sidebar-foreground" />
                 </div>
               )}
             </div>
@@ -209,16 +324,35 @@ export function Sidebar() {
             variant="ghost"
             size="icon"
             onClick={toggleCollapse}
-            className="h-8 w-8 hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="h-8 w-8 text-sidebar-foreground hover:bg-sidebar-accent"
           >
             {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
           </Button>
         </div>
 
 
-        {/* Navigation */}
-        <nav className="px-2 py-4 space-y-3">
-          {isCollapsed ? (
+        {/* Back to Modules Button */}
+        <div className="px-2 py-2 border-b border-sidebar-border">
+          <Button
+            variant="ghost"
+            className={cn(
+              "w-full justify-start gap-2 text-sidebar-foreground hover:bg-sidebar-accent border border-sidebar-border",
+              isCollapsed && "justify-center px-2"
+            )}
+            onClick={() => {
+              dispatch({ type: 'SET_CURRENT_TAB', payload: 'landing' });
+              setIsMobileOpen(false);
+            }}
+          >
+            <ArrowLeft className="h-4 w-4" />
+            {!isCollapsed && <span>Back to Modules</span>}
+          </Button>
+        </div>
+
+        {/* Navigation - Hidden for User role in Invoice Management */}
+        {!shouldHideNavigation && (
+          <nav className="px-2 py-4 space-y-3">
+            {isCollapsed ? (
             // Collapsed view with icons only
             <div className="space-y-1">
               {navigationGroups.map((group) => 
@@ -232,28 +366,10 @@ export function Sidebar() {
                         <Button
                           variant={isActive ? "default" : "ghost"}
                           className={cn(
-                            "w-full justify-center h-10 px-3 mb-1 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2",
-                            isActive && "text-white hover:opacity-90 focus:ring-white",
-                            !isActive && "hover:bg-opacity-10 hover:text-gray-900 dark:hover:text-white focus:ring-gray-500"
+                            "w-full justify-center h-10 px-3 mb-1 transition-all duration-150",
+                            isActive && "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90",
+                            !isActive && "text-sidebar-foreground hover:bg-sidebar-accent"
                           )}
-                          style={isActive ? {
-                            backgroundColor: config.primaryColor,
-                            color: '#ffffff'
-                          } : {
-                            color: '#374151' // Dark gray for better contrast
-                          }}
-                          onMouseEnter={(e) => {
-                            if (!isActive) {
-                              e.currentTarget.style.backgroundColor = config.primaryColor + '20';
-                              e.currentTarget.style.color = '#111827'; // Much darker text on hover for better visibility
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (!isActive) {
-                              e.currentTarget.style.backgroundColor = '';
-                              e.currentTarget.style.color = '#374151';
-                            }
-                          }}
                           onClick={() => handleTabChange(item.id)}
                           data-testid={`nav-${item.id}`}
                           aria-label={`Navigate to ${item.label}`}
@@ -273,6 +389,37 @@ export function Sidebar() {
           ) : (
             // Expanded view with groups
             navigationGroups.map((group) => {
+              // If group title is empty, show items without grouping
+              if (!group.title || group.title === "") {
+                return (
+                  <div key="ungrouped" className="space-y-1">
+                    {group.items.map((item) => {
+                      const Icon = item.icon;
+                      const isActive = state.currentTab === item.id;
+                      
+                      return (
+                        <Button
+                          key={item.id}
+                          variant={isActive ? "default" : "ghost"}
+                          className={cn(
+                            "w-full justify-start h-10 px-3 transition-all duration-150",
+                            isActive && "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90",
+                            !isActive && "text-sidebar-foreground hover:bg-sidebar-accent"
+                          )}
+                          onClick={() => handleTabChange(item.id)}
+                          data-testid={`nav-${item.id}`}
+                          aria-label={`Navigate to ${item.label}`}
+                          aria-current={isActive ? "page" : undefined}
+                        >
+                          <Icon className="h-5 w-5 mr-3" />
+                          {item.label}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                );
+              }
+              
               const isExpanded = expandedGroups.has(group.title);
               const hasActiveItem = group.items.some(item => state.currentTab === item.id);
               
@@ -282,23 +429,12 @@ export function Sidebar() {
                   <button
                     onClick={() => toggleGroup(group.title)}
                     className={cn(
-                      "w-full flex items-center justify-between px-2 py-2 text-sm font-semibold transition-all duration-200 rounded-md"
+                      "w-full flex items-center justify-between px-2 py-2 text-sm font-medium transition-all duration-150 rounded-md text-sidebar-muted hover:text-sidebar-foreground hover:bg-sidebar-accent"
                     )}
-                    style={{
-                      color: '#4b5563' // Better contrast gray
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = config.primaryColor + '15';
-                      e.currentTarget.style.color = '#111827'; // Much darker text on hover for better visibility
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = '';
-                      e.currentTarget.style.color = '#4b5563';
-                    }}
                   >
                     <span className="flex items-center">
                       <ChevronDown className={cn(
-                        "h-4 w-4 mr-2 transition-transform duration-200",
+                        "h-4 w-4 mr-2 transition-transform duration-150",
                         isExpanded ? "rotate-0" : "-rotate-90"
                       )} />
                       {group.title}
@@ -307,7 +443,7 @@ export function Sidebar() {
                   
                   {/* Group Items */}
                   {isExpanded && (
-                    <div className="ml-2 space-y-1 border-l-2 border-gray-200 dark:border-gray-700 pl-2">
+                    <div className="ml-2 space-y-1 border-l-2 border-sidebar-border pl-2">
                       {group.items.map((item) => {
                         const Icon = item.icon;
                         const isActive = state.currentTab === item.id;
@@ -317,28 +453,10 @@ export function Sidebar() {
                             key={item.id}
                             variant={isActive ? "default" : "ghost"}
                             className={cn(
-                              "w-full justify-start h-10 px-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2",
-                              isActive && "text-white hover:opacity-90 focus:ring-white",
-                              !isActive && "hover:bg-opacity-10 hover:text-gray-900 dark:hover:text-white focus:ring-gray-500"
+                              "w-full justify-start h-10 px-3 transition-all duration-150",
+                              isActive && "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90",
+                              !isActive && "text-sidebar-foreground hover:bg-sidebar-accent"
                             )}
-                            style={isActive ? {
-                              backgroundColor: config.primaryColor,
-                              color: '#ffffff'
-                            } : {
-                              color: '#374151' // Dark gray for better contrast
-                            }}
-                            onMouseEnter={(e) => {
-                              if (!isActive) {
-                                e.currentTarget.style.backgroundColor = config.primaryColor + '20';
-                                e.currentTarget.style.color = '#111827'; // Much darker text on hover for better visibility
-                              }
-                            }}
-                            onMouseLeave={(e) => {
-                              if (!isActive) {
-                                e.currentTarget.style.backgroundColor = '';
-                                e.currentTarget.style.color = '#374151';
-                              }
-                            }}
                             onClick={() => handleTabChange(item.id)}
                             data-testid={`nav-${item.id}`}
                             aria-label={`Navigate to ${item.label}`}
@@ -355,33 +473,37 @@ export function Sidebar() {
               );
             })
           )}
-        </nav>
+          </nav>
+        )}
 
         {/* KPMG Branding and Watermark - Only show when expanded */}
         {!isCollapsed && (
           <div className="absolute bottom-4 left-2 right-2 space-y-2">
             {/* KPMG Branding - Bottom position */}
             {isKpmgBrandingVisible && kpmgPosition === 'bottom' && (
-              <div className="flex items-center justify-center space-x-2 px-3 py-2 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                <div className="w-4 h-4 bg-gradient-to-br from-[#00338D] to-[#4A90E2] rounded flex items-center justify-center">
-                  <FileText className="h-2.5 w-2.5 text-white" />
+              <div className="flex items-center justify-center space-x-2 px-3 py-2 bg-sidebar-accent rounded-md border border-sidebar-border">
+                <div className="w-3.5 h-3.5 bg-sidebar-primary rounded flex items-center justify-center">
+                  <FileText className="h-2 w-2 text-sidebar-primary-foreground" />
                 </div>
-                <span className="text-xs text-gray-600 dark:text-gray-400 font-medium">
+                <span className="text-xs text-sidebar-foreground font-medium">
                   Powered by KPMG
                 </span>
               </div>
             )}
             
             {/* Coditas Watermark - Below KPMG branding */}
-            <div className="flex items-center justify-center space-x-2 px-3 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg shadow-lg">
-              <div className="w-2 h-2 bg-white rounded-full"></div>
+            <div 
+              className="flex items-center justify-center space-x-2 px-3 py-2 text-sidebar-foreground rounded-md bg-sidebar-primary"
+            >
+              <div className="w-2 h-2 bg-sidebar-primary-foreground rounded-full"></div>
               <div className="text-xs font-medium">
-                Designed & Developed by <span className="font-bold">Coditas</span>
+                Designed & Developed by <span className="font-semibold">Coditas</span>
               </div>
             </div>
           </div>
         )}
-      </div>
+        </div>
+      )}
 
       {/* Mobile Overlay */}
       {isMobileOpen && (

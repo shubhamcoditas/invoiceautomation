@@ -26,11 +26,87 @@ import { Integrations } from "@/components/integrations/integrations";
 import { useAppState } from "@/hooks/use-app-state";
 import { useSidebar } from "@/hooks/use-sidebar";
 import { CoditasWatermark } from "@/components/ui/coditas-watermark";
+import { Landing } from "@/components/landing/landing";
+import { CostModelDashboard } from "@/components/cost-model/dashboard/cost-model-dashboard";
+import { InvoiceManagement } from "@/components/invoice-management/invoice-management";
+import { EAInvoiceDownloader } from "@/components/ea-invoice-downloader/ea-invoice-downloader";
+import { EASidebar } from "@/components/ea-invoice-downloader/ea-sidebar";
+import { EAHeader } from "@/components/ea-invoice-downloader/ea-header";
+import { VerticalsMaster } from "@/components/cost-model/verticals-master/verticals-master";
+import { AssetManagement } from "@/components/cost-model/asset-management/asset-management";
+import { AssetClass } from "@/components/cost-model/asset-class/asset-class";
+import { AssetType } from "@/components/cost-model/asset-type/asset-type";
+import { Asset } from "@/components/cost-model/asset/asset";
+import { ServiceGroup } from "@/components/cost-model/service-group/service-group";
+import { Service } from "@/components/cost-model/service/service";
+import { CostGroup } from "@/components/cost-model/cost-group/cost-group";
+import { BudgetLine } from "@/components/cost-model/budget-line/budget-line";
+import { CostElement } from "@/components/cost-model/cost-element/cost-element";
+import { CostRules } from "@/components/cost-model/cost-rules/cost-rules";
+import { ServiceCosting } from "@/components/cost-model/service-costing/service-costing";
+import { ServiceLevelCost } from "@/components/cost-model/service-level-cost/service-level-cost";
 import NotFound from "@/pages/not-found";
 
 function MainContent() {
   const { state, dispatch } = useAppState();
   const { isCollapsed } = useSidebar();
+
+  // CRITICAL: All hooks must be called before any conditional returns
+  // Handle transition completion
+  React.useEffect(() => {
+    if (state.isTransitioning) {
+      const timer = setTimeout(() => {
+        dispatch({ type: 'SET_TRANSITIONING', payload: false });
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [state.isTransitioning, dispatch]);
+
+  // Show landing page if currentTab is 'landing'
+  if (state.currentTab === 'landing') {
+    return <Landing />;
+  }
+
+  // Check if we're in Invoice Management module
+  const isInvoiceManagement = state.currentTab?.startsWith('invoice-management') || 
+                              state.currentTab === 'invoice-management' || 
+                              state.currentTab === 'agent-tickets';
+  // Check if we're in EA Invoice Downloader module
+  const isEAInvoiceDownloader = state.currentTab?.startsWith('ea-') || 
+                                 state.currentTab === 'ea-invoice-downloader' ||
+                                 state.currentTab === 'ea-agent-tickets' ||
+                                 state.currentTab === 'ea-audit-logs';
+  // Check if we're in Cost Model module
+  const isCostModel = state.currentTab?.startsWith('cost-model') || 
+                      state.currentTab === 'verticals-master' ||
+                      state.currentTab === 'asset-management' ||
+                      state.currentTab === 'asset-class' ||
+                      state.currentTab === 'asset-type' ||
+                      state.currentTab === 'assets' ||
+                      state.currentTab === 'service-groups' ||
+                      state.currentTab === 'services' ||
+                      state.currentTab === 'cost-groups' ||
+                      state.currentTab === 'budget-lines' ||
+                      state.currentTab === 'cost-elements' ||
+                      state.currentTab === 'cost-rules' ||
+                      state.currentTab === 'service-costing' ||
+                      state.currentTab === 'service-level-cost';
+  const userRole = state.currentUser?.role || 'Admin';
+  const normalizedRole = userRole.toLowerCase();
+  const isUserRole = normalizedRole === 'user' || normalizedRole === 'business_user';
+  const isAgentRole = normalizedRole === 'agent';
+  
+  // Hide sidebar for User role in Invoice Management (but keep header visible)
+  const shouldHideSidebarForUser = isInvoiceManagement && isUserRole;
+  
+  // Hide EA sidebar for User role and Agent role
+  const shouldHideEASidebar = isEAInvoiceDownloader && (isUserRole || isAgentRole);
+  
+  // Check if we should show sidebar (hide for landing and User role in Invoice Management)
+  const shouldShowSidebar = state.currentTab !== 'landing' && !shouldHideSidebarForUser && !isEAInvoiceDownloader;
+  
+  // Header should always show (except for landing page)
+  const shouldShowHeader = state.currentTab !== 'landing';
 
   const renderCurrentTab = () => {
     switch (state.currentTab) {
@@ -62,36 +138,62 @@ function MainContent() {
         return <EmailSettings />;
       case 'user-profile':
         return <UserProfile />;
+      case 'cost-model-dashboard':
+        return <CostModelDashboard />;
+      case 'verticals-master':
+        return <VerticalsMaster />;
+      case 'asset-management':
+        return <AssetManagement />;
+      case 'asset-class':
+        return <AssetClass />;
+      case 'asset-type':
+        return <AssetType />;
+      case 'assets':
+        return <Asset />;
+      case 'service-groups':
+        return <ServiceGroup />;
+      case 'services':
+        return <Service />;
+      case 'cost-groups':
+        return <CostGroup />;
+      case 'budget-lines':
+        return <BudgetLine />;
+      case 'cost-elements':
+        return <CostElement />;
+      case 'cost-rules':
+        return <CostRules />;
+      case 'service-costing':
+        return <ServiceCosting />;
+      case 'service-level-cost':
+        return <ServiceLevelCost />;
+      case 'invoice-management':
+      case 'agent-tickets':
+        return <InvoiceManagement />;
+      case 'ea-invoice-downloader':
+      case 'ea-agent-tickets':
+      case 'ea-audit-logs':
+        return <EAInvoiceDownloader />;
       default:
         return <QRScanner />;
     }
   };
 
-  // Handle transition completion
-  React.useEffect(() => {
-    if (state.isTransitioning) {
-      const timer = setTimeout(() => {
-        dispatch({ type: 'SET_TRANSITIONING', payload: false });
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [state.isTransitioning, dispatch]);
-
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Animated Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-blue-900 dark:to-indigo-900 transition-all duration-500">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%2300338D%22%20fill-opacity%3D%220.03%22%3E%3Ccircle%20cx%3D%2230%22%20cy%3D%2230%22%20r%3D%222%22/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-40 transition-opacity duration-500"></div>
-      </div>
+    <div className="min-h-screen relative overflow-hidden bg-background">
       
-      <Sidebar />
+      {shouldShowSidebar && <Sidebar />}
+      
+      {/* EA Invoice Downloader Sidebar - Hide for User and Agent roles */}
+      {isEAInvoiceDownloader && !shouldHideEASidebar && <EASidebar />}
       
       {/* Main Content Area with proper margin for sidebar */}
       <div className={cn(
         "relative z-10 transition-all duration-300",
-        isCollapsed ? "lg:ml-16" : "lg:ml-72"
+        shouldShowSidebar ? (isCollapsed ? "lg:ml-16" : "lg:ml-72") : 
+        (isEAInvoiceDownloader && !shouldHideEASidebar) ? (isCollapsed ? "lg:ml-16" : "lg:ml-72") : "ml-0"
       )}>
-        <Header />
+        {shouldShowHeader && !isEAInvoiceDownloader && <Header />}
+        {isEAInvoiceDownloader && <EAHeader />}
         <main className="p-4 w-full">
           <div className={cn(
             "page-transition w-full",
