@@ -43,6 +43,8 @@ export interface IStorage {
   createPDFProcessingHistory(history: InsertPDFProcessingHistory): Promise<PDFProcessingHistory>;
   getAllPDFProcessingHistory(): Promise<PDFProcessingHistory[]>;
   getPDFProcessingHistoryByUser(processedBy: string): Promise<PDFProcessingHistory[]>;
+  updatePDFProcessingHistory(id: string, data: Partial<InsertPDFProcessingHistory>): Promise<PDFProcessingHistory | undefined>;
+  getPDFProcessingHistoryByInvoiceNo(invoiceNo: string): Promise<PDFProcessingHistory | undefined>;
   
   // Bulk QR Processing operations
   createBulkQRBatch(batch: InsertBulkQRBatches): Promise<BulkQRBatches>;
@@ -2076,6 +2078,7 @@ export class MemStorage implements IStorage {
     const pdfHistory: PDFProcessingHistory = { 
       ...history, 
       id, 
+      entityId: history.entityId || 'hsbc', // Default to hsbc if not provided
       invoiceNo: history.invoiceNo || null,
       amount: history.amount || null,
       vendorName: history.vendorName || null,
@@ -2096,6 +2099,27 @@ export class MemStorage implements IStorage {
     return Array.from(this.pdfProcessingHistory.values())
       .filter(history => history.processedBy === processedBy)
       .sort((a, b) => new Date(b.processedAt).getTime() - new Date(a.processedAt).getTime());
+  }
+
+  async updatePDFProcessingHistory(id: string, data: Partial<InsertPDFProcessingHistory>): Promise<PDFProcessingHistory | undefined> {
+    const existing = this.pdfProcessingHistory.get(id);
+    if (!existing) return undefined;
+    
+    const updated = { 
+      ...existing, 
+      ...data,
+      invoiceNo: data.invoiceNo !== undefined ? data.invoiceNo : existing.invoiceNo,
+      amount: data.amount !== undefined ? data.amount : existing.amount,
+      vendorName: data.vendorName !== undefined ? data.vendorName : existing.vendorName,
+      buyerName: data.buyerName !== undefined ? data.buyerName : existing.buyerName,
+    };
+    this.pdfProcessingHistory.set(id, updated);
+    return updated;
+  }
+
+  async getPDFProcessingHistoryByInvoiceNo(invoiceNo: string): Promise<PDFProcessingHistory | undefined> {
+    return Array.from(this.pdfProcessingHistory.values())
+      .find(history => history.invoiceNo === invoiceNo);
   }
 
   // Bulk QR Processing methods

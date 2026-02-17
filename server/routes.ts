@@ -653,12 +653,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Push to KIGS simulation
+  // Push to KIGS simulation - Always returns success for demo
   app.post('/api/kigs/push', async (req, res) => {
     const requestId = req.requestId || 'unknown';
     try {
-      // Simulate push to KIGS with random success/failure
-      const success = Math.random() > 0.2; // 80% success rate
+      // Always return success for demo purposes
+      const ewbNumber = `EWB${Math.random().toString().substr(2, 9)}`;
       
       if (success) {
         const ewbNumber = `EWB${Math.random().toString().substr(2, 9)}`;
@@ -874,6 +874,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error(`[${requestId}] Error creating PDF processing history:`, error);
       res.status(400).json({ error: 'Invalid PDF processing history data', requestId });
+    }
+  });
+
+  app.put('/api/pdf-processing-history/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      const validatedData = insertPDFProcessingHistorySchema.partial().parse(req.body);
+      const history = await storage.updatePDFProcessingHistory(id, validatedData);
+      
+      if (!history) {
+        return res.status(404).json({ error: 'PDF processing history record not found' });
+      }
+      
+      res.json(history);
+    } catch (error) {
+      res.status(400).json({ error: 'Invalid PDF processing history data' });
     }
   });
 

@@ -54,9 +54,9 @@ interface MailboxInfo {
 
 const mockMailboxInfo: MailboxInfo = {
   name: "invoices@company.com",
-  totalEmails: 156,
-  processedEmails: 89,
-  pendingEmails: 67
+  totalEmails: 10,
+  processedEmails: 2,
+  pendingEmails: 8
 };
 
 const mockEmailRecords: EmailRecord[] = [
@@ -79,7 +79,7 @@ const mockEmailRecords: EmailRecord[] = [
     subject: "Tax Invoice - January 2024",
     receivedAt: "2024-01-18T09:15:00Z",
     attachments: ["tax_invoice_jan.pdf"],
-    processingStatus: "in_progress",
+    processingStatus: "ready_for_review",
     invoiceType: "without_qr",
     hasQrInEgam: false,
     invoiceNo: "TI-2024-002",
@@ -89,41 +89,106 @@ const mockEmailRecords: EmailRecord[] = [
   {
     id: "3",
     sender: "vendor3@example.com",
-    subject: "Billing Statement Q4 2023",
+    subject: "GST Invoice INV-2024-003",
     receivedAt: "2024-01-18T08:45:00Z",
-    attachments: ["billing_q4.pdf", "payment_terms.pdf"],
-    processingStatus: "queued",
+    attachments: ["gst_invoice_003.pdf", "payment_terms.pdf"],
+    processingStatus: "ready_for_review",
     invoiceType: "with_qr",
-    hasQrInEgam: false,
-    invoiceNo: "BS-Q4-2023",
+    hasQrInEgam: true,
+    invoiceNo: "INV-2024-003",
     amount: "₹234,750.00",
     vendorName: "Global Services Inc"
   },
   {
     id: "4",
     sender: "vendor4@example.com",
-    subject: "Credit Note CN-2024-001",
+    subject: "Invoice INV-2024-004",
     receivedAt: "2024-01-18T07:20:00Z",
-    attachments: ["credit_note_001.pdf"],
+    attachments: ["invoice_004.pdf"],
     processingStatus: "ready_for_review",
     invoiceType: "without_qr",
     hasQrInEgam: true,
-    invoiceNo: "CN-2024-001",
-    amount: "₹15,000.00",
+    invoiceNo: "INV-2024-004",
+    amount: "₹156,200.00",
     vendorName: "Tech Solutions Ltd"
   },
   {
     id: "5",
     sender: "vendor5@example.com",
-    subject: "Delivery Challan DC-2024-015",
+    subject: "Tax Invoice INV-2024-005",
     receivedAt: "2024-01-18T06:30:00Z",
-    attachments: ["delivery_challan_015.pdf"],
+    attachments: ["tax_invoice_005.pdf"],
+    processingStatus: "ready_for_review",
+    invoiceType: "with_qr",
+    hasQrInEgam: false,
+    invoiceNo: "INV-2024-005",
+    amount: "₹78,900.00",
+    vendorName: "Logistics Pro Ltd"
+  },
+  {
+    id: "6",
+    sender: "vendor6@example.com",
+    subject: "GST Invoice INV-2024-006",
+    receivedAt: "2024-01-18T05:45:00Z",
+    attachments: ["gst_invoice_006.pdf"],
+    processingStatus: "ready_for_review",
+    invoiceType: "without_qr",
+    hasQrInEgam: false,
+    invoiceNo: "INV-2024-006",
+    amount: "₹345,600.00",
+    vendorName: "Manufacturing Co Ltd"
+  },
+  {
+    id: "7",
+    sender: "vendor7@example.com",
+    subject: "Invoice INV-2024-007",
+    receivedAt: "2024-01-18T04:20:00Z",
+    attachments: ["invoice_007.pdf", "supporting_docs.pdf"],
+    processingStatus: "ready_for_review",
+    invoiceType: "with_qr",
+    hasQrInEgam: true,
+    invoiceNo: "INV-2024-007",
+    amount: "₹198,750.00",
+    vendorName: "Software Solutions Pvt Ltd"
+  },
+  {
+    id: "8",
+    sender: "vendor8@example.com",
+    subject: "Tax Invoice INV-2024-008",
+    receivedAt: "2024-01-18T03:15:00Z",
+    attachments: ["tax_invoice_008.pdf"],
+    processingStatus: "ready_for_review",
+    invoiceType: "without_qr",
+    hasQrInEgam: true,
+    invoiceNo: "INV-2024-008",
+    amount: "₹267,300.00",
+    vendorName: "Digital Services Ltd"
+  },
+  {
+    id: "9",
+    sender: "vendor9@example.com",
+    subject: "GST Invoice INV-2024-009",
+    receivedAt: "2024-01-18T02:30:00Z",
+    attachments: ["gst_invoice_009.pdf"],
+    processingStatus: "in_progress",
+    invoiceType: "with_qr",
+    hasQrInEgam: false,
+    invoiceNo: "INV-2024-009",
+    amount: "₹89,400.00",
+    vendorName: "Consulting Firm Ltd"
+  },
+  {
+    id: "10",
+    sender: "vendor10@example.com",
+    subject: "Invoice INV-2024-010",
+    receivedAt: "2024-01-18T01:45:00Z",
+    attachments: ["invoice_010.pdf"],
     processingStatus: "queued",
     invoiceType: "without_qr",
     hasQrInEgam: false,
-    invoiceNo: "DC-2024-015",
-    amount: "₹45,200.00",
-    vendorName: "Logistics Pro Ltd"
+    invoiceNo: "INV-2024-010",
+    amount: "₹445,800.00",
+    vendorName: "Engineering Solutions Inc"
   }
 ];
 
@@ -699,9 +764,11 @@ export function EmailReviewQueue() {
       {/* Review Modal */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="modal-content max-w-7xl max-h-[90vh] overflow-hidden">
-          <DialogHeader>
-            <DialogTitle className="modal-title flex items-center justify-between">
-              <span>Email Review - {selectedEmail?.subject}</span>
+          <DialogHeader className="space-y-4">
+            <div className="flex items-center justify-between">
+              <DialogTitle className="modal-title">
+                Email Review - {selectedEmail?.subject}
+              </DialogTitle>
               <div className="flex items-center space-x-2">
                 <Button
                   variant="outline"
@@ -722,7 +789,7 @@ export function EmailReviewQueue() {
                   <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
-            </DialogTitle>
+            </div>
           </DialogHeader>
           
           {selectedEmail && (
@@ -760,7 +827,19 @@ export function EmailReviewQueue() {
                           <div className="text-xs text-gray-600 space-y-1">
                             <p className="font-medium">{selectedEmail.vendorName || 'Vendor Name'}</p>
                             <p>123 Business Park, Mumbai, Maharashtra 400001</p>
-                            <p>GSTIN: 27ABCDE1234F1Z5</p>
+                            <p>GSTIN: {
+                              selectedEmail.id === "1" && "27ABCDE1234F1Z5"
+                              || selectedEmail.id === "2" && "29XYZAB5678P1Q2"
+                              || selectedEmail.id === "3" && "07PQRST9012M3N4"
+                              || selectedEmail.id === "4" && "19LMNOP3456R7S8"
+                              || selectedEmail.id === "5" && "33UVWXY7890Z1A2"
+                              || selectedEmail.id === "6" && "12BCDEF4567G8H9"
+                              || selectedEmail.id === "7" && "06IJKLM0123N4O5"
+                              || selectedEmail.id === "8" && "24PQRST5678U9V0"
+                              || selectedEmail.id === "9" && "35STUVW3456X7Y8"
+                              || selectedEmail.id === "10" && "18MNOPQ7890R1S2"
+                              || "27ABCDE1234F1Z5"
+                            }</p>
                           </div>
                         </div>
                         <div>
@@ -768,7 +847,19 @@ export function EmailReviewQueue() {
                           <div className="text-xs text-gray-600 space-y-1">
                             <p><span className="font-medium">Invoice No:</span> {selectedEmail.invoiceNo || 'INV-2024-001'}</p>
                             <p><span className="font-medium">Date:</span> 2024-01-15</p>
-                            <p><span className="font-medium">IRN:</span> 1a2b3c4d5e6f7g8h9i0j1k2l3m4n</p>
+                            <p><span className="font-medium">IRN:</span> {
+                              selectedEmail.id === "1" && "1a2b3c4d5e6f7g8h9i0j1k2l3m4n"
+                              || selectedEmail.id === "2" && "2b3c4d5e6f7g8h9i0j1k2l3m4n5o"
+                              || selectedEmail.id === "3" && "3c4d5e6f7g8h9i0j1k2l3m4n5o6p"
+                              || selectedEmail.id === "4" && "4d5e6f7g8h9i0j1k2l3m4n5o6p7q"
+                              || selectedEmail.id === "5" && "5e6f7g8h9i0j1k2l3m4n5o6p7q8r"
+                              || selectedEmail.id === "6" && "6f7g8h9i0j1k2l3m4n5o6p7q8r9s"
+                              || selectedEmail.id === "7" && "7g8h9i0j1k2l3m4n5o6p7q8r9s0t"
+                              || selectedEmail.id === "8" && "8h9i0j1k2l3m4n5o6p7q8r9s0t1u"
+                              || selectedEmail.id === "9" && "9i0j1k2l3m4n5o6p7q8r9s0t1u2v"
+                              || selectedEmail.id === "10" && "0j1k2l3m4n5o6p7q8r9s0t1u2v3w"
+                              || "1a2b3c4d5e6f7g8h9i0j1k2l3m4n"
+                            }</p>
                           </div>
                         </div>
                       </div>
@@ -849,11 +940,33 @@ export function EmailReviewQueue() {
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <label className="text-sm font-medium">IRN</label>
-                        <div className="p-2 bg-gray-50 rounded text-xs font-mono">1a2b3c4d5e6f7g8h9i0j1k2l3m4n</div>
+                        <div className="p-2 bg-gray-50 rounded text-xs font-mono">
+                          {selectedEmail.id === "1" && "1a2b3c4d5e6f7g8h9i0j1k2l3m4n"}
+                          {selectedEmail.id === "2" && "2b3c4d5e6f7g8h9i0j1k2l3m4n5o"}
+                          {selectedEmail.id === "3" && "3c4d5e6f7g8h9i0j1k2l3m4n5o6p"}
+                          {selectedEmail.id === "4" && "4d5e6f7g8h9i0j1k2l3m4n5o6p7q"}
+                          {selectedEmail.id === "5" && "5e6f7g8h9i0j1k2l3m4n5o6p7q8r"}
+                          {selectedEmail.id === "6" && "6f7g8h9i0j1k2l3m4n5o6p7q8r9s"}
+                          {selectedEmail.id === "7" && "7g8h9i0j1k2l3m4n5o6p7q8r9s0t"}
+                          {selectedEmail.id === "8" && "8h9i0j1k2l3m4n5o6p7q8r9s0t1u"}
+                          {selectedEmail.id === "9" && "9i0j1k2l3m4n5o6p7q8r9s0t1u2v"}
+                          {selectedEmail.id === "10" && "0j1k2l3m4n5o6p7q8r9s0t1u2v3w"}
+                        </div>
                       </div>
                       <div className="space-y-2">
                         <label className="text-sm font-medium">GSTIN</label>
-                        <div className="p-2 bg-gray-50 rounded text-sm">27ABCDE1234F1Z5</div>
+                        <div className="p-2 bg-gray-50 rounded text-sm">
+                          {selectedEmail.id === "1" && "27ABCDE1234F1Z5"}
+                          {selectedEmail.id === "2" && "29XYZAB5678P1Q2"}
+                          {selectedEmail.id === "3" && "07PQRST9012M3N4"}
+                          {selectedEmail.id === "4" && "19LMNOP3456R7S8"}
+                          {selectedEmail.id === "5" && "33UVWXY7890Z1A2"}
+                          {selectedEmail.id === "6" && "12BCDEF4567G8H9"}
+                          {selectedEmail.id === "7" && "06IJKLM0123N4O5"}
+                          {selectedEmail.id === "8" && "24PQRST5678U9V0"}
+                          {selectedEmail.id === "9" && "35STUVW3456X7Y8"}
+                          {selectedEmail.id === "10" && "18MNOPQ7890R1S2"}
+                        </div>
                       </div>
                     </div>
                   </div>

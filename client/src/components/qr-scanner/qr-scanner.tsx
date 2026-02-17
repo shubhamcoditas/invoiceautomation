@@ -808,7 +808,7 @@ export function QRScanner() {
 
   // Default history view
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-6 animate-fade-in mb-8">
       {/* Historical QR Scans - Main View */}
       <Card className="modern-card animate-fade-in">
         <CardHeader className="modern-card-header">

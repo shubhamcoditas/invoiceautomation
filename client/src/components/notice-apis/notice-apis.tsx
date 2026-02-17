@@ -312,10 +312,7 @@ export function NoticeAPIs() {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Start Time</TableHead>
-                      <TableHead>Duration</TableHead>
-                      <TableHead>Triggered By</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead>Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -327,19 +324,7 @@ export function NoticeAPIs() {
                             <Skeleton className="h-4 w-32" />
                           </TableCell>
                           <TableCell>
-                            <Skeleton className="h-4 w-16" />
-                          </TableCell>
-                          <TableCell>
                             <Skeleton className="h-6 w-20" />
-                          </TableCell>
-                          <TableCell>
-                            <Skeleton className="h-6 w-20" />
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex space-x-2">
-                              <Skeleton className="h-8 w-8" />
-                              <Skeleton className="h-8 w-8" />
-                            </div>
                           </TableCell>
                         </TableRow>
                       ))
@@ -347,29 +332,7 @@ export function NoticeAPIs() {
                       mockHistoricalRuns.map((run) => (
                         <TableRow key={run.id}>
                           <TableCell>{formatDateTime(run.startTime)}</TableCell>
-                          <TableCell>
-                            {run.duration ? formatDuration(run.duration) : '-'}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="outline">
-                              {run.triggeredBy.charAt(0).toUpperCase() + run.triggeredBy.slice(1)}
-                            </Badge>
-                          </TableCell>
                           <TableCell>{getStatusBadge(run.status)}</TableCell>
-                          <TableCell>
-                            <div className="flex space-x-2">
-                              {run.status !== 'error' && (
-                                <Button variant="ghost" size="sm">
-                                  <Download className="h-4 w-4" />
-                                </Button>
-                              )}
-                              {run.status === 'error' && (
-                                <Button variant="ghost" size="sm">
-                                  <AlertTriangle className="h-4 w-4" />
-                                </Button>
-                              )}
-                            </div>
-                          </TableCell>
                         </TableRow>
                       ))
                     )}

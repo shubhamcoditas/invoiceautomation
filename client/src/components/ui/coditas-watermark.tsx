@@ -22,7 +22,7 @@ export function CoditasWatermark({
     return (
       <div 
         className={cn(
-          "fixed z-50 pointer-events-none coditas-watermark",
+          "fixed z-[60] pointer-events-none coditas-watermark",
           positionClasses[position],
           className
         )}
@@ -43,7 +43,7 @@ export function CoditasWatermark({
     return (
       <div 
         className={cn(
-          "fixed z-50 pointer-events-none coditas-watermark",
+          "fixed z-[60] pointer-events-none coditas-watermark",
           positionClasses[position],
           className
         )}
@@ -61,7 +61,7 @@ export function CoditasWatermark({
   return (
     <div 
       className={cn(
-        "fixed z-50 pointer-events-none coditas-watermark",
+        "fixed z-[60] pointer-events-none coditas-watermark",
         positionClasses[position],
         className
       )}

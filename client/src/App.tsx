@@ -9,6 +9,7 @@ import { AppStateProvider } from "@/hooks/use-app-state";
 import { SidebarProvider } from "@/hooks/use-sidebar";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
+import { Footer } from "@/components/layout/footer";
 import { InvoiceTracker } from "@/components/invoice-tracker/invoice-tracker";
 import { QRScanner } from "@/components/qr-scanner/qr-scanner";
 import { PDFUpload } from "@/components/pdf-upload/pdf-upload";
@@ -223,6 +224,7 @@ function MainContent() {
         </main>
       </div>
       
+      <Footer />
     </div>
   );
 }

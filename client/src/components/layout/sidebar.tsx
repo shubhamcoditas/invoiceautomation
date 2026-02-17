@@ -128,11 +128,6 @@ const getNavigationGroups = (userRole: string, isInvoiceManagement: boolean = fa
     { id: 'notice-apis', label: 'Notice APIs', icon: Bell },
   ];
 
-  // Only Application Admin and Admin can see API Usage
-  if (userRole === 'Application Admin' || userRole === 'Admin') {
-    apiPlaygroundItems.push({ id: 'api-usage', label: 'API Usage', icon: BarChart3 });
-  }
-
   baseGroups.push({
     title: "API Playground",
     items: apiPlaygroundItems
@@ -141,16 +136,23 @@ const getNavigationGroups = (userRole: string, isInvoiceManagement: boolean = fa
   // System group - only for Application Admin and Admin
   if (userRole !== 'Business User') {
     const systemItems = [
-      { id: 'logs', label: 'System Logs', icon: FileBarChart },
       { id: 'user-management', label: 'User Management', icon: User },
       { id: 'email-settings', label: 'Email Settings', icon: Mail },
     ];
 
-    // Only Application Admin can see Integrations and Settings
+    // Only Application Admin and Admin can see API Usage
+    if (userRole === 'Application Admin' || userRole === 'Admin') {
+      systemItems.push({ id: 'api-usage', label: 'API Usage', icon: BarChart3 });
+    }
+
+    // Add System Logs at the end
+    systemItems.push({ id: 'logs', label: 'System Logs', icon: FileBarChart });
+
+    // Only Application Admin can see Integrations and Settings at the top
     if (userRole === 'Application Admin') {
       systemItems.unshift(
-        { id: 'integrations', label: 'Integrations', icon: Building2 },
-        { id: 'settings', label: 'Settings and Config', icon: Settings }
+        { id: 'settings', label: 'Settings and Config', icon: Settings },
+        { id: 'integrations', label: 'Integrations', icon: Building2 }
       );
     }
 
@@ -476,7 +478,7 @@ export function Sidebar() {
           </nav>
         )}
 
-        {/* KPMG Branding and Watermark - Only show when expanded */}
+        {/* Footer - Sticky at bottom */}
         {!isCollapsed && (
           <div className="absolute bottom-4 left-2 right-2 space-y-2">
             {/* KPMG Branding - Bottom position */}
