@@ -8,7 +8,8 @@ import {
   BarChart3,
   ArrowRight,
   Building2,
-  Download
+  Download,
+  ShieldCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -66,6 +67,23 @@ export function Landing() {
       action: () => {
         dispatch({ type: 'SET_CURRENT_TAB', payload: 'ea-invoice-downloader' });
       }
+    },
+    {
+      id: 'customs-igcr',
+      title: 'Customs IGCR Tool',
+      description: 'Customs IGCR declarations, compliance checks, and reporting',
+      icon: ShieldCheck,
+      color: 'amber',
+      features: [
+        'IGCR Dashboard',
+        'Declarations',
+        'Compliance Checks',
+        'Reports',
+        'Document Management'
+      ],
+      action: () => {
+        dispatch({ type: 'SET_CURRENT_TAB', payload: 'customs-igcr-dashboard' });
+      }
     }
   ];
 
@@ -99,6 +117,13 @@ export function Landing() {
           button: 'bg-[#D71921] hover:bg-[#B0151C] text-white',
           gradient: 'from-red-50 to-amber-50 dark:from-red-900/20 dark:to-amber-900/20'
         };
+      case 'amber':
+        return {
+          card: 'border-amber-200 hover:border-amber-300 dark:border-amber-800 dark:hover:border-amber-700',
+          icon: 'text-amber-600 dark:text-amber-400',
+          button: 'bg-amber-600 hover:bg-amber-700 text-white',
+          gradient: 'from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20'
+        };
       default:
         return {
           card: 'border-gray-200 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-700',
@@ -125,8 +150,8 @@ export function Landing() {
           </p>
         </div>
 
-        {/* Module Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Module Cards - equal height so CTAs align to bottom */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6 items-stretch">
           {modules.map((module) => {
             const colors = getColorClasses(module.color);
             const Icon = module.icon;
@@ -135,7 +160,7 @@ export function Landing() {
               <Card
                 key={module.id}
                 className={cn(
-                  "relative overflow-hidden transition-all duration-300 cursor-pointer group",
+                  "relative overflow-hidden transition-all duration-300 cursor-pointer group flex flex-col h-full",
                   "hover:shadow-xl hover:scale-[1.02]",
                   colors.card
                 )}
@@ -147,7 +172,7 @@ export function Landing() {
                   colors.gradient
                 )} />
                 
-                <CardHeader className="relative z-10">
+                <CardHeader className="relative z-10 shrink-0">
                   <div className="flex items-start justify-between mb-4">
                     <div className={cn(
                       "p-3 rounded-lg bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm",
@@ -163,8 +188,8 @@ export function Landing() {
                   </CardDescription>
                 </CardHeader>
                 
-                <CardContent className="relative z-10">
-                  <ul className="space-y-2 mb-6">
+                <CardContent className="relative z-10 flex flex-col flex-1 min-h-0">
+                  <ul className="space-y-2 mb-6 flex-1 min-h-0">
                     {module.features.map((feature, index) => (
                       <li key={index} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                         <div className={cn(
@@ -172,7 +197,8 @@ export function Landing() {
                           module.color === 'blue' ? 'bg-blue-500' : 
                           module.color === 'green' ? 'bg-green-500' : 
                           module.color === 'purple' ? 'bg-purple-500' : 
-                          module.color === 'red' ? 'bg-[#D71921]' : 'bg-gray-500'
+                          module.color === 'red' ? 'bg-[#D71921]' : 
+                          module.color === 'amber' ? 'bg-amber-500' : 'bg-gray-500'
                         )} />
                         {feature}
                       </li>
@@ -180,7 +206,7 @@ export function Landing() {
                   </ul>
                   
                   <Button
-                    className={cn("w-full", colors.button)}
+                    className={cn("w-full mt-auto shrink-0", colors.button)}
                     onClick={(e) => {
                       e.stopPropagation();
                       module.action();

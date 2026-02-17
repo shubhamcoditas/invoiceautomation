@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, memo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,9 +47,58 @@ export interface MasterDataConfig {
 
 interface MasterDataCRUDProps {
   config: MasterDataConfig;
+  /** Optional actions to render in the header next to the primary Add button (e.g. Bulk Upload) */
+  headerActions?: React.ReactNode;
 }
 
-export function MasterDataCRUD({ config }: MasterDataCRUDProps) {
+// Memoized table row component to prevent unnecessary re-renders
+interface MemoizedTableRowProps {
+  item: any;
+  config: MasterDataConfig;
+  onEdit: (item: any) => void;
+  onDelete: (id: string) => void;
+}
+
+const MemoizedTableRow = memo(({ item, config, onEdit, onDelete }: MemoizedTableRowProps) => {
+  return (
+    <TableRow>
+      {config.tableColumns.map((col) => (
+        <TableCell key={col.id} className={col.id === "name" ? "font-medium" : ""}>
+          {col.render ? col.render(item) : item[col.id] || "-"}
+        </TableCell>
+      ))}
+      <TableCell className="text-right">
+        <div className="flex justify-end gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onEdit(item)}
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onDelete(item.id)}
+          >
+            <Trash2 className="h-4 w-4 text-destructive" />
+          </Button>
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+}, (prevProps, nextProps) => {
+  // Custom comparison function - only re-render if item data actually changed
+  return (
+    prevProps.item.id === nextProps.item.id &&
+    JSON.stringify(prevProps.item) === JSON.stringify(nextProps.item) &&
+    prevProps.config === nextProps.config
+  );
+});
+
+MemoizedTableRow.displayName = "MemoizedTableRow";
+
+export function MasterDataCRUD({ config, headerActions }: MasterDataCRUDProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<any | null>(null);
   const [formData, setFormData] = useState<Record<string, any>>(() => {
@@ -396,10 +445,13 @@ export function MasterDataCRUD({ config }: MasterDataCRUDProps) {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>{config.entityNamePlural}</CardTitle>
-            <Button onClick={() => handleOpenDialog()}>
-              <Plus className="mr-2 h-4 w-4" />
-              Add {config.entityName}
-            </Button>
+            <div className="flex items-center gap-2">
+              {headerActions}
+              <Button onClick={() => handleOpenDialog()}>
+                <Plus className="mr-2 h-4 w-4" />
+                Add {config.entityName}
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -421,31 +473,13 @@ export function MasterDataCRUD({ config }: MasterDataCRUDProps) {
               </TableHeader>
               <TableBody>
                 {uniqueItems.map((item) => (
-                  <TableRow key={item.id}>
-                    {config.tableColumns.map((col) => (
-                      <TableCell key={col.id} className={col.id === "name" ? "font-medium" : ""}>
-                        {col.render ? col.render(item) : item[col.id] || "-"}
-                      </TableCell>
-                    ))}
-                    <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleOpenDialog(item)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(item.id)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
+                  <MemoizedTableRow
+                    key={item.id}
+                    item={item}
+                    config={config}
+                    onEdit={handleOpenDialog}
+                    onDelete={handleDelete}
+                  />
                 ))}
               </TableBody>
             </Table>

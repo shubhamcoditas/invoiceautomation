@@ -32,6 +32,9 @@ import { InvoiceManagement } from "@/components/invoice-management/invoice-manag
 import { EAInvoiceDownloader } from "@/components/ea-invoice-downloader/ea-invoice-downloader";
 import { EASidebar } from "@/components/ea-invoice-downloader/ea-sidebar";
 import { EAHeader } from "@/components/ea-invoice-downloader/ea-header";
+import { CustomsIGCR } from "@/components/customs-igcr/customs-igcr";
+import { CustomsIGCRSidebar } from "@/components/customs-igcr/customs-igcr-sidebar";
+import { CustomsIGCRHeader } from "@/components/customs-igcr/customs-igcr-header";
 import { VerticalsMaster } from "@/components/cost-model/verticals-master/verticals-master";
 import { AssetManagement } from "@/components/cost-model/asset-management/asset-management";
 import { AssetClass } from "@/components/cost-model/asset-class/asset-class";
@@ -91,6 +94,8 @@ function MainContent() {
                       state.currentTab === 'cost-rules' ||
                       state.currentTab === 'service-costing' ||
                       state.currentTab === 'service-level-cost';
+  // Check if we're in Customs IGCR module
+  const isCustomsIGCR = state.currentTab?.startsWith('customs-igcr');
   const userRole = state.currentUser?.role || 'Admin';
   const normalizedRole = userRole.toLowerCase();
   const isUserRole = normalizedRole === 'user' || normalizedRole === 'business_user';
@@ -102,10 +107,10 @@ function MainContent() {
   // Hide EA sidebar for User role and Agent role
   const shouldHideEASidebar = isEAInvoiceDownloader && (isUserRole || isAgentRole);
   
-  // Check if we should show sidebar (hide for landing and User role in Invoice Management)
-  const shouldShowSidebar = state.currentTab !== 'landing' && !shouldHideSidebarForUser && !isEAInvoiceDownloader;
+  // Check if we should show sidebar (hide for landing, User role in Invoice Management, EA and Customs IGCR modules)
+  const shouldShowSidebar = state.currentTab !== 'landing' && !shouldHideSidebarForUser && !isEAInvoiceDownloader && !isCustomsIGCR;
   
-  // Header should always show (except for landing page)
+  // Header should always show (except for landing page); use module-specific header for EA and Customs IGCR
   const shouldShowHeader = state.currentTab !== 'landing';
 
   const renderCurrentTab = () => {
@@ -173,6 +178,14 @@ function MainContent() {
       case 'ea-agent-tickets':
       case 'ea-audit-logs':
         return <EAInvoiceDownloader />;
+      case 'customs-igcr-dashboards':
+      case 'customs-igcr-onboarding':
+      case 'customs-igcr-import-register':
+      case 'customs-igcr-goods-movement':
+      case 'customs-igcr-bom-setup':
+      case 'customs-igcr-sales-tracking':
+      case 'customs-igcr-igcr-working':
+        return <CustomsIGCR />;
       default:
         return <QRScanner />;
     }
@@ -186,14 +199,19 @@ function MainContent() {
       {/* EA Invoice Downloader Sidebar - Hide for User and Agent roles */}
       {isEAInvoiceDownloader && !shouldHideEASidebar && <EASidebar />}
       
+      {/* Customs IGCR Sidebar */}
+      {isCustomsIGCR && <CustomsIGCRSidebar />}
+      
       {/* Main Content Area with proper margin for sidebar */}
       <div className={cn(
         "relative z-10 transition-all duration-300",
         shouldShowSidebar ? (isCollapsed ? "lg:ml-16" : "lg:ml-72") : 
-        (isEAInvoiceDownloader && !shouldHideEASidebar) ? (isCollapsed ? "lg:ml-16" : "lg:ml-72") : "ml-0"
+        (isEAInvoiceDownloader && !shouldHideEASidebar) ? (isCollapsed ? "lg:ml-16" : "lg:ml-72") :
+        isCustomsIGCR ? (isCollapsed ? "lg:ml-16" : "lg:ml-72") : "ml-0"
       )}>
-        {shouldShowHeader && !isEAInvoiceDownloader && <Header />}
+        {shouldShowHeader && !isEAInvoiceDownloader && !isCustomsIGCR && <Header />}
         {isEAInvoiceDownloader && <EAHeader />}
+        {isCustomsIGCR && <CustomsIGCRHeader />}
         <main className="p-4 w-full">
           <div className={cn(
             "page-transition w-full",

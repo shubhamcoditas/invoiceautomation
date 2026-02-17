@@ -445,6 +445,50 @@ export function registerAPIRoutes(app: Express) {
     }
   });
 
+  app.post('/api/verticals/bulk', async (req, res) => {
+    try {
+      const entityId = (req as any).entityId || 'hsbc';
+      const { verticals: rawVerticals } = req.body;
+      if (!Array.isArray(rawVerticals) || rawVerticals.length === 0) {
+        return res.status(400).json({ error: 'Request body must include a non-empty "verticals" array.' });
+      }
+      const created: any[] = [];
+      const errors: { row: number; message: string }[] = [];
+      for (let i = 0; i < rawVerticals.length; i++) {
+        const row = rawVerticals[i];
+        const rowNum = i + 2;
+        try {
+          const validated = insertVerticalSchema.parse({
+            name: row.name,
+            description: row.description ?? '',
+            status: row.status ?? 'active',
+            entityId,
+          });
+          const vertical = await databaseService.createVertical({
+            name: validated.name,
+            description: validated.description ?? undefined,
+            status: validated.status ?? undefined,
+            entityId: validated.entityId ?? undefined,
+          });
+          created.push(vertical);
+        } catch (err: any) {
+          errors.push({ row: rowNum, message: err?.message ?? 'Validation failed' });
+        }
+      }
+      res.json({
+        created: created.length,
+        failed: errors.length,
+        errors: errors.length > 0 ? errors : undefined,
+      });
+    } catch (error: any) {
+      console.error('Error in bulk verticals:', error);
+      res.status(400).json({
+        error: error.message || 'Bulk upload failed',
+        details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : 'Unknown error') : undefined
+      });
+    }
+  });
+
   app.put('/api/verticals/:id', async (req, res) => {
     try {
       // Validate update data (partial schema)
@@ -1202,6 +1246,205 @@ export function registerAPIRoutes(app: Express) {
       res.json({ success: true });
     } catch (error: any) {
       res.status(400).json({ error: error.message || 'Failed to delete cost rule' });
+    }
+  });
+
+  // ---------- BOM: Parts (PRT) ----------
+  const entityIdBom = (req: any) => req.entityId || 'hsbc';
+
+  app.get('/api/bom/parts', async (req, res) => {
+    try {
+      const parts = await databaseService.getParts(entityIdBom(req));
+      res.json(parts);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch parts' });
+    }
+  });
+
+  app.get('/api/bom/parts/:id', async (req, res) => {
+    try {
+      const part = await databaseService.getPartById(req.params.id);
+      if (!part) return res.status(404).json({ error: 'Part not found' });
+      res.json(part);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch part' });
+    }
+  });
+
+  app.post('/api/bom/parts', async (req, res) => {
+    try {
+      const part = await databaseService.createPart({ ...req.body, entityId: entityIdBom(req) });
+      res.status(201).json(part);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || 'Failed to create part' });
+    }
+  });
+
+  app.put('/api/bom/parts/:id', async (req, res) => {
+    try {
+      const part = await databaseService.updatePart(req.params.id, req.body);
+      if (!part) return res.status(404).json({ error: 'Part not found' });
+      res.json(part);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || 'Failed to update part' });
+    }
+  });
+
+  app.delete('/api/bom/parts/:id', async (req, res) => {
+    try {
+      await databaseService.deletePart(req.params.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || 'Failed to delete part' });
+    }
+  });
+
+  // ---------- BOM: Finished goods (FG) ----------
+  app.get('/api/bom/finished-goods', async (req, res) => {
+    try {
+      const fgs = await databaseService.getFinishedGoods(entityIdBom(req));
+      res.json(fgs);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch finished goods' });
+    }
+  });
+
+  app.get('/api/bom/finished-goods/:id', async (req, res) => {
+    try {
+      const fg = await databaseService.getFinishedGoodById(req.params.id);
+      if (!fg) return res.status(404).json({ error: 'Finished good not found' });
+      res.json(fg);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch finished good' });
+    }
+  });
+
+  app.post('/api/bom/finished-goods', async (req, res) => {
+    try {
+      const fg = await databaseService.createFinishedGood({ ...req.body, entityId: entityIdBom(req) });
+      res.status(201).json(fg);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || 'Failed to create finished good' });
+    }
+  });
+
+  app.put('/api/bom/finished-goods/:id', async (req, res) => {
+    try {
+      const fg = await databaseService.updateFinishedGood(req.params.id, req.body);
+      if (!fg) return res.status(404).json({ error: 'Finished good not found' });
+      res.json(fg);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || 'Failed to update finished good' });
+    }
+  });
+
+  app.delete('/api/bom/finished-goods/:id', async (req, res) => {
+    try {
+      await databaseService.deleteFinishedGood(req.params.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || 'Failed to delete finished good' });
+    }
+  });
+
+  // ---------- BOM: Bill of materials ----------
+  app.get('/api/bom', async (req, res) => {
+    try {
+      const boms = await databaseService.getAllBoms(entityIdBom(req));
+      res.json(boms);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch BOMs' });
+    }
+  });
+
+  app.get('/api/bom/with-lines', async (req, res) => {
+    try {
+      const bomsWithLines = await databaseService.getBomsWithLines(entityIdBom(req));
+      res.json(bomsWithLines);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch BOMs with lines' });
+    }
+  });
+
+  app.get('/api/bom/by-finished-good/:finishedGoodId', async (req, res) => {
+    try {
+      const bom = await databaseService.getBomByFinishedGoodId(req.params.finishedGoodId);
+      if (!bom) return res.status(404).json({ error: 'BOM not found for this finished good' });
+      res.json(bom);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch BOM' });
+    }
+  });
+
+  app.get('/api/bom/:id', async (req, res) => {
+    try {
+      const bom = await databaseService.getBomById(req.params.id);
+      if (!bom) return res.status(404).json({ error: 'BOM not found' });
+      res.json(bom);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch BOM' });
+    }
+  });
+
+  app.post('/api/bom', async (req, res) => {
+    try {
+      const bom = await databaseService.createBom({ ...req.body, entityId: entityIdBom(req) });
+      res.status(201).json(bom);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || 'Failed to create BOM' });
+    }
+  });
+
+  app.delete('/api/bom/:id', async (req, res) => {
+    try {
+      await databaseService.deleteBom(req.params.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || 'Failed to delete BOM' });
+    }
+  });
+
+  // ---------- BOM: BOM lines ----------
+  app.get('/api/bom/:bomId/lines', async (req, res) => {
+    try {
+      const lines = await databaseService.getBomLines(req.params.bomId);
+      res.json(lines);
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to fetch BOM lines' });
+    }
+  });
+
+  app.post('/api/bom/:bomId/lines', async (req, res) => {
+    try {
+      const line = await databaseService.createBomLine({
+        bomId: req.params.bomId,
+        partId: req.body.partId,
+        quantity: req.body.quantity,
+        consumptionUom: req.body.consumptionUom,
+        uomConversionFactor: req.body.uomConversionFactor ?? 1,
+      });
+      res.status(201).json(line);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || 'Failed to add BOM line' });
+    }
+  });
+
+  app.put('/api/bom/lines/:id', async (req, res) => {
+    try {
+      const line = await databaseService.updateBomLine(req.params.id, req.body);
+      if (!line) return res.status(404).json({ error: 'BOM line not found' });
+      res.json(line);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || 'Failed to update BOM line' });
+    }
+  });
+
+  app.delete('/api/bom/lines/:id', async (req, res) => {
+    try {
+      await databaseService.deleteBomLine(req.params.id);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message || 'Failed to delete BOM line' });
     }
   });
 

@@ -1202,6 +1202,172 @@ export function initializeDatabase() {
     )
   `);
 
+  // BOM: Parts (PRT list) - master list of parts that can be consumed in a BOM
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS parts (
+      id TEXT PRIMARY KEY,
+      entity_id TEXT NOT NULL DEFAULT 'hsbc',
+      part_id TEXT NOT NULL,
+      description TEXT NOT NULL,
+      uom TEXT NOT NULL,
+      status TEXT NOT NULL DEFAULT 'active',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(entity_id, part_id)
+    )
+  `);
+
+  // BOM: Finished goods (FG list) - each FG can have one BOM
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS finished_goods (
+      id TEXT PRIMARY KEY,
+      entity_id TEXT NOT NULL DEFAULT 'hsbc',
+      fg_id TEXT NOT NULL,
+      description TEXT NOT NULL,
+      uom TEXT NOT NULL,
+      hsn TEXT,
+      status TEXT NOT NULL DEFAULT 'active',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(entity_id, fg_id)
+    )
+  `);
+  try {
+    db.exec(`ALTER TABLE finished_goods ADD COLUMN hsn TEXT`);
+  } catch (_) {
+    // Column may already exist
+  }
+
+  // BOM: Bill of materials header - one per finished good
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS bom (
+      id TEXT PRIMARY KEY,
+      entity_id TEXT NOT NULL DEFAULT 'hsbc',
+      finished_good_id TEXT NOT NULL,
+      version INTEGER NOT NULL DEFAULT 1,
+      status TEXT NOT NULL DEFAULT 'active',
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(entity_id, finished_good_id),
+      FOREIGN KEY (finished_good_id) REFERENCES finished_goods(id) ON DELETE CASCADE
+    )
+  `);
+
+  // BOM: Bill of materials lines - parts consumed per FG with qty and UOM conversion
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS bom_lines (
+      id TEXT PRIMARY KEY,
+      bom_id TEXT NOT NULL,
+      part_id TEXT NOT NULL,
+      quantity REAL NOT NULL CHECK(quantity > 0),
+      consumption_uom TEXT NOT NULL,
+      uom_conversion_factor REAL NOT NULL DEFAULT 1,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      UNIQUE(bom_id, part_id),
+      FOREIGN KEY (bom_id) REFERENCES bom(id) ON DELETE CASCADE,
+      FOREIGN KEY (part_id) REFERENCES parts(id) ON DELETE RESTRICT
+    )
+  `);
+
+  // Seed dummy finished goods (FG) if table is empty
+  const fgIds: { fg_id: string; id: string }[] = [];
+  try {
+    const fgCount = (db.prepare('SELECT COUNT(*) as count FROM finished_goods').get() as { count: number }).count;
+    if (fgCount === 0) {
+      const dummyFGs = [
+        { fg_id: 'FG-1001', description: 'Assembly Unit A', uom: 'NOS', hsn: '8471' },
+        { fg_id: 'FG-1002', description: 'Assembly Unit B', uom: 'NOS', hsn: '8471' },
+        { fg_id: 'FG-1003', description: 'Finished Good C - Electronic Module', uom: 'NOS', hsn: '8504' },
+        { fg_id: 'FG-1004', description: 'Packaged Consumer Product', uom: 'CTN', hsn: '4819' },
+        { fg_id: 'FG-1005', description: 'Machinery Assembly - Type X', uom: 'NOS', hsn: '8479' },
+      ];
+      const insertFg = db.prepare(`
+        INSERT INTO finished_goods (id, entity_id, fg_id, description, uom, hsn, status)
+        VALUES (?, ?, ?, ?, ?, ?, 'active')
+      `);
+      for (const fg of dummyFGs) {
+        const id = randomUUID();
+        insertFg.run(id, 'hsbc', fg.fg_id, fg.description, fg.uom, fg.hsn ?? null);
+        fgIds.push({ fg_id: fg.fg_id, id });
+      }
+      console.log(`[Database] Seeded ${dummyFGs.length} dummy finished goods`);
+    }
+  } catch (e: any) {
+    console.warn('[Database] Could not seed dummy finished goods:', e?.message);
+  }
+
+  // Seed dummy parts (PRT) if table is empty
+  const partIdsByCode: Record<string, string> = {};
+  try {
+    const partCount = (db.prepare('SELECT COUNT(*) as count FROM parts').get() as { count: number }).count;
+    if (partCount === 0) {
+      const dummyParts = [
+        { part_id: 'PT-1001', description: 'Industrial machinery parts - Category A', uom: 'NOS' },
+        { part_id: 'PT-1002', description: 'Electronic components - PCB assembly', uom: 'NOS' },
+        { part_id: 'PT-1003', description: 'Raw materials - Steel grade 304', uom: 'KG' },
+        { part_id: 'PT-1004', description: 'Packaging materials - Cartons', uom: 'CTN' },
+        { part_id: 'PT-1005', description: 'Spare parts - Conveyor system', uom: 'NOS' },
+      ];
+      const insertPart = db.prepare(`
+        INSERT INTO parts (id, entity_id, part_id, description, uom, status)
+        VALUES (?, ?, ?, ?, ?, 'active')
+      `);
+      for (const p of dummyParts) {
+        const id = randomUUID();
+        insertPart.run(id, 'hsbc', p.part_id, p.description, p.uom);
+        partIdsByCode[p.part_id] = id;
+      }
+      console.log(`[Database] Seeded ${dummyParts.length} dummy parts`);
+    }
+  } catch (e: any) {
+    console.warn('[Database] Could not seed dummy parts:', e?.message);
+  }
+
+  // Seed 1–2 dummy configured BOMs (if BOM table is empty and we have FGs + parts)
+  try {
+    const bomCount = (db.prepare('SELECT COUNT(*) as count FROM bom').get() as { count: number }).count;
+    if (bomCount === 0) {
+      let fg1 = fgIds.find((f) => f.fg_id === 'FG-1001');
+      let fg2 = fgIds.find((f) => f.fg_id === 'FG-1002');
+      if (!fg1 || !fg2) {
+        const rows = db.prepare("SELECT id, fg_id FROM finished_goods WHERE entity_id = 'hsbc' ORDER BY fg_id LIMIT 2").all() as { id: string; fg_id: string }[];
+        if (!fg1 && rows[0]) fg1 = { fg_id: rows[0].fg_id, id: rows[0].id };
+        if (!fg2 && rows[1]) fg2 = { fg_id: rows[1].fg_id, id: rows[1].id };
+      }
+      let p1 = partIdsByCode['PT-1001'], p2 = partIdsByCode['PT-1002'], p3 = partIdsByCode['PT-1003'];
+      if (!p1 || !p2 || !p3) {
+        const partRows = db.prepare("SELECT id FROM parts WHERE entity_id = 'hsbc' ORDER BY part_id LIMIT 3").all() as { id: string }[];
+        if (partRows.length >= 3) {
+          p1 = p1 || partRows[0].id;
+          p2 = p2 || partRows[1].id;
+          p3 = p3 || partRows[2].id;
+        }
+      }
+      if (fg1 && fg2 && p1 && p2 && p3) {
+        const insertBom = db.prepare(`
+          INSERT INTO bom (id, entity_id, finished_good_id, version, status)
+          VALUES (?, ?, ?, 1, 'active')
+        `);
+        const insertLine = db.prepare(`
+          INSERT INTO bom_lines (id, bom_id, part_id, quantity, consumption_uom, uom_conversion_factor)
+          VALUES (?, ?, ?, ?, ?, 1)
+        `);
+        const bom1Id = randomUUID();
+        insertBom.run(bom1Id, 'hsbc', fg1.id);
+        insertLine.run(randomUUID(), bom1Id, p1, 2, 'NOS', 1);
+        insertLine.run(randomUUID(), bom1Id, p2, 1, 'NOS', 1);
+        const bom2Id = randomUUID();
+        insertBom.run(bom2Id, 'hsbc', fg2.id);
+        insertLine.run(randomUUID(), bom2Id, p2, 3, 'NOS', 1);
+        insertLine.run(randomUUID(), bom2Id, p3, 0.5, 'KG', 1);
+        console.log('[Database] Seeded 2 dummy configured BOMs');
+      }
+    }
+  } catch (e: any) {
+    console.warn('[Database] Could not seed dummy BOMs:', e?.message);
+  }
+
   // Add sample data for PDF processing history if table is empty
   const countStmt = db.prepare('SELECT COUNT(*) as count FROM pdf_processing_history');
   const countResult = countStmt.get() as { count: number } | undefined;
@@ -1519,6 +1685,85 @@ export function initializeDatabase() {
       )
     `);
     console.log('✓ Table created successfully');
+  }
+
+  // ============================================================================
+  // CREATE INDEXES FOR PERFORMANCE OPTIMIZATION
+  // ============================================================================
+  console.log('[Database] Creating indexes for performance optimization...');
+  
+  try {
+    // Users table indexes
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_users_role ON users(role)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_users_entity_id ON users(entity_id)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_users_status ON users(status)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_users_username ON users(username)`);
+    
+    // Tickets table indexes
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_tickets_entity_id ON tickets(entity_id)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_tickets_invoice_id ON tickets(invoice_id)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_tickets_invoice_no ON tickets(invoice_no)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets(status)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_tickets_raised_by ON tickets(raised_by)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_tickets_ticket_id ON tickets(ticket_id)`);
+    // Composite index for common query pattern
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_tickets_entity_status ON tickets(entity_id, status)`);
+    
+    // QR Data table indexes
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_qr_data_entity_id ON qr_data(entity_id)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_qr_data_invoice_no ON qr_data(invoice_no)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_qr_data_irn ON qr_data(irn)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_qr_data_status ON qr_data(status)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_qr_data_entity_date ON qr_data(entity_id, date)`);
+    
+    // PDF Data table indexes
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_pdf_data_entity_id ON pdf_data(entity_id)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_pdf_data_invoice_no ON pdf_data(invoice_no)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_pdf_data_status ON pdf_data(status)`);
+    
+    // EGAM Repository table indexes
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_egam_repository_entity_id ON egam_repository(entity_id)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_egam_repository_irn ON egam_repository(irn)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_egam_repository_invoice_no ON egam_repository(invoice_no)`);
+    
+    // Email Data table indexes
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_email_data_entity_id ON email_data(entity_id)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_email_data_processing_status ON email_data(processing_status)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_email_data_invoice_no ON email_data(invoice_no)`);
+    
+    // System Logs table indexes
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_system_logs_entity_id ON system_logs(entity_id)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_system_logs_timestamp ON system_logs(timestamp)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_system_logs_level ON system_logs(level)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_system_logs_module ON system_logs(module)`);
+    
+    // API Logs table indexes
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_api_logs_entity_id ON api_logs(entity_id)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_api_logs_timestamp ON api_logs(timestamp)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_api_logs_api_name ON api_logs(api_name)`);
+    
+    // Cost Model indexes
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_verticals_entity_id ON verticals(entity_id)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_asset_class_entity_id ON asset_class(entity_id)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_asset_type_entity_id ON asset_type(entity_id)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_asset_type_asset_class_id ON asset_type(asset_class_id)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_assets_entity_id ON assets(entity_id)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_assets_asset_type_id ON assets(asset_type_id)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_service_groups_entity_id ON service_groups(entity_id)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_service_groups_vertical_id ON service_groups(vertical_id)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_services_entity_id ON services(entity_id)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_services_service_group_id ON services(service_group_id)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_cost_groups_entity_id ON cost_groups(entity_id)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_cost_groups_vertical_id ON cost_groups(vertical_id)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_budget_lines_entity_id ON budget_lines(entity_id)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_budget_lines_cost_group_id ON budget_lines(cost_group_id)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_cost_elements_entity_id ON cost_elements(entity_id)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_cost_elements_budget_line_id ON cost_elements(budget_line_id)`);
+    db.exec(`CREATE INDEX IF NOT EXISTS idx_cost_rules_cost_element_id ON cost_rules(cost_element_id)`);
+    
+    console.log('[Database] ✓ Indexes created successfully');
+  } catch (error: any) {
+    console.warn('[Database] Warning: Some indexes may already exist:', error.message);
   }
 
   console.log('Database initialized successfully');
@@ -5185,6 +5430,211 @@ export class DatabaseService {
       console.warn(`Error fetching service budget amount for service ${serviceId}:`, error);
       return 0;
     }
+  }
+
+  // ---------- BOM: Parts (PRT) ----------
+  async getParts(entityId: string = 'hsbc') {
+    const stmt = db.prepare(
+      'SELECT * FROM parts WHERE entity_id = ? AND status = ? ORDER BY part_id'
+    );
+    return stmt.all(entityId, 'active') as any[];
+  }
+
+  async getPartById(id: string) {
+    const stmt = db.prepare('SELECT * FROM parts WHERE id = ?');
+    return stmt.get(id) as any;
+  }
+
+  async getPartByPartId(entityId: string, partId: string) {
+    const stmt = db.prepare('SELECT * FROM parts WHERE entity_id = ? AND part_id = ?');
+    return stmt.get(entityId, partId) as any;
+  }
+
+  async createPart(data: { entityId?: string; partId: string; description: string; uom: string }) {
+    const id = randomUUID();
+    const entityId = data.entityId || 'hsbc';
+    const stmt = db.prepare(`
+      INSERT INTO parts (id, entity_id, part_id, description, uom, status)
+      VALUES (?, ?, ?, ?, ?, 'active')
+    `);
+    stmt.run(id, entityId, data.partId, data.description, data.uom);
+    return this.getPartById(id);
+  }
+
+  async updatePart(id: string, data: Partial<{ partId: string; description: string; uom: string; status: string }>) {
+    const existing = await this.getPartById(id);
+    if (!existing) return null;
+    const partId = data.partId ?? existing.part_id;
+    const description = data.description ?? existing.description;
+    const uom = data.uom ?? existing.uom;
+    const status = data.status ?? existing.status;
+    const stmt = db.prepare(`
+      UPDATE parts SET part_id = ?, description = ?, uom = ?, status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?
+    `);
+    stmt.run(partId, description, uom, status, id);
+    return this.getPartById(id);
+  }
+
+  async deletePart(id: string) {
+    const stmt = db.prepare('DELETE FROM parts WHERE id = ?');
+    const result = stmt.run(id);
+    return (result as any).changes > 0;
+  }
+
+  // ---------- BOM: Finished goods (FG) ----------
+  static readonly DEFAULT_HSN = '8471';
+
+  async getFinishedGoods(entityId: string = 'hsbc') {
+    const stmt = db.prepare(
+      'SELECT * FROM finished_goods WHERE entity_id = ? AND status = ? ORDER BY fg_id'
+    );
+    const rows = stmt.all(entityId, 'active') as any[];
+    return rows.map((row) => ({ ...row, hsn: row.hsn || DatabaseService.DEFAULT_HSN }));
+  }
+
+  async getFinishedGoodById(id: string) {
+    const stmt = db.prepare('SELECT * FROM finished_goods WHERE id = ?');
+    const row = stmt.get(id) as any;
+    if (!row) return row;
+    return { ...row, hsn: row.hsn || DatabaseService.DEFAULT_HSN };
+  }
+
+  async getFinishedGoodByFgId(entityId: string, fgId: string) {
+    const stmt = db.prepare('SELECT * FROM finished_goods WHERE entity_id = ? AND fg_id = ?');
+    return stmt.get(entityId, fgId) as any;
+  }
+
+  async createFinishedGood(data: { entityId?: string; fgId: string; description: string; uom: string; hsn?: string }) {
+    const id = randomUUID();
+    const entityId = data.entityId || 'hsbc';
+    const hsn = (data.hsn?.trim()) || DatabaseService.DEFAULT_HSN;
+    const stmt = db.prepare(`
+      INSERT INTO finished_goods (id, entity_id, fg_id, description, uom, hsn, status)
+      VALUES (?, ?, ?, ?, ?, ?, 'active')
+    `);
+    stmt.run(id, entityId, data.fgId, data.description, data.uom, hsn);
+    return this.getFinishedGoodById(id);
+  }
+
+  async updateFinishedGood(id: string, data: Partial<{ fgId: string; description: string; uom: string; hsn: string; status: string }>) {
+    const existing = await this.getFinishedGoodById(id);
+    if (!existing) return null;
+    const fgId = data.fgId ?? existing.fg_id;
+    const description = data.description ?? existing.description;
+    const uom = data.uom ?? existing.uom;
+    const hsn = data.hsn !== undefined ? (data.hsn?.trim() || DatabaseService.DEFAULT_HSN) : (existing.hsn || DatabaseService.DEFAULT_HSN);
+    const status = data.status ?? existing.status;
+    const stmt = db.prepare(`
+      UPDATE finished_goods SET fg_id = ?, description = ?, uom = ?, hsn = ?, status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?
+    `);
+    stmt.run(fgId, description, uom, hsn, status, id);
+    return this.getFinishedGoodById(id);
+  }
+
+  async deleteFinishedGood(id: string) {
+    const stmt = db.prepare('DELETE FROM finished_goods WHERE id = ?');
+    const result = stmt.run(id);
+    return (result as any).changes > 0;
+  }
+
+  // ---------- BOM: Bill of materials ----------
+  async getBomByFinishedGoodId(finishedGoodId: string) {
+    const stmt = db.prepare('SELECT * FROM bom WHERE finished_good_id = ?');
+    return stmt.get(finishedGoodId) as any;
+  }
+
+  async getBomById(id: string) {
+    const stmt = db.prepare('SELECT * FROM bom WHERE id = ?');
+    return stmt.get(id) as any;
+  }
+
+  async getAllBoms(entityId: string = 'hsbc') {
+    const stmt = db.prepare(`
+      SELECT b.*, fg.fg_id, fg.description as fg_description, fg.uom as fg_uom, COALESCE(fg.hsn, ?) as fg_hsn
+      FROM bom b
+      JOIN finished_goods fg ON fg.id = b.finished_good_id
+      WHERE b.entity_id = ? AND b.status = 'active'
+      ORDER BY fg.fg_id
+    `);
+    return stmt.all(DatabaseService.DEFAULT_HSN, entityId) as any[];
+  }
+
+  async getBomsWithLines(entityId: string = 'hsbc') {
+    const boms = await this.getAllBoms(entityId);
+    const result = [];
+    for (const bom of boms) {
+      const lines = await this.getBomLines(bom.id);
+      result.push({ ...bom, lines });
+    }
+    return result;
+  }
+
+  async createBom(data: { entityId?: string; finishedGoodId: string }) {
+    const id = randomUUID();
+    const entityId = data.entityId || 'hsbc';
+    const stmt = db.prepare(`
+      INSERT INTO bom (id, entity_id, finished_good_id, version, status)
+      VALUES (?, ?, ?, 1, 'active')
+    `);
+    stmt.run(id, entityId, data.finishedGoodId);
+    return this.getBomById(id);
+  }
+
+  async deleteBom(id: string) {
+    const stmt = db.prepare('DELETE FROM bom WHERE id = ?');
+    const result = stmt.run(id);
+    return (result as any).changes > 0;
+  }
+
+  // ---------- BOM: BOM lines ----------
+  async getBomLines(bomId: string) {
+    const stmt = db.prepare(`
+      SELECT bl.*, p.part_id, p.description as part_description, p.uom as part_uom
+      FROM bom_lines bl
+      JOIN parts p ON p.id = bl.part_id
+      WHERE bl.bom_id = ?
+      ORDER BY bl.id
+    `);
+    return stmt.all(bomId) as any[];
+  }
+
+  async createBomLine(data: {
+    bomId: string;
+    partId: string;
+    quantity: number;
+    consumptionUom: string;
+    uomConversionFactor: number;
+  }) {
+    const bom = await this.getBomById(data.bomId);
+    if (!bom) throw new Error('BOM not found');
+    const part = await this.getPartByPartId(bom.entity_id, data.partId);
+    if (!part) throw new Error(`Part not found: ${data.partId}`);
+    const id = randomUUID();
+    const stmt = db.prepare(`
+      INSERT INTO bom_lines (id, bom_id, part_id, quantity, consumption_uom, uom_conversion_factor)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `);
+    stmt.run(id, data.bomId, part.id, data.quantity, data.consumptionUom, data.uomConversionFactor ?? 1);
+    return db.prepare('SELECT * FROM bom_lines WHERE id = ?').get(id) as any;
+  }
+
+  async updateBomLine(id: string, data: Partial<{ quantity: number; consumptionUom: string; uomConversionFactor: number }>) {
+    const existing = db.prepare('SELECT * FROM bom_lines WHERE id = ?').get(id) as any;
+    if (!existing) return null;
+    const quantity = data.quantity ?? existing.quantity;
+    const consumptionUom = data.consumptionUom ?? existing.consumption_uom;
+    const uomConversionFactor = data.uomConversionFactor ?? existing.uom_conversion_factor;
+    const stmt = db.prepare(`
+      UPDATE bom_lines SET quantity = ?, consumption_uom = ?, uom_conversion_factor = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?
+    `);
+    stmt.run(quantity, consumptionUom, uomConversionFactor, id);
+    return db.prepare('SELECT * FROM bom_lines WHERE id = ?').get(id) as any;
+  }
+
+  async deleteBomLine(id: string) {
+    const stmt = db.prepare('DELETE FROM bom_lines WHERE id = ?');
+    const result = stmt.run(id);
+    return (result as any).changes > 0;
   }
 }
 

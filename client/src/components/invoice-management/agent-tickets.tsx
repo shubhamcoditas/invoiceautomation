@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, memo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -81,6 +81,88 @@ const generateDummyTickets = (invoiceId: string): Ticket[] => {
     },
   ];
 };
+
+// Memoized ticket row component to prevent unnecessary re-renders
+interface TicketRowProps {
+  ticket: Ticket;
+  onTicketClick: (ticket: Ticket) => void;
+  getStatusBadge: (status: string) => React.ReactNode;
+  getPriorityBadge: (priority: string) => React.ReactNode;
+  formatDateTime: (date: string) => string;
+}
+
+const TicketRow = memo(({ ticket, onTicketClick, getStatusBadge, getPriorityBadge, formatDateTime }: TicketRowProps) => {
+  return (
+    <TableRow 
+      className="hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-indigo-50/50 dark:hover:from-blue-900/10 dark:hover:to-indigo-900/10 transition-all duration-200"
+    >
+      <TableCell className="font-medium text-foreground py-4">
+        <div className="flex items-center gap-2">
+          <Ticket className="h-4 w-4 text-muted-foreground" />
+          {ticket.ticketId}
+        </div>
+      </TableCell>
+      <TableCell className="text-foreground py-4">
+        <div className="flex items-center gap-2">
+          <FileText className="h-4 w-4 text-muted-foreground" />
+          {ticket.invoiceId || ticket.invoiceNo}
+        </div>
+      </TableCell>
+      <TableCell className="text-foreground py-4">
+        <div className="flex items-center gap-2">
+          <User className="h-4 w-4 text-muted-foreground" />
+          {ticket.raisedBy}
+        </div>
+      </TableCell>
+      <TableCell className="py-4">
+        <Badge variant="outline" className="capitalize">
+          {ticket.raisedByRole}
+        </Badge>
+      </TableCell>
+      <TableCell className="py-4">
+        {getStatusBadge(ticket.status)}
+      </TableCell>
+      <TableCell className="py-4">
+        {getPriorityBadge(ticket.priority)}
+      </TableCell>
+      <TableCell className="text-sm py-4">
+        <div className="flex items-center gap-1">
+          <Calendar className="h-3 w-3 text-muted-foreground" />
+          <span className="text-foreground font-mono">{formatDateTime(ticket.createdAt)}</span>
+        </div>
+      </TableCell>
+      <TableCell className="text-sm py-4">
+        {ticket.lastCloudSyncAt ? (
+          <div className="flex items-center gap-1">
+            <Cloud className="h-3 w-3 text-muted-foreground" />
+            <span className="text-foreground font-mono">{formatDateTime(ticket.lastCloudSyncAt)}</span>
+          </div>
+        ) : (
+          <span className="text-muted-foreground text-xs">Not synced</span>
+        )}
+      </TableCell>
+      <TableCell className="py-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onTicketClick(ticket)}
+        >
+          <MessageSquare className="h-4 w-4" />
+        </Button>
+      </TableCell>
+    </TableRow>
+  );
+}, (prevProps, nextProps) => {
+  // Custom comparison - only re-render if ticket data actually changed
+  return (
+    prevProps.ticket.id === nextProps.ticket.id &&
+    prevProps.ticket.status === nextProps.ticket.status &&
+    prevProps.ticket.priority === nextProps.ticket.priority &&
+    prevProps.ticket.updatedAt === nextProps.ticket.updatedAt
+  );
+});
+
+TicketRow.displayName = "TicketRow";
 
 export function AgentTickets() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -276,68 +358,17 @@ export function AgentTickets() {
           </TableHeader>
           <TableBody>
             {ticketList.map((ticket) => (
-              <TableRow 
-                key={ticket.id} 
-                className="hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-indigo-50/50 dark:hover:from-blue-900/10 dark:hover:to-indigo-900/10 transition-all duration-200"
-              >
-                <TableCell className="font-medium text-foreground py-4">
-                  <div className="flex items-center gap-2">
-                    <Ticket className="h-4 w-4 text-muted-foreground" />
-                    {ticket.ticketId}
-                  </div>
-                </TableCell>
-                <TableCell className="text-foreground py-4">
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-muted-foreground" />
-                    {ticket.invoiceId || ticket.invoiceNo}
-                  </div>
-                </TableCell>
-                <TableCell className="text-foreground py-4">
-                  <div className="flex items-center gap-2">
-                    <User className="h-4 w-4 text-muted-foreground" />
-                    {ticket.raisedBy}
-                  </div>
-                </TableCell>
-                <TableCell className="py-4">
-                  <Badge variant="outline" className="capitalize">
-                    {ticket.raisedByRole}
-                  </Badge>
-                </TableCell>
-                <TableCell className="py-4">
-                  {getStatusBadge(ticket.status)}
-                </TableCell>
-                <TableCell className="py-4">
-                  {getPriorityBadge(ticket.priority)}
-                </TableCell>
-                <TableCell className="text-sm py-4">
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-3 w-3 text-muted-foreground" />
-                    <span className="text-foreground font-mono">{formatDateTime(ticket.createdAt)}</span>
-                  </div>
-                </TableCell>
-                <TableCell className="text-sm py-4">
-                  {ticket.lastCloudSyncAt ? (
-                    <div className="flex items-center gap-1">
-                      <Cloud className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-foreground font-mono">{formatDateTime(ticket.lastCloudSyncAt)}</span>
-                    </div>
-                  ) : (
-                    <span className="text-muted-foreground text-xs">Not synced</span>
-                  )}
-                </TableCell>
-                <TableCell className="py-4">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setSelectedTicket(ticket);
-                      setIsTicketDialogOpen(true);
-                    }}
-                  >
-                    <MessageSquare className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
+              <TicketRow
+                key={ticket.id}
+                ticket={ticket}
+                onTicketClick={(t) => {
+                  setSelectedTicket(t);
+                  setIsTicketDialogOpen(true);
+                }}
+                getStatusBadge={getStatusBadge}
+                getPriorityBadge={getPriorityBadge}
+                formatDateTime={formatDateTime}
+              />
             ))}
           </TableBody>
         </Table>

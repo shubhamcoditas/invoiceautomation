@@ -260,17 +260,11 @@ export function EARaiseTicketModal({ open, onOpenChange, prefilledInvoiceId, pre
             </Button>
             <Button 
               type="submit" 
-              disabled={isSubmitting}
+              loading={isSubmitting}
+              loadingText="Submitting..."
               className="ea-raise-ticket-button"
             >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Submitting...
-                </>
-              ) : (
-                "Submit"
-              )}
+              Submit
             </Button>
           </DialogFooter>
         </form>

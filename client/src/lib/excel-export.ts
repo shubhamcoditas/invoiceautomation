@@ -105,3 +105,16 @@ export const exportValidationAPIResultsToExcel = (results: any[], apiName: strin
   
   return exportToExcel(data, `${apiName.replace(/\s+/g, '_').toLowerCase()}_validation_results`);
 };
+
+/** Verticals bulk upload template: Name, Description, Status (with one sample row) */
+export function downloadVerticalsTemplate() {
+  const templateData = [
+    { Name: 'Information Technology', Description: 'IT department managing technology and systems', Status: 'active' },
+  ];
+  const worksheet = XLSX.utils.json_to_sheet(templateData);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Verticals');
+  const colWidths = [{ wch: 25 }, { wch: 50 }, { wch: 12 }];
+  worksheet['!cols'] = colWidths;
+  XLSX.writeFile(workbook, 'verticals_template.xlsx');
+}

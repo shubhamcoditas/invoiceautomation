@@ -228,19 +228,12 @@ export function DownloadInvoice() {
                   <Button
                     type="submit"
                     className="w-full sm:w-auto min-w-[180px] h-11 text-sm font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                    disabled={!hasValidInput || isLoading}
+                    disabled={!hasValidInput}
+                    loading={isLoading}
+                    loadingText="Searching..."
                   >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Searching...
-                      </>
-                    ) : (
-                      <>
-                        <Search className="mr-2 h-4 w-4" />
-                        Search Document
-                      </>
-                    )}
+                    <Search className="mr-2 h-4 w-4" />
+                    Search Document
                   </Button>
                   <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
                     <Info className="h-3 w-3" />

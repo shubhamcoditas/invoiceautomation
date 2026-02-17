@@ -2,10 +2,13 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { randomUUID } from "crypto";
 import { registerRoutes } from "./routes";
+import { registerAPIRoutes } from "./apiRoutes";
 import { setupVite, serveStatic, log } from "./vite";
 import { databaseService } from "./database";
 import path from "path";
 import { readFileSync, existsSync } from "fs";
+import compression from "compression";
+import rateLimit from "express-rate-limit";
 
 const app = express();
 
@@ -73,6 +76,38 @@ app.use('/api/ea/upload-pdf', express.raw({ type: ['application/pdf', 'applicati
 // Configure request body size limits (50MB for file uploads)
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: false, limit: '50mb' }));
+
+// ============================================================================
+// PERFORMANCE OPTIMIZATION: Response Compression
+// ============================================================================
+app.use(compression({
+  level: 6, // Compression level (1-9, 6 is a good balance)
+  threshold: 1024, // Only compress responses > 1KB
+  filter: (req: Request, res: Response) => {
+    // Don't compress if client doesn't support it
+    if (req.headers['x-no-compression']) {
+      return false;
+    }
+    // Use compression for all other requests
+    return compression.filter(req, res);
+  },
+}));
+console.log('[Server] Response compression enabled');
+
+// ============================================================================
+// SECURITY & PERFORMANCE: Request Rate Limiting
+// ============================================================================
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+});
+
+// Apply rate limiting to all API routes
+app.use('/api/', apiLimiter);
+console.log('[Server] Rate limiting enabled (100 requests per 15 minutes per IP)');
 
 // ============================================================================
 // CRITICAL: Register Invoice Management API routes FIRST, before ANY middleware
@@ -255,6 +290,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 (async () => {
+  registerAPIRoutes(app);
   const server = await registerRoutes(app);
 
   app.use((err: any, req: Request, res: Response, _next: NextFunction) => {
