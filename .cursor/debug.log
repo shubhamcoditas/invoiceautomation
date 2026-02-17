@@ -1,0 +1,7 @@
+{"location":"apiRoutes.ts:4","message":"registerAPIRoutes function called","data":{"appExists":true},"timestamp":1767589540520,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"apiRoutes.ts:667","message":"Registering /api/services route","data":{"routePath":"/api/services"},"timestamp":1767589540564,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"apiRoutes.ts:678","message":"Registering /api/services/:id route","data":{"routePath":"/api/services/:id"},"timestamp":1767589540565,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"apiRoutes.ts:618","message":"Registering /api/service-level-costs route","data":{"routePath":"/api/service-level-costs"},"timestamp":1767589540564,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"apiRoutes.ts:618","message":"Registering /api/service-level-costs route","data":{"routePath":"/api/service-level-costs"},"timestamp":1767590780888,"sessionId":"debug-session","runId":"run1","hypothesisId":"A"}
+{"location":"apiRoutes.ts:678","message":"Registering /api/services/:id route","data":{"routePath":"/api/services/:id"},"timestamp":1767590780904,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}
+{"location":"apiRoutes.ts:667","message":"Registering /api/services route","data":{"routePath":"/api/services"},"timestamp":1767590780903,"sessionId":"debug-session","runId":"run1","hypothesisId":"B"}

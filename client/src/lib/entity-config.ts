@@ -32,6 +32,33 @@ export interface EntityConfig {
 
 // Default entity configurations
 export const entityConfigs: Record<string, EntityConfig> = {
+  'emirates': {
+    id: 'emirates',
+    name: 'Emirates',
+    displayName: 'Emirates Invoice Downloader',
+    primaryColor: '#2563eb', // Blue primary
+    secondaryColor: '#60a5fa', // Blue secondary
+    accentColor: '#dbeafe', // Light blue accent
+    textColor: '#1e293b',
+    backgroundColor: '#f0f9ff', // Light blue background
+    onboardingDate: '05 Jan 2026',
+    features: {
+      qrScanner: true,
+      pdfUpload: true,
+      emailReview: true,
+      egamRepository: true,
+      validationApis: true,
+      noticeApis: true,
+      systemLogs: true,
+      userManagement: true,
+      settings: true,
+    },
+    branding: {
+      showKpmgBranding: false,
+      kpmgPosition: 'bottom',
+      customFooter: 'Emirates Invoice Automation Platform'
+    }
+  },
   'hsbc': {
     id: 'hsbc',
     name: 'HSBC',
@@ -144,8 +171,8 @@ export const entityConfigs: Record<string, EntityConfig> = {
 // Get current entity configuration
 export function getCurrentEntityConfig(): EntityConfig {
   // In a real application, this would come from environment variables or API
-  // For now, we'll use HSBC as the default entity
-  const entityId = import.meta.env.VITE_ENTITY_ID || 'hsbc';
+  // For now, we'll use Emirates as the default entity
+  const entityId = import.meta.env.VITE_ENTITY_ID || 'emirates';
   return entityConfigs[entityId] || entityConfigs['default'];
 }
 

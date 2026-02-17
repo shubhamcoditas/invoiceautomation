@@ -1621,21 +1621,14 @@ export function ValidationAPIs() {
                     <Button 
                       onClick={handleRunExcelAPI}
                       disabled={isLoading || excelProcessingState === 'processing'}
+                      loading={isLoading || excelProcessingState === 'processing'}
+                      loadingText="Processing..."
                       data-testid="button-run-excel-api"
-                      className="bg-gradient-to-r from-[#00338D] to-[#4A90E2] hover:from-[#001F5C] hover:to-[#00338D] text-white px-8 py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="bg-gradient-to-r from-[#00338D] to-[#4A90E2] hover:from-[#001F5C] hover:to-[#00338D] text-white px-8 py-3"
                     >
-                      {isLoading || excelProcessingState === 'processing' ? (
-                        <>
-                          <div className="mr-2 h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                          Processing...
-                        </>
-                      ) : (
-                        <>
-                          <Play className="mr-2 h-5 w-5" />
-                          Run API
-                        </>
-                      )}
-              </Button>
+                      <Play className="mr-2 h-5 w-5" />
+                      Run API
+                    </Button>
             </div>
                 </div>
               </div>

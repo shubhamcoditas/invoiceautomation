@@ -100,3 +100,54 @@ export function validateQRString(qrString: string): { isValid: boolean; error?: 
 
   return { isValid: true };
 }
+
+export interface VerticalRow {
+  name: string;
+  description?: string;
+  status?: string;
+  rowNumber: number;
+}
+
+const VALID_STATUSES = ['active', 'inactive', 'archived'];
+
+export function parseVerticalsExcel(file: File): Promise<VerticalRow[]> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = e.target?.result;
+        if (!data) {
+          reject(new Error('Failed to read file'));
+          return;
+        }
+        const workbook = XLSX.read(data, { type: 'binary' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet);
+        const rows: VerticalRow[] = [];
+        jsonData.forEach((row, index) => {
+          const rowNumber = index + 2;
+          const name = row['Name'] ?? row['name'];
+          const nameStr = name != null ? String(name).trim() : '';
+          if (!nameStr) return;
+          const description = row['Description'] ?? row['description'];
+          const descStr = description != null ? String(description).trim() : undefined;
+          const statusRaw = row['Status'] ?? row['status'];
+          const statusStr = statusRaw != null ? String(statusRaw).trim().toLowerCase() : 'active';
+          const status = statusStr && VALID_STATUSES.includes(statusStr) ? statusStr : 'active';
+          rows.push({
+            name: nameStr,
+            description: descStr || undefined,
+            status,
+            rowNumber,
+          });
+        });
+        resolve(rows);
+      } catch (err) {
+        reject(new Error('Failed to parse Excel file: ' + (err as Error).message));
+      }
+    };
+    reader.onerror = () => reject(new Error('Failed to read file'));
+    reader.readAsBinaryString(file);
+  });
+}

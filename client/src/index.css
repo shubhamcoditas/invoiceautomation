@@ -1,6 +1,11 @@
 /* Import unified form styles */
 @import './styles/form-styles.css';
 
+/* Import component styles */
+@import './styles/components/shared.css';
+@import './styles/components/ea-invoice-downloader.css';
+@import './styles/components/invoice-management.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -28,12 +33,12 @@
   }
 }
 
-/* Enhanced Dropdown Styling */
+/* Modern Dropdown Styling */
 [data-radix-select-content] {
-  background: white !important;
-  border: 2px solid #d1d5db !important;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
-  border-radius: 0.5rem !important;
+  background: var(--popover) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-lg) !important;
+  border-radius: var(--radius-md) !important;
   padding: 0.5rem !important;
   z-index: 100 !important;
   min-width: 320px !important;
@@ -42,47 +47,45 @@
 }
 
 [data-radix-select-item] {
-  padding: 0.875rem 1rem !important;
-  border-radius: 0.375rem !important;
-  transition: all 150ms ease-in-out !important;
+  padding: 0.75rem 1rem !important;
+  border-radius: var(--radius-sm) !important;
+  transition: background-color 0.15s ease-out !important;
   cursor: pointer !important;
   font-weight: 500 !important;
   margin: 0.125rem !important;
-  color: #111827 !important;
+  color: var(--foreground) !important;
 }
 
 [data-radix-select-item]:hover {
-  background-color: #eff6ff !important;
-  color: #1e40af !important;
-  font-weight: 600 !important;
+  background-color: var(--muted) !important;
+  color: var(--foreground) !important;
 }
 
 [data-radix-select-item][data-state="checked"] {
-  background-color: #dbeafe !important;
-  color: #1e40af !important;
+  background-color: rgba(37, 99, 235, 0.1) !important;
+  color: var(--primary) !important;
   font-weight: 600 !important;
-  border: 1px solid #93c5fd !important;
 }
 
 [data-radix-select-item][data-state="checked"] span:first-child {
-  color: #1e40af !important;
-  font-weight: 700 !important;
+  color: var(--primary) !important;
+  font-weight: 600 !important;
 }
 
 [data-radix-select-item][data-state="checked"] span:last-child {
-  color: #1e40af !important;
-  font-weight: 500 !important;
+  color: var(--muted-foreground) !important;
+  font-weight: 400 !important;
 }
 
 [data-radix-select-item][data-highlighted] {
-  background-color: #eff6ff !important;
+  background-color: var(--muted) !important;
   outline: none !important;
 }
 
 /* Checkmark visibility and spacing */
 [data-radix-select-item-indicator] {
-  color: #1e40af !important;
-  font-weight: bold !important;
+  color: var(--primary) !important;
+  font-weight: 600 !important;
   margin-right: 1rem !important;
   display: flex !important;
   align-items: center !important;
@@ -92,14 +95,12 @@
   padding: 2px !important;
 }
 
-/* Ensure the checkmark icon is visible with proper spacing */
 [data-radix-select-item-indicator] svg {
   width: 16px !important;
   height: 16px !important;
   stroke-width: 2.5 !important;
 }
 
-/* Ensure proper spacing for select items */
 [data-radix-select-item] > div {
   display: flex !important;
   flex-direction: column !important;
@@ -108,39 +109,37 @@
 
 [data-radix-select-item] span:first-child {
   font-weight: 600 !important;
-  color: #111827 !important;
+  color: var(--foreground) !important;
 }
 
 [data-radix-select-item] span:last-child {
   font-weight: 400 !important;
-  color: #6b7280 !important;
+  color: var(--muted-foreground) !important;
   font-size: 0.875rem !important;
 }
 
-/* Enhanced dropdown menu hover states */
+/* Modern dropdown menu hover states */
 [data-radix-dropdown-menu-item]:hover {
-  background-color: #f3f4f6 !important;
-  color: #111827 !important;
+  background-color: var(--muted) !important;
+  color: var(--foreground) !important;
 }
 
 [data-radix-dropdown-menu-checkbox-item]:hover {
-  background-color: #f3f4f6 !important;
-  color: #111827 !important;
+  background-color: var(--muted) !important;
+  color: var(--foreground) !important;
 }
 
 [data-radix-dropdown-menu-radio-item]:hover {
-  background-color: #f3f4f6 !important;
-  color: #111827 !important;
+  background-color: var(--muted) !important;
+  color: var(--foreground) !important;
 }
 
-/* Global checkmark spacing improvements */
 [data-radix-dropdown-menu-checkbox-item-indicator],
 [data-radix-dropdown-menu-radio-item-indicator] {
   margin-right: 0.75rem !important;
   padding: 2px !important;
 }
 
-/* Ensure proper spacing for all select and dropdown items */
 [data-radix-select-item],
 [data-radix-dropdown-menu-item],
 [data-radix-dropdown-menu-checkbox-item],
@@ -148,169 +147,142 @@
   padding-left: 2.5rem !important;
 }
 
-/* Enhanced Input Field Styling */
-input[type="text"], input[type="email"], input[type="password"], textarea {
-  background-color: white !important;
-  border: 2px solid #d1d5db !important;
-  color: #111827 !important;
-  font-weight: 500 !important;
-  padding: 0.75rem 1rem !important;
-  height: 3rem !important;
-}
-
-input[type="text"]:hover, input[type="email"]:hover, input[type="password"]:hover, textarea:hover {
-  border-color: #9ca3af !important;
-}
-
-input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, textarea:focus {
-  border-color: #3b82f6 !important;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
-  outline: none !important;
-}
-
-input[type="text"]:disabled, input[type="email"]:disabled, input[type="password"]:disabled, textarea:disabled {
-  background-color: #f9fafb !important;
-  color: #6b7280 !important;
-  border-color: #d1d5db !important;
-}
-
-/* Specific targeting for Input components */
-[data-testid="input-user-name"], 
-[data-testid="input-user-email"], 
-[data-testid="input-user-department"],
-[data-testid="input-email-inbox"] {
-  padding: 0.75rem 1rem !important;
-  height: 3rem !important;
-}
-
-/* Target all Input components with h-12 class */
-.h-12 {
-  padding: 0.75rem 1rem !important;
-  height: 3rem !important;
-}
+/* Modern Input Field Styling - Removed heavy borders and updated to match design system */
 
 :root {
-  /* KPMG Brand Colors */
-  --kpmg-blue: #00338D;
-  --kpmg-green: #00A651;
-  --kpmg-red: #E4002B;
-  --kpmg-light-blue: #4A90E2;
-  --kpmg-dark-blue: #001F5C;
+  /* Blue Theme Colors - Flattened, Softer */
+  --blue-primary: #2563eb;
+  --blue-primary-light: #3b82f6;
+  --blue-primary-dark: #1d4ed8;
+  --blue-secondary: #60a5fa;
+  --blue-secondary-light: #93c5fd;
+  --blue-secondary-dark: #3b82f6;
+  --blue-accent: #dbeafe;
+  --blue-accent-light: #eff6ff;
+  --blue-accent-dark: #bfdbfe;
   
-  /* Modern Color Palette */
-  --background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-  --background-solid: #f8fafc;
-  --foreground: #0f172a;
-  --card: rgba(255, 255, 255, 0.8);
-  --card-foreground: #0f172a;
-  --popover: rgba(255, 255, 255, 0.95);
-  --popover-foreground: #0f172a;
-  --primary: var(--kpmg-blue);
+  /* Modern Color Palette - Flat, Minimal */
+  --background: #F7F9FC;
+  --background-solid: #F7F9FC;
+  --foreground: #1e293b;
+  --card: #ffffff;
+  --card-foreground: #1e293b;
+  --popover: #ffffff;
+  --popover-foreground: #1e293b;
+  --primary: var(--blue-primary);
   --primary-foreground: #ffffff;
   --secondary: #f1f5f9;
-  --secondary-foreground: #0f172a;
-  --muted: #f1f5f9;
+  --secondary-foreground: #1e293b;
+  --muted: #f8fafc;
   --muted-foreground: #64748b;
-  --accent: var(--kpmg-light-blue);
-  --accent-foreground: #ffffff;
-  --destructive: var(--kpmg-red);
+  --accent: #e2e8f0;
+  --accent-foreground: #1e293b;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: rgba(148, 163, 184, 0.4);
-  --input: rgba(255, 255, 255, 0.9);
-  --ring: var(--kpmg-blue);
-  --chart-1: var(--kpmg-blue);
-  --chart-2: var(--kpmg-green);
-  --chart-3: #f59e0b;
-  --chart-4: var(--kpmg-red);
+  --success: #10b981;
+  --success-foreground: #ffffff;
+  --warning: #f59e0b;
+  --warning-foreground: #ffffff;
+  --border: #e2e8f0;
+  --input: #ffffff;
+  --ring: var(--blue-primary);
+  --chart-1: var(--blue-primary);
+  --chart-2: var(--blue-secondary);
+  --chart-3: #10b981;
+  --chart-4: #f59e0b;
   --chart-5: #8b5cf6;
-  --sidebar: rgba(255, 255, 255, 0.95);
-  --sidebar-foreground: #0f172a;
-  --sidebar-primary: var(--kpmg-blue);
+  
+  /* Sidebar - Flat, No Gradients */
+  --sidebar: #2563eb;
+  --sidebar-solid: #2563eb;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: var(--blue-secondary);
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: rgba(74, 144, 226, 0.1);
-  --sidebar-accent-foreground: var(--kpmg-blue);
-  --sidebar-border: rgba(148, 163, 184, 0.2);
-  --sidebar-ring: var(--kpmg-blue);
+  --sidebar-accent: rgba(255, 255, 255, 0.1);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: var(--blue-secondary);
+  --sidebar-muted: rgba(255, 255, 255, 0.6);
   
   /* Modern Typography */
   --font-sans: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
   --font-serif: 'Playfair Display', 'Georgia', serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', 'Monaco', monospace;
   
-  /* Modern Design Tokens */
-  --radius: 0.75rem;
-  --shadow-2xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-xs: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  /* Spacing Scale - 8px System */
+  --spacing-1: 0.25rem;  /* 4px */
+  --spacing-2: 0.5rem;   /* 8px */
+  --spacing-3: 0.75rem;  /* 12px */
+  --spacing-4: 1rem;     /* 16px */
+  --spacing-5: 1.25rem;  /* 20px */
+  --spacing-6: 1.5rem;   /* 24px */
+  --spacing-8: 2rem;     /* 32px */
+  --spacing-10: 2.5rem;  /* 40px */
+  --spacing-12: 3rem;    /* 48px */
+  --spacing-16: 4rem;    /* 64px */
+  
+  /* Border Radius - Medium, Modern */
+  --radius: 0.5rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  
+  /* Shadows - Subtle, Minimal */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
   --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  --shadow-glow: 0 0 20px rgba(0, 51, 141, 0.3);
-  --shadow-glow-green: 0 0 20px rgba(0, 166, 81, 0.3);
-  
-  /* Glassmorphism */
-  --glass-bg: rgba(255, 255, 255, 0.25);
-  --glass-border: rgba(255, 255, 255, 0.18);
-  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-  
-  /* Neumorphism */
-  --neu-light: #ffffff;
-  --neu-dark: #d1d9e6;
-  --neu-shadow-light: 20px 20px 60px #bebebe;
-  --neu-shadow-dark: -20px -20px 60px #ffffff;
   
   --tracking-normal: 0em;
   --spacing: 0.25rem;
 }
 
 .dark {
-  /* Dark Mode with KPMG Branding */
-  --background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  /* Dark Mode - Flat, Minimal */
+  --background: #0f172a;
   --background-solid: #0f172a;
-  --foreground: #f8fafc;
-  --card: rgba(30, 41, 59, 0.8);
-  --card-foreground: #f8fafc;
-  --popover: rgba(15, 23, 42, 0.95);
-  --popover-foreground: #f8fafc;
-  --primary: var(--kpmg-light-blue);
-  --primary-foreground: #ffffff;
+  --foreground: #f1f5f9;
+  --card: #1e293b;
+  --card-foreground: #f1f5f9;
+  --popover: #1e293b;
+  --popover-foreground: #f1f5f9;
+  --primary: var(--blue-secondary);
+  --primary-foreground: #0f172a;
   --secondary: #334155;
-  --secondary-foreground: #f8fafc;
-  --muted: #334155;
+  --secondary-foreground: #f1f5f9;
+  --muted: #1e293b;
   --muted-foreground: #94a3b8;
-  --accent: var(--kpmg-light-blue);
-  --accent-foreground: #ffffff;
-  --destructive: var(--kpmg-red);
+  --accent: #334155;
+  --accent-foreground: #f1f5f9;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: rgba(71, 85, 105, 0.5);
-  --input: rgba(30, 41, 59, 0.9);
-  --ring: var(--kpmg-light-blue);
-  --chart-1: var(--kpmg-light-blue);
-  --chart-2: var(--kpmg-green);
+  --success: #10b981;
+  --success-foreground: #ffffff;
+  --warning: #f59e0b;
+  --warning-foreground: #ffffff;
+  --border: #334155;
+  --input: #1e293b;
+  --ring: var(--blue-secondary);
+  --chart-1: var(--blue-secondary);
+  --chart-2: #10b981;
   --chart-3: #f59e0b;
-  --chart-4: var(--kpmg-red);
-  --chart-5: #8b5cf6;
-  --sidebar: rgba(15, 23, 42, 0.95);
-  --sidebar-foreground: #f8fafc;
-  --sidebar-primary: var(--kpmg-light-blue);
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: rgba(74, 144, 226, 0.1);
-  --sidebar-accent-foreground: var(--kpmg-light-blue);
-  --sidebar-border: rgba(71, 85, 105, 0.3);
-  --sidebar-ring: var(--kpmg-light-blue);
+  --chart-4: #8b5cf6;
+  --chart-5: #ec4899;
   
-  /* Dark Mode Glassmorphism */
-  --glass-bg: rgba(30, 41, 59, 0.25);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  
-  /* Dark Mode Neumorphism */
-  --neu-light: #334155;
-  --neu-dark: #1e293b;
-  --neu-shadow-light: 20px 20px 60px #0f172a;
-  --neu-shadow-dark: -20px -20px 60px #334155;
+  /* Sidebar - Dark Mode */
+  --sidebar: #1e293b;
+  --sidebar-solid: #1e293b;
+  --sidebar-foreground: #f1f5f9;
+  --sidebar-primary: var(--blue-secondary);
+  --sidebar-primary-foreground: #0f172a;
+  --sidebar-accent: rgba(255, 255, 255, 0.1);
+  --sidebar-accent-foreground: #f1f5f9;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: var(--blue-secondary);
+  --sidebar-muted: rgba(255, 255, 255, 0.5);
 }
 
 @layer base {
@@ -324,9 +296,52 @@ input[type="text"]:disabled, input[type="email"]:disabled, input[type="password"
     box-sizing: border-box;
   }
 
+  /* Typography Hierarchy - Modern, Clean */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold text-foreground;
+    line-height: 1.2;
+  }
+
+  h1 {
+    @apply text-3xl;
+  }
+
+  h2 {
+    @apply text-2xl;
+  }
+
+  h3 {
+    @apply text-xl;
+  }
+
+  h4 {
+    @apply text-lg;
+  }
+
+  p {
+    @apply text-sm text-foreground;
+    line-height: 1.5;
+  }
+
+  /* Page titles - strong but not oversized */
+  .page-title {
+    @apply text-2xl font-semibold text-foreground;
+  }
+
+  /* Section headers - medium weight */
+  .section-header {
+    @apply text-lg font-medium text-foreground;
+  }
+
+  /* Table text - neutral, highly readable */
+  .table-text {
+    @apply text-sm text-foreground;
+    line-height: 1.5;
+  }
+
   body {
     @apply font-sans antialiased text-foreground;
-    background: var(--background);
+    background: var(--background-solid) !important;
     min-height: 100vh;
     /* Smooth scrolling */
     scroll-behavior: smooth;
@@ -375,102 +390,26 @@ input[type="text"]:disabled, input[type="email"]:disabled, input[type="password"
 }
 
 @layer components {
-  /* Glassmorphism Components */
+  /* Modern Card Components - Flat, Clean */
   .glass {
-    background: var(--glass-bg);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--glass-shadow);
+    background: var(--card);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
   }
 
   .glass-card {
-    @apply glass rounded-xl p-6;
+    @apply glass rounded-lg p-6;
   }
 
-  /* Neumorphism Components */
-  .neu {
-    background: var(--neu-light);
-    box-shadow: var(--neu-shadow-light), var(--neu-shadow-dark);
-  }
+  /* Removed gradient text and glow effects for modern, flat design */
 
-  .neu-inset {
-    background: var(--neu-light);
-    box-shadow: inset var(--neu-shadow-light), inset var(--neu-shadow-dark);
-  }
-
-  .neu-button {
-    @apply neu rounded-lg px-6 py-3 transition-all duration-200;
-  }
-
-  .neu-button:hover {
-    transform: translateY(-2px);
-    box-shadow: 25px 25px 70px #bebebe, -25px -25px 70px #ffffff;
-  }
-
-  .neu-button:active {
-    transform: translateY(0);
-    box-shadow: inset 20px 20px 60px #bebebe, inset -20px -20px 60px #ffffff;
-  }
-
-  /* Gradient Text */
-  .gradient-text {
-    background: linear-gradient(135deg, var(--kpmg-blue), var(--kpmg-light-blue));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .gradient-text-green {
-    background: linear-gradient(135deg, var(--kpmg-green), #22c55e);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  /* Glow Effects */
-  .glow {
-    box-shadow: var(--shadow-glow);
-  }
-
-  .glow-green {
-    box-shadow: var(--shadow-glow-green);
-  }
-
-  /* Modern Animations with Hardware Acceleration */
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-    will-change: transform;
-  }
-
-  .animate-pulse-slow {
-    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    will-change: opacity;
-  }
-
-  .animate-bounce-slow {
-    animation: bounce 2s infinite;
-    will-change: transform;
-  }
-
+  /* Modern Animations - Subtle, Fast */
   .animate-fade-in {
-    animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: opacity, transform;
+    animation: fadeIn 0.2s ease-out;
   }
 
   .animate-slide-up {
-    animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: opacity, transform;
-  }
-
-  .animate-slide-in-left {
-    animation: slideInLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: opacity, transform;
-  }
-
-  .animate-scale-in {
-    animation: scaleIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: opacity, transform;
+    animation: slideUp 0.2s ease-out;
   }
 
   /* Smooth page transitions */
@@ -499,93 +438,91 @@ input[type="text"]:disabled, input[type="email"]:disabled, input[type="password"
     transform: translateY(-20px);
   }
 
-  /* Enhanced Hover Effects with Hardware Acceleration */
+  /* Subtle Hover Effects - Modern, Minimal */
   .hover-lift {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform, box-shadow;
+    transition: all 0.15s ease-out;
   }
 
   .hover-lift:hover {
-    box-shadow: var(--shadow-lg);
-  }
-
-  .hover-lift:active {
-    transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: var(--shadow-md);
   }
 
   /* Improved hover text visibility */
   .hover-text-visible:hover {
-    color: #111827 !important;
+    color: var(--foreground) !important;
     font-weight: 600 !important;
   }
 
   /* Better button hover states */
   .btn-hover-visible:hover {
-    color: #111827 !important;
-    background-color: rgba(59, 130, 246, 0.1) !important;
+    color: var(--foreground) !important;
+    background-color: var(--muted) !important;
   }
 
   .hover-glow {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: box-shadow, transform;
+    transition: box-shadow 0.15s ease-out;
   }
 
   .hover-glow:hover {
-    box-shadow: var(--shadow-glow);
+    box-shadow: var(--shadow-md);
   }
 
-  /* Smooth button interactions */
+  /* Smooth button interactions - Subtle */
   .btn-smooth {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform, background-color, box-shadow;
+    transition: background-color 0.15s ease-out, color 0.15s ease-out;
   }
 
-  .btn-smooth:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
-
-  .btn-smooth:active {
-    transform: translateY(0);
-    transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  /* Card hover effects */
+  /* Card hover effects - Minimal */
   .card-hover {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform, box-shadow, border-color;
+    transition: box-shadow 0.15s ease-out, border-color 0.15s ease-out;
   }
 
   .card-hover:hover {
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-    border-color: var(--primary);
+    box-shadow: var(--shadow-md);
+    border-color: var(--border);
   }
 
-  /* Table row hover */
+  /* Table row hover - Subtle */
   .table-row-hover {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: background-color, transform;
+    transition: background-color 0.15s ease-out;
   }
 
   .table-row-hover:hover {
-    background-color: var(--muted/50);
+    background-color: var(--muted);
   }
 
-  /* Modern Cards */
+  /* Modern Cards - Flat, Clean */
   .modern-card {
-    @apply glass-card hover-lift;
-    border: 1px solid var(--border);
+    @apply bg-card border border-border rounded-lg shadow-sm;
+    background: var(--card) !important;
   }
 
+  .modern-card .modern-card-header,
   .modern-card-header {
-    @apply border-b border-border pb-4 mb-4;
+    @apply rounded-t-lg pb-4 mb-4 !important;
+    margin-left: -1.5rem !important;
+    margin-right: -1.5rem !important;
+    margin-top: -1.5rem !important;
+    padding: 1.5rem !important;
+    padding-bottom: 1rem !important;
+    background: var(--muted) !important;
+    border-bottom: 1px solid var(--border) !important;
+  }
+  
+  /* Override any inline styles or conflicting classes */
+  .modern-card-header[class*="p-6"] {
+    padding: 1.5rem !important;
+    padding-bottom: 1rem !important;
   }
 
   .modern-card-title {
-    @apply text-xl font-semibold gradient-text;
+    @apply text-xl font-semibold !important;
+    color: var(--foreground) !important;
   }
 
   .modern-card-subtitle {
-    @apply text-sm text-muted-foreground mt-1;
+    @apply text-sm mt-1 !important;
+    color: var(--muted-foreground) !important;
   }
 
   /* Status Indicators */
@@ -637,18 +574,9 @@ input[type="text"]:disabled, input[type="email"]:disabled, input[type="password"
     @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
   }
 
-  /* Smooth transitions for all interactive elements */
+  /* Smooth transitions for all interactive elements - Minimal */
   .interactive {
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: transform, opacity, background-color;
-  }
-
-  .interactive:hover {
-    transform: translateY(-1px);
-  }
-
-  .interactive:active {
-    transform: translateY(0);
+    transition: background-color 0.15s ease-out, color 0.15s ease-out;
   }
 
   /* Staggered animations for lists */
@@ -685,53 +613,24 @@ input[type="text"]:disabled, input[type="email"]:disabled, input[type="password"
     transform: scale(1.02);
   }
 
-  /* Modal Enhancements */
+  /* Modern Modal Styles - Flat, Clean */
   .modal-overlay {
-    @apply fixed inset-0 z-50 bg-black/90 backdrop-blur-sm;
+    @apply fixed inset-0 z-50 bg-black/50;
   }
 
   .modal-content {
-    @apply bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-border shadow-2xl;
+    @apply bg-card border border-border shadow-xl rounded-lg;
   }
 
   .modal-title {
-    @apply text-xl font-bold text-foreground;
+    @apply text-xl font-semibold text-foreground;
   }
 
   .modal-description {
-    @apply text-sm text-foreground/80 leading-relaxed;
+    @apply text-sm text-muted-foreground leading-relaxed;
   }
 
-  /* Enhanced Form Elements in Modals */
-  .modal-input {
-    @apply bg-white/90 dark:bg-slate-800/90 border-border focus:border-[#00338D] focus:ring-[#00338D]/20;
-  }
-
-  .modal-textarea {
-    @apply bg-white/90 dark:bg-slate-800/90 border-border focus:border-[#00338D] focus:ring-[#00338D]/20;
-  }
-
-  .modal-select {
-    @apply bg-white/90 dark:bg-slate-800/90 border-border focus:border-[#00338D] focus:ring-[#00338D]/20;
-  }
-
-  /* Enhanced Form Field Visibility */
-  .form-input {
-    @apply border-2 border-gray-300 dark:border-gray-600 focus:border-[#00338D] focus:ring-2 focus:ring-[#00338D]/20 transition-all duration-200;
-  }
-
-  .form-select {
-    @apply border-2 border-gray-300 dark:border-gray-600 focus:border-[#00338D] focus:ring-2 focus:ring-[#00338D]/20 transition-all duration-200;
-  }
-
-  .form-textarea {
-    @apply border-2 border-gray-300 dark:border-gray-600 focus:border-[#00338D] focus:ring-2 focus:ring-[#00338D]/20 transition-all duration-200;
-  }
-
-  /* Enhanced Input States */
-  .input-enhanced {
-    @apply border-2 border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 focus:border-[#00338D] focus:ring-2 focus:ring-[#00338D]/20 transition-all duration-200;
-  }
+  /* Removed decorative button and card styles for modern, flat design */
 }
 
 @keyframes float {
@@ -746,77 +645,19 @@ input[type="text"]:disabled, input[type="email"]:disabled, input[type="password"
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes scaleIn {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* Additional smooth animations */
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes zoomIn {
-  from {
-    opacity: 0;
-    transform: scale(0.8);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
   }
 }

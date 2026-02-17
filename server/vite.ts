@@ -1,10 +1,13 @@
 import express, { type Express } from "express";
 import fs from "fs";
 import path from "path";
+import { fileURLToPath } from "url";
 import { createServer as createViteServer, createLogger } from "vite";
 import { type Server } from "http";
 import viteConfig from "../vite.config";
 import { nanoid } from "nanoid";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const viteLogger = createLogger();
 
@@ -20,6 +23,9 @@ export function log(message: string, source = "express") {
 }
 
 export async function setupVite(app: Express, server: Server) {
+  // Await the async config function if it's a function
+  const resolvedConfig = typeof viteConfig === "function" ? await viteConfig() : viteConfig;
+  
   const serverOptions = {
     middlewareMode: true,
     hmr: { server },
@@ -27,32 +33,64 @@ export async function setupVite(app: Express, server: Server) {
   };
 
   const vite = await createViteServer({
-    ...viteConfig,
+    ...resolvedConfig,
     configFile: false,
     customLogger: {
       ...viteLogger,
-      error: (msg, options) => {
+      error: (msg: string, options?: any) => {
         viteLogger.error(msg, options);
-        process.exit(1);
+        // Don't exit immediately - let the error propagate for better error handling
+        // process.exit(1);
       },
     },
     server: serverOptions,
     appType: "custom",
   });
 
-  app.use(vite.middlewares);
-  app.use("*", async (req, res, next) => {
-    const url = req.originalUrl;
+  // Apply Vite middleware ONLY for non-API routes
+  // CRITICAL: Use Express path matching to exclude /api/* routes
+  // Express middleware with path matching runs in order, but route handlers (app.get) are matched first
+  // By excluding /api/* here, we ensure API routes are never touched by Vite
+  
+  // Apply Vite dev server middleware for non-API routes only
+  // This handles Vite's HMR, asset serving, etc.
+  app.use((req: any, res: any, next: any) => {
+    const url = req.originalUrl || req.url || '';
+    const pathname = url.split('?')[0];
+    
+    // CRITICAL: Completely skip /api/* routes - never call vite.middlewares for them
+    if (pathname.startsWith('/api/')) {
+      return next(); // Let Express route handlers handle it
+    }
+    
+    // For all other routes, use Vite middleware
+    vite.middlewares(req, res, next);
+  });
+  
+  // Catch-all for SPA routing - ONLY for non-API routes
+  // This serves index.html for client-side routing
+  app.use(async (req: any, res: any, next: any) => {
+    const url = req.originalUrl || req.url || '';
+    const pathname = url.split('?')[0];
+
+    // CRITICAL: Never serve HTML for API routes
+    if (pathname.startsWith('/api/')) {
+      return next(); // Let Express handle it - if no route matches, Express will 404
+    }
+    
+    // Skip if response already sent
+    if (res.headersSent) {
+      return next();
+    }
 
     try {
       const clientTemplate = path.resolve(
-        import.meta.dirname,
+        __dirname,
         "..",
         "client",
         "index.html",
       );
 
-      // always reload the index.html file from disk incase it changes
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
       template = template.replace(
         `src="/src/main.tsx"`,
@@ -68,7 +106,7 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(import.meta.dirname, "public");
+  const distPath = path.resolve(__dirname, "..", "dist", "public");
 
   if (!fs.existsSync(distPath)) {
     throw new Error(
@@ -79,7 +117,7 @@ export function serveStatic(app: Express) {
   app.use(express.static(distPath));
 
   // fall through to index.html if the file doesn't exist
-  app.use("*", (_req, res) => {
+  app.use("*", (_req: any, res: any) => {
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test CopilotKit Endpoint</title>
+</head>
+<body>
+    <h1>Test CopilotKit Endpoint</h1>
+    <button onclick="testEndpoint()">Test /api/copilotkit</button>
+    <div id="result"></div>
+
+    <script>
+        async function testEndpoint() {
+            try {
+                const response = await fetch('/api/copilotkit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        action: 'getQRData',
+                        parameters: { limit: 5 }
+                    })
+                });
+                
+                const data = await response.text();
+                document.getElementById('result').innerHTML = '<pre>' + data + '</pre>';
+            } catch (error) {
+                document.getElementById('result').innerHTML = '<pre>Error: ' + error.message + '</pre>';
+            }
+        }
+    </script>
+</body>
+</html>

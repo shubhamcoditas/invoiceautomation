@@ -1,0 +1,62 @@
+/* Shared Component Styles - Modern, Flat Design */
+
+/* Modern Card Styles */
+.modern-card {
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  background: var(--card);
+}
+
+.dark .modern-card {
+  border-color: var(--border);
+  background: var(--card);
+}
+
+.modern-card-header {
+  background: var(--muted);
+  border-bottom: 1px solid var(--border);
+  margin-left: -1.5rem;
+  margin-right: -1.5rem;
+  margin-top: -1.5rem;
+  padding: 1.5rem;
+  padding-bottom: 1rem;
+  border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.dark .modern-card-header {
+  background: var(--muted);
+  border-bottom-color: var(--border);
+}
+
+.modern-card-title {
+  color: var(--foreground);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.modern-card-subtitle {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.dark .modern-card-subtitle {
+  color: var(--muted-foreground);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in;
+}
+
