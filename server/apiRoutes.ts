@@ -1,16 +1,18 @@
 import type { Express } from "express";
 import { databaseService } from "./database";
-import { 
-  insertQRDataSchema, 
-  insertPDFDataSchema, 
-  insertEGAMDataSchema, 
+import { handleApiError, sendNotFound } from "./lib/apiError";
+import { validateBody } from "./lib/validateBody";
+import {
+  insertQRDataSchema,
+  insertPDFDataSchema,
+  insertEGAMDataSchema,
   insertEGAMAuditLogSchema,
   insertSystemLogSchema,
   insertAPILogSchema,
   insertPDFProcessingHistorySchema,
   insertBulkQRProcessingSchema,
   insertBulkQRBatchesSchema,
-  insertVerticalSchema
+  insertVerticalSchema,
 } from "@shared/schema";
 
 export function registerAPIRoutes(app: Express) {
@@ -52,13 +54,7 @@ export function registerAPIRoutes(app: Express) {
       console.log('[API] Returning', agentsWithoutPassword.length, 'agents (passwords removed)');
       res.json(agentsWithoutPassword);
     } catch (error) {
-      console.error('[API] Error fetching agents:', error);
-      console.error('[API] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-      res.status(500).json({ 
-        error: 'Failed to fetch agents',
-        details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : 'Unknown error') : undefined,
-        stack: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.stack : undefined) : undefined
-      });
+      handleApiError(error, res, { defaultMessage: "Failed to fetch agents" });
     }
   });
 
@@ -66,21 +62,12 @@ export function registerAPIRoutes(app: Express) {
   app.get('/api/agents/:id', async (req, res) => {
     try {
       const agent = await databaseService.getUserById(req.params.id);
-      if (!agent) {
-        return res.status(404).json({ error: 'Agent not found' });
-      }
-      if ((agent as any).role !== 'agent') {
-        return res.status(404).json({ error: 'User is not an agent' });
-      }
-      // Remove password from response
+      if (!agent) return sendNotFound(res, "Agent not found");
+      if ((agent as any).role !== 'agent') return sendNotFound(res, "User is not an agent");
       const { password, ...agentWithoutPassword } = agent as any;
       res.json(agentWithoutPassword);
     } catch (error) {
-      console.error('Error fetching agent:', error);
-      res.status(500).json({ 
-        error: 'Failed to fetch agent',
-        details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : 'Unknown error') : undefined
-      });
+      handleApiError(error, res, { defaultMessage: "Failed to fetch agent" });
     }
   });
 
@@ -423,10 +410,9 @@ export function registerAPIRoutes(app: Express) {
     }
   });
 
-  app.post('/api/verticals', async (req, res) => {
+  app.post('/api/verticals', validateBody(insertVerticalSchema), async (req, res) => {
     try {
-      const validatedData = insertVerticalSchema.parse(req.body);
-      // Convert null to undefined for optional fields
+      const validatedData = (req as any).validatedBody;
       const vertical = await databaseService.createVertical({
         name: validatedData.name,
         description: validatedData.description ?? undefined,
@@ -436,12 +422,8 @@ export function registerAPIRoutes(app: Express) {
         createdBy: validatedData.createdBy ?? undefined
       });
       res.json(vertical);
-    } catch (error: any) {
-      console.error('Error creating vertical:', error);
-      res.status(400).json({ 
-        error: error.message || 'Failed to create vertical',
-        details: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : 'Unknown error') : undefined
-      });
+    } catch (error) {
+      handleApiError(error, res, { defaultMessage: "Failed to create vertical", defaultStatus: 400 });
     }
   });
 
@@ -498,8 +480,9 @@ export function registerAPIRoutes(app: Express) {
       if (validatedData.name !== undefined) updateData.name = validatedData.name;
       if (validatedData.description !== undefined) updateData.description = validatedData.description ?? undefined;
       if (validatedData.status !== undefined) updateData.status = validatedData.status;
-      if (validatedData.metadata !== undefined) updateData.metadata = validatedData.metadata;
-      if (validatedData.updatedBy !== undefined) updateData.updatedBy = validatedData.updatedBy ?? undefined;
+      const v = validatedData as Record<string, unknown>;
+      if (v.metadata !== undefined) updateData.metadata = v.metadata;
+      if (v.updatedBy !== undefined) updateData.updatedBy = v.updatedBy;
       
       const vertical = await databaseService.updateVertical(req.params.id, updateData);
       if (!vertical) {

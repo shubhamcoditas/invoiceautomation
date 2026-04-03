@@ -3,32 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAppState } from "@/hooks/use-app-state";
 import { useSidebar } from "@/hooks/use-sidebar";
-import {
-  Menu,
-  X,
-  ChevronLeft,
-  ChevronRight,
-  ArrowLeft,
-  ShieldCheck,
-  UserPlus,
-  Package,
-  Truck,
-  ListTree,
-  TrendingUp,
-  Calculator,
-  LayoutDashboard,
-} from "lucide-react";
+import { Menu, X, ChevronLeft, ChevronRight, ArrowLeft } from "lucide-react";
 import { useState } from "react";
-
-const navigationItems = [
-  { id: "customs-igcr-dashboards", label: "Dashboards", icon: LayoutDashboard },
-  { id: "customs-igcr-onboarding", label: "Entity Onboarding", icon: UserPlus },
-  { id: "customs-igcr-import-register", label: "Import Register", icon: Package },
-  { id: "customs-igcr-goods-movement", label: "Goods Movement", icon: Truck },
-  { id: "customs-igcr-bom-setup", label: "BOM Setup", icon: ListTree },
-  { id: "customs-igcr-sales-tracking", label: "Sales tracking", icon: TrendingUp },
-  { id: "customs-igcr-igcr-working", label: "IGCR Working", icon: Calculator },
-];
+import { CUSTOMS_IGCR_NAV_ITEMS, CustomsIGCRBrandIcon } from "@/lib/customs-igcr-tabs-config";
 
 export function CustomsIGCRSidebar() {
   const { state, dispatch } = useAppState();
@@ -54,19 +31,19 @@ export function CustomsIGCRSidebar() {
 
       <div
         className={cn(
-          "fixed left-0 top-0 h-full z-40 transition-all duration-300 ease-out",
-          "bg-white dark:bg-gray-900 border-r border-amber-200 dark:border-amber-800",
+          "fixed left-0 top-0 z-40 flex h-full min-h-0 flex-col overflow-hidden transition-all duration-300 ease-out",
+          "bg-sidebar backdrop-blur-xl border-r border-[var(--sidebar-border)]",
           "lg:translate-x-0",
           isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
           isCollapsed ? "w-16" : "w-72"
         )}
       >
-        <div className="flex items-center justify-between px-2 py-4 border-b border-amber-200 dark:border-amber-800">
+        <div className="flex shrink-0 items-center justify-between px-2 py-4 border-b border-amber-200 dark:border-amber-800">
           {!isCollapsed && (
             <div className="flex flex-col space-y-2 w-full">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-amber-600 text-white">
-                  <ShieldCheck className="h-6 w-6" />
+                  <CustomsIGCRBrandIcon className="h-6 w-6" />
                 </div>
                 <div className="flex-1">
                   <h1 className="text-lg font-bold text-gray-900 dark:text-white">
@@ -83,7 +60,7 @@ export function CustomsIGCRSidebar() {
           {isCollapsed && (
             <div className="flex flex-col items-center space-y-2 w-full">
               <div className="w-10 h-10 rounded-lg flex items-center justify-center mx-auto bg-amber-600 text-white">
-                <ShieldCheck className="h-6 w-6" />
+                <CustomsIGCRBrandIcon className="h-6 w-6" />
               </div>
             </div>
           )}
@@ -98,7 +75,7 @@ export function CustomsIGCRSidebar() {
           </Button>
         </div>
 
-        <div className="px-2 py-2 border-b border-amber-200 dark:border-amber-800">
+        <div className="shrink-0 px-2 py-2 border-b border-amber-200 dark:border-amber-800">
           <Button
             variant="outline"
             className={cn(
@@ -111,14 +88,15 @@ export function CustomsIGCRSidebar() {
             }}
           >
             <ArrowLeft className="h-4 w-4" />
-            {!isCollapsed && <span>Back to Modules</span>}
+            {!isCollapsed && <span>Back to applications</span>}
           </Button>
         </div>
 
+        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain [scrollbar-gutter:stable]">
         <nav className="px-2 py-4 space-y-1">
           {isCollapsed ? (
             <div className="space-y-1">
-              {navigationItems.map((item) => {
+              {CUSTOMS_IGCR_NAV_ITEMS.map((item) => {
                 const Icon = item.icon;
                 const isActive = state.currentTab === item.id;
                 return (
@@ -145,7 +123,7 @@ export function CustomsIGCRSidebar() {
             </div>
           ) : (
             <div className="space-y-1">
-              {navigationItems.map((item) => {
+              {CUSTOMS_IGCR_NAV_ITEMS.map((item) => {
                 const Icon = item.icon;
                 const isActive = state.currentTab === item.id;
                 return (
@@ -167,6 +145,7 @@ export function CustomsIGCRSidebar() {
             </div>
           )}
         </nav>
+        </div>
       </div>
 
       {isMobileOpen && (

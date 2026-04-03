@@ -168,14 +168,16 @@
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* Header Styles */
+/* Header Styles — align with premium glass shell */
 .ea-header {
-  border-bottom: 1px solid var(--ea-primary-border);
-  background: white;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--glass-nav);
+  backdrop-filter: blur(var(--blur-strong));
+  -webkit-backdrop-filter: blur(var(--blur-strong));
 }
 
 .dark .ea-header {
-  background: #111827;
+  background: var(--glass-nav);
 }
 
 .ea-header-logo {
@@ -192,12 +194,14 @@
 
 /* Sidebar Styles */
 .ea-sidebar {
-  border-right: 1px solid var(--ea-primary-border);
-  background: white;
+  border-right: 1px solid var(--border-subtle);
+  background: var(--sidebar);
+  backdrop-filter: blur(var(--blur-strong));
+  -webkit-backdrop-filter: blur(var(--blur-strong));
 }
 
 .dark .ea-sidebar {
-  background: #111827;
+  background: var(--sidebar);
 }
 
 .ea-sidebar-logo {

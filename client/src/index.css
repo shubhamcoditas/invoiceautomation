@@ -1,6 +1,9 @@
 /* Import unified form styles */
 @import './styles/form-styles.css';
 
+/* Premium dark glass design tokens */
+@import './styles/theme-premium.css';
+
 /* Import component styles */
 @import './styles/components/shared.css';
 @import './styles/components/ea-invoice-downloader.css';
@@ -62,7 +65,7 @@
 }
 
 [data-radix-select-item][data-state="checked"] {
-  background-color: rgba(37, 99, 235, 0.1) !important;
+  background-color: var(--accent-glow-weak) !important;
   color: var(--primary) !important;
   font-weight: 600 !important;
 }
@@ -149,142 +152,6 @@
 
 /* Modern Input Field Styling - Removed heavy borders and updated to match design system */
 
-:root {
-  /* Blue Theme Colors - Flattened, Softer */
-  --blue-primary: #2563eb;
-  --blue-primary-light: #3b82f6;
-  --blue-primary-dark: #1d4ed8;
-  --blue-secondary: #60a5fa;
-  --blue-secondary-light: #93c5fd;
-  --blue-secondary-dark: #3b82f6;
-  --blue-accent: #dbeafe;
-  --blue-accent-light: #eff6ff;
-  --blue-accent-dark: #bfdbfe;
-  
-  /* Modern Color Palette - Flat, Minimal */
-  --background: #F7F9FC;
-  --background-solid: #F7F9FC;
-  --foreground: #1e293b;
-  --card: #ffffff;
-  --card-foreground: #1e293b;
-  --popover: #ffffff;
-  --popover-foreground: #1e293b;
-  --primary: var(--blue-primary);
-  --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
-  --secondary-foreground: #1e293b;
-  --muted: #f8fafc;
-  --muted-foreground: #64748b;
-  --accent: #e2e8f0;
-  --accent-foreground: #1e293b;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --success: #10b981;
-  --success-foreground: #ffffff;
-  --warning: #f59e0b;
-  --warning-foreground: #ffffff;
-  --border: #e2e8f0;
-  --input: #ffffff;
-  --ring: var(--blue-primary);
-  --chart-1: var(--blue-primary);
-  --chart-2: var(--blue-secondary);
-  --chart-3: #10b981;
-  --chart-4: #f59e0b;
-  --chart-5: #8b5cf6;
-  
-  /* Sidebar - Flat, No Gradients */
-  --sidebar: #2563eb;
-  --sidebar-solid: #2563eb;
-  --sidebar-foreground: #ffffff;
-  --sidebar-primary: var(--blue-secondary);
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: rgba(255, 255, 255, 0.1);
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: rgba(255, 255, 255, 0.1);
-  --sidebar-ring: var(--blue-secondary);
-  --sidebar-muted: rgba(255, 255, 255, 0.6);
-  
-  /* Modern Typography */
-  --font-sans: 'Inter', 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
-  --font-serif: 'Playfair Display', 'Georgia', serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', 'Monaco', monospace;
-  
-  /* Spacing Scale - 8px System */
-  --spacing-1: 0.25rem;  /* 4px */
-  --spacing-2: 0.5rem;   /* 8px */
-  --spacing-3: 0.75rem;  /* 12px */
-  --spacing-4: 1rem;     /* 16px */
-  --spacing-5: 1.25rem;  /* 20px */
-  --spacing-6: 1.5rem;   /* 24px */
-  --spacing-8: 2rem;     /* 32px */
-  --spacing-10: 2.5rem;  /* 40px */
-  --spacing-12: 3rem;    /* 48px */
-  --spacing-16: 4rem;    /* 64px */
-  
-  /* Border Radius - Medium, Modern */
-  --radius: 0.5rem;
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  
-  /* Shadows - Subtle, Minimal */
-  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-  
-  --tracking-normal: 0em;
-  --spacing: 0.25rem;
-}
-
-.dark {
-  /* Dark Mode - Flat, Minimal */
-  --background: #0f172a;
-  --background-solid: #0f172a;
-  --foreground: #f1f5f9;
-  --card: #1e293b;
-  --card-foreground: #f1f5f9;
-  --popover: #1e293b;
-  --popover-foreground: #f1f5f9;
-  --primary: var(--blue-secondary);
-  --primary-foreground: #0f172a;
-  --secondary: #334155;
-  --secondary-foreground: #f1f5f9;
-  --muted: #1e293b;
-  --muted-foreground: #94a3b8;
-  --accent: #334155;
-  --accent-foreground: #f1f5f9;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --success: #10b981;
-  --success-foreground: #ffffff;
-  --warning: #f59e0b;
-  --warning-foreground: #ffffff;
-  --border: #334155;
-  --input: #1e293b;
-  --ring: var(--blue-secondary);
-  --chart-1: var(--blue-secondary);
-  --chart-2: #10b981;
-  --chart-3: #f59e0b;
-  --chart-4: #8b5cf6;
-  --chart-5: #ec4899;
-  
-  /* Sidebar - Dark Mode */
-  --sidebar: #1e293b;
-  --sidebar-solid: #1e293b;
-  --sidebar-foreground: #f1f5f9;
-  --sidebar-primary: var(--blue-secondary);
-  --sidebar-primary-foreground: #0f172a;
-  --sidebar-accent: rgba(255, 255, 255, 0.1);
-  --sidebar-accent-foreground: #f1f5f9;
-  --sidebar-border: rgba(255, 255, 255, 0.1);
-  --sidebar-ring: var(--blue-secondary);
-  --sidebar-muted: rgba(255, 255, 255, 0.5);
-}
-
 @layer base {
   * {
     @apply border-border;
@@ -296,10 +163,11 @@
     box-sizing: border-box;
   }
 
-  /* Typography Hierarchy - Modern, Clean */
+  /* Typography — premium dark: strong headings, readable body */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold text-foreground;
-    line-height: 1.2;
+    @apply font-bold text-foreground;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
   }
 
   h1 {
@@ -320,7 +188,8 @@
 
   p {
     @apply text-sm text-foreground;
-    line-height: 1.5;
+    line-height: 1.65;
+    color: var(--foreground);
   }
 
   /* Page titles - strong but not oversized */
@@ -341,7 +210,7 @@
 
   body {
     @apply font-sans antialiased text-foreground;
-    background: var(--background-solid) !important;
+    background: var(--canvas) !important;
     min-height: 100vh;
     /* Smooth scrolling */
     scroll-behavior: smooth;
@@ -390,15 +259,17 @@
 }
 
 @layer components {
-  /* Modern Card Components - Flat, Clean */
+  /* Glass surfaces — frosted over canvas */
   .glass {
-    background: var(--card);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow-sm);
+    background: linear-gradient(165deg, rgba(255, 255, 255, 0.08) 0%, var(--glass-fill-deep) 45%, rgba(10, 14, 26, 0.55) 100%);
+    backdrop-filter: blur(var(--blur-soft));
+    -webkit-backdrop-filter: blur(var(--blur-soft));
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--inner-highlight), var(--shadow-sm);
   }
 
   .glass-card {
-    @apply glass rounded-lg p-6;
+    @apply glass rounded-xl p-6;
   }
 
   /* Removed gradient text and glow effects for modern, flat design */
@@ -440,11 +311,12 @@
 
   /* Subtle Hover Effects - Modern, Minimal */
   .hover-lift {
-    transition: all 0.15s ease-out;
+    transition: transform var(--duration-fast) var(--ease-interactive), box-shadow var(--duration-fast) var(--ease-interactive);
   }
 
   .hover-lift:hover {
-    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow-hover);
   }
 
   /* Improved hover text visibility */
@@ -474,12 +346,14 @@
 
   /* Card hover effects - Minimal */
   .card-hover {
-    transition: box-shadow 0.15s ease-out, border-color 0.15s ease-out;
+    transition: transform var(--duration-fast) var(--ease-interactive), box-shadow var(--duration-fast) var(--ease-interactive),
+      border-color var(--duration-fast) var(--ease-interactive);
   }
 
   .card-hover:hover {
-    box-shadow: var(--shadow-md);
-    border-color: var(--border);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-glow-hover);
+    border-color: var(--border-accent-weak);
   }
 
   /* Table row hover - Subtle */
@@ -491,10 +365,14 @@
     background-color: var(--muted);
   }
 
-  /* Modern Cards - Flat, Clean */
+  /* Modern Cards — glass panel */
   .modern-card {
-    @apply bg-card border border-border rounded-lg shadow-sm;
-    background: var(--card) !important;
+    @apply border rounded-xl shadow-md;
+    border-color: var(--border-subtle);
+    background: linear-gradient(165deg, rgba(255, 255, 255, 0.07) 0%, var(--glass-fill-deep) 50%, rgba(10, 14, 26, 0.5) 100%) !important;
+    backdrop-filter: blur(var(--blur-soft));
+    -webkit-backdrop-filter: blur(var(--blur-soft));
+    box-shadow: var(--inner-highlight), var(--panel-shadow) !important;
   }
 
   .modern-card .modern-card-header,
@@ -525,21 +403,21 @@
     color: var(--muted-foreground) !important;
   }
 
-  /* Status Indicators */
+  /* Status Indicators — dark surfaces */
   .status-success {
-    @apply text-green-600 bg-green-50 border-green-200;
+    @apply text-emerald-300 bg-emerald-500/10 border border-emerald-500/25 rounded-full px-2.5 py-0.5;
   }
 
   .status-warning {
-    @apply text-yellow-600 bg-yellow-50 border-yellow-200;
+    @apply text-amber-300 bg-amber-500/10 border border-amber-500/25 rounded-full px-2.5 py-0.5;
   }
 
   .status-error {
-    @apply text-red-600 bg-red-50 border-red-200;
+    @apply text-red-300 bg-red-500/10 border border-red-500/25 rounded-full px-2.5 py-0.5;
   }
 
   .status-info {
-    @apply text-blue-600 bg-blue-50 border-blue-200;
+    @apply text-cyan-300 bg-cyan-500/10 border border-cyan-500/25 rounded-full px-2.5 py-0.5;
   }
 
   /* Performance optimizations */
@@ -571,7 +449,7 @@
 
   /* Focus states */
   .focus-ring {
-    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-[var(--canvas)];
   }
 
   /* Smooth transitions for all interactive elements - Minimal */
