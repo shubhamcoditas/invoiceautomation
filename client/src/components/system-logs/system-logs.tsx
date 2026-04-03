@@ -16,7 +16,7 @@ export function SystemLogs() {
   const [searchTerm, setSearchTerm] = useState("");
   const [requestIdFilter, setRequestIdFilter] = useState("");
   const [filterLevel, setFilterLevel] = useState("all");
-  const [filterModule, setFilterModule] = useState("all");
+  const [filterApplication, setFilterApplication] = useState("all");
   const { toast } = useToast();
 
   // Fetch system logs from API
@@ -43,7 +43,7 @@ export function SystemLogs() {
     },
   });
 
-  // Filter logs based on search term and module (level and requestId are handled by API)
+  // Filter logs based on search term and application (API field: module; level and requestId via API)
   const filteredLogs = useMemo(() => {
     return systemLogs.filter((log: any) => {
       const matchesSearch = searchTerm === "" || (
@@ -53,14 +53,13 @@ export function SystemLogs() {
         (log.requestId && log.requestId.toLowerCase().includes(searchTerm.toLowerCase()))
       );
       
-      const matchesModule = filterModule === "all" || log.module === filterModule;
+      const matchesApplication = filterApplication === "all" || log.module === filterApplication;
       
-      return matchesSearch && matchesModule;
+      return matchesSearch && matchesApplication;
     });
-  }, [systemLogs, searchTerm, filterModule]);
+  }, [systemLogs, searchTerm, filterApplication]);
 
-  // Get unique modules for filter dropdown
-  const uniqueModules = useMemo(() => {
+  const uniqueApplications = useMemo(() => {
     return Array.from(new Set(systemLogs.map((log: any) => log.module).filter(Boolean))).sort();
   }, [systemLogs]);
 
@@ -69,7 +68,7 @@ export function SystemLogs() {
     const exportData = filteredLogs.map((log: any) => ({
       'Timestamp': formatDateTime(log.timestamp),
       'Level': log.level?.charAt(0).toUpperCase() + log.level?.slice(1) || '-',
-      'Module': log.module || '-',
+      'Application': log.module || '-',
       'Request ID': log.requestId || '-',
       'Message': log.message || '-',
       'Details': log.details || '-'
@@ -130,14 +129,14 @@ export function SystemLogs() {
                   <SelectItem value="error" className="p-3 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer font-medium rounded-md transition-colors duration-150 data-[state=checked]:bg-blue-100 data-[state=checked]:text-blue-900">Error</SelectItem>
                 </SelectContent>
               </Select>
-              <Select value={filterModule} onValueChange={setFilterModule}>
-                <SelectTrigger className="w-40 h-10 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200" data-testid="select-filter-module">
+              <Select value={filterApplication} onValueChange={setFilterApplication}>
+                <SelectTrigger className="w-40 h-10 bg-white border-2 border-gray-200 hover:border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200" data-testid="select-filter-application">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-white border-2 border-gray-300 shadow-2xl rounded-lg z-[100] p-2">
-                  <SelectItem value="all" className="p-3 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer font-medium rounded-md transition-colors duration-150 data-[state=checked]:bg-blue-100 data-[state=checked]:text-blue-900">All Modules</SelectItem>
-                  {uniqueModules.map((module) => (
-                    <SelectItem key={module} value={module} className="p-3 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer font-medium rounded-md transition-colors duration-150 data-[state=checked]:bg-blue-100 data-[state=checked]:text-blue-900">{module}</SelectItem>
+                  <SelectItem value="all" className="p-3 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer font-medium rounded-md transition-colors duration-150 data-[state=checked]:bg-blue-100 data-[state=checked]:text-blue-900">All applications</SelectItem>
+                  {uniqueApplications.map((applicationName) => (
+                    <SelectItem key={applicationName} value={applicationName} className="p-3 hover:bg-blue-50 focus:bg-blue-50 cursor-pointer font-medium rounded-md transition-colors duration-150 data-[state=checked]:bg-blue-100 data-[state=checked]:text-blue-900">{applicationName}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -198,7 +197,7 @@ export function SystemLogs() {
                     <TableRow className="border-b border-border/50">
                       <TableHead className="font-semibold text-foreground">Timestamp</TableHead>
                       <TableHead className="font-semibold text-foreground">Level</TableHead>
-                      <TableHead className="font-semibold text-foreground">Module</TableHead>
+                      <TableHead className="font-semibold text-foreground">Application</TableHead>
                       <TableHead className="font-semibold text-foreground">Request ID</TableHead>
                       <TableHead className="font-semibold text-foreground">Message</TableHead>
                       <TableHead className="font-semibold text-foreground">Details</TableHead>

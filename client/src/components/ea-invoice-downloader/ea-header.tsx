@@ -1,12 +1,14 @@
 import { useAppState } from "@/hooks/use-app-state";
-import { 
+import { useState, useEffect } from "react";
+import {
   Shield,
   Users,
   User,
   ChevronDown,
   Check,
-  Plane
+  Plane,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -30,6 +32,14 @@ export function EAHeader() {
   const { state, dispatch } = useAppState();
   const defaultRole = 'Admin';
   const currentRole = state.currentUser?.role || defaultRole;
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const handleRoleSwitch = (newRole: string) => {
     dispatch({ type: 'SWITCH_USER_ROLE', payload: newRole });
@@ -45,18 +55,23 @@ export function EAHeader() {
   };
 
   return (
-    <header className="glass ea-header p-4 shadow-lg transition-all duration-300" data-testid="ea-header">
+    <header
+      className={cn(
+        "ea-header app-header-shell sticky top-0 z-30 px-6 transition-all duration-300",
+        scrolled ? "py-2.5" : "py-4"
+      )}
+      data-scrolled={scrolled}
+      data-testid="ea-header"
+    >
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-4">
           {/* Emirates Airlines Logo and Text */}
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 rounded-lg flex items-center justify-center ea-header-logo">
-              <Plane className="h-7 w-7 text-white" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/95 text-[#0a0e1a] shadow-md ring-1 ring-white/25 transition-transform duration-200 ease-spring hover:scale-105">
+              <Plane className="h-7 w-7 text-[color:var(--brand-blue)]" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold ea-text-primary">
-                Emirates Airlines
-              </h2>
+              <h2 className="text-2xl font-extrabold tracking-tight text-foreground">Emirates Airlines</h2>
             </div>
           </div>
         </div>

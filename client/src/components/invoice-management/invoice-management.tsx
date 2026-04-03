@@ -26,7 +26,7 @@ export function InvoiceManagement() {
         </div>
       );
     }
-    // Default to Agent Management (for 'invoice-management' tab or any other tab within this module)
+    // Default to Agent Management (for 'invoice-management' tab or any other tab within this application)
     return (
       <div className="space-y-6">
         <AgentManagement />

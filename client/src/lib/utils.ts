@@ -60,6 +60,20 @@ export function formatCurrency(amount: number | string): string {
 }
 
 /**
+ * Formats a number as Indian Rupee with no decimal places (for whole-amount displays).
+ * @param value - The amount to format
+ * @returns Formatted currency string (e.g., "₹15,61,500")
+ */
+export function formatINR(value: number): string {
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+    minimumFractionDigits: 0,
+  }).format(value);
+}
+
+/**
  * Standard status badge configuration for success and error states
  */
 export const statusBadgeConfig = {

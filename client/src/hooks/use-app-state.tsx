@@ -54,7 +54,7 @@ const initialState: AppState = {
 const appReducer = (state: AppState, action: AppAction): AppState => {
   switch (action.type) {
     case 'SET_CURRENT_TAB':
-      // Check if entering Emirates Airline module - auto-set role to Admin
+      // Check if entering Emirates Airlines application - auto-set role to Admin
       const isEAModule = action.payload?.startsWith('ea-') || 
                          action.payload === 'ea-invoice-downloader' ||
                          action.payload === 'ea-agent-tickets' ||
@@ -62,7 +62,7 @@ const appReducer = (state: AppState, action: AppAction): AppState => {
       
       const updatedState = { ...state, currentTab: action.payload, isTransitioning: true };
       
-      // Auto-set role to Admin when entering EA module
+      // Auto-set role to Admin when entering EA application
       if (isEAModule && state.currentUser) {
         updatedState.currentUser = { ...state.currentUser, role: 'Admin' };
       }

@@ -170,11 +170,11 @@ export function Sidebar() {
   const { isCollapsed, toggleCollapse } = useSidebar();
   const { config, applyEntityTheme, isKpmgBrandingVisible, kpmgPosition } = useEntity();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  // Check if we're in Invoice Management module
+  // Check if we're in Invoice Management application area
   const isInvoiceManagement = state.currentTab?.startsWith('invoice-management') || 
                               state.currentTab === 'invoice-management' || 
                               state.currentTab === 'agent-tickets';
-  // Check if we're in Cost Model module
+  // Check if we're in Cost Model application area
   const isCostModel = state.currentTab?.startsWith('cost-model') || 
                       state.currentTab === 'cost-model-dashboard' ||
                       state.currentTab === 'verticals-master' ||
@@ -205,14 +205,14 @@ export function Sidebar() {
     )
   );
   
-  // Get navigation groups based on user role and module
+  // Get navigation groups based on user role and application area
   const navigationGroups = getNavigationGroups(
     state.currentUser?.role || (isInvoiceManagement ? 'Admin' : 'Application Admin'),
     isInvoiceManagement,
     isCostModel
   );
 
-  // Update expanded groups when module changes
+  // Update expanded groups when application area changes
   useEffect(() => {
     if (isInvoiceManagement) {
       setExpandedGroups(new Set([])); // No groups for invoice management
@@ -264,7 +264,7 @@ export function Sidebar() {
       {!shouldHideNavigation && (
         <div 
           className={cn(
-            "fixed left-0 top-0 h-full border-r z-40 transition-all duration-200 ease-out bg-sidebar",
+            "fixed left-0 top-0 flex h-full min-h-0 flex-col overflow-hidden border-r z-40 transition-all duration-200 ease-out bg-sidebar backdrop-blur-xl border-[var(--sidebar-border)]",
             "lg:translate-x-0",
             isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
             isCollapsed ? "w-16" : "w-72"
@@ -273,7 +273,7 @@ export function Sidebar() {
         >
         
         {/* Header */}
-        <div className="flex items-center justify-between px-3 py-4 border-b border-sidebar-border">
+        <div className="flex shrink-0 items-center justify-between px-3 py-4 border-b border-sidebar-border">
           {!isCollapsed && (
             <div className="flex flex-col space-y-2 w-full">
               {/* Entity Branding */}
@@ -288,22 +288,10 @@ export function Sidebar() {
                     {config.displayName}
                   </h1>
                   <p className="text-xs text-sidebar-muted">
-                    {isInvoiceManagement ? 'Invoice Management Portal' : isCostModel ? 'Cost Model Portal' : 'Invoice Automation Portal'}
+                    {isInvoiceManagement ? "Invoice Management" : isCostModel ? "Cost Model" : "EGAM & automation"}
                   </p>
                 </div>
               </div>
-              
-              {/* KPMG Branding - Position based on config */}
-              {isKpmgBrandingVisible && kpmgPosition === 'top' && (
-                <div className="flex items-center space-x-2 px-2 py-1.5 bg-sidebar-accent rounded-md border border-sidebar-border">
-                  <div className="w-3.5 h-3.5 bg-sidebar-primary rounded flex items-center justify-center">
-                    <FileText className="h-2 w-2 text-sidebar-primary-foreground" />
-                  </div>
-                  <span className="text-xs text-sidebar-foreground font-medium">
-                    Powered by KPMG
-                  </span>
-                </div>
-              )}
             </div>
           )}
           
@@ -333,8 +321,8 @@ export function Sidebar() {
         </div>
 
 
-        {/* Back to Modules Button */}
-        <div className="px-2 py-2 border-b border-sidebar-border">
+        {/* Back to applications (landing) */}
+        <div className="shrink-0 px-2 py-2 border-b border-sidebar-border">
           <Button
             variant="ghost"
             className={cn(
@@ -347,12 +335,12 @@ export function Sidebar() {
             }}
           >
             <ArrowLeft className="h-4 w-4" />
-            {!isCollapsed && <span>Back to Modules</span>}
+            {!isCollapsed && <span>Back to applications</span>}
           </Button>
         </div>
 
-        {/* Navigation - Hidden for User role in Invoice Management */}
-        {!shouldHideNavigation && (
+        {/* Navigation - scrollable region */}
+        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain [scrollbar-gutter:stable]">
           <nav className="px-2 py-4 space-y-3">
             {isCollapsed ? (
             // Collapsed view with icons only
@@ -476,34 +464,7 @@ export function Sidebar() {
             })
           )}
           </nav>
-        )}
-
-        {/* Footer - Sticky at bottom */}
-        {!isCollapsed && (
-          <div className="absolute bottom-4 left-2 right-2 space-y-2">
-            {/* KPMG Branding - Bottom position */}
-            {isKpmgBrandingVisible && kpmgPosition === 'bottom' && (
-              <div className="flex items-center justify-center space-x-2 px-3 py-2 bg-sidebar-accent rounded-md border border-sidebar-border">
-                <div className="w-3.5 h-3.5 bg-sidebar-primary rounded flex items-center justify-center">
-                  <FileText className="h-2 w-2 text-sidebar-primary-foreground" />
-                </div>
-                <span className="text-xs text-sidebar-foreground font-medium">
-                  Powered by KPMG
-                </span>
-              </div>
-            )}
-            
-            {/* Coditas Watermark - Below KPMG branding */}
-            <div 
-              className="flex items-center justify-center space-x-2 px-3 py-2 text-sidebar-foreground rounded-md bg-sidebar-primary"
-            >
-              <div className="w-2 h-2 bg-sidebar-primary-foreground rounded-full"></div>
-              <div className="text-xs font-medium">
-                Designed & Developed by <span className="font-semibold">Coditas</span>
-              </div>
-            </div>
-          </div>
-        )}
+        </div>
         </div>
       )}
 

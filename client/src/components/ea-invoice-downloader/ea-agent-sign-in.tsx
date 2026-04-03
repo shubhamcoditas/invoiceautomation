@@ -157,7 +157,7 @@ export function EAAgentSignIn({ onSignInSuccess }: EAAgentSignInProps) {
             Emirates Airlines
           </h1>
           <p className="text-lg text-gray-700 dark:text-gray-300 font-medium mb-1">
-            Invoice Downloader Portal
+            KPMG One Tax Platform
           </p>
           <p className="text-sm text-[#1964d7] dark:text-blue-400 font-semibold">
             Agent Login

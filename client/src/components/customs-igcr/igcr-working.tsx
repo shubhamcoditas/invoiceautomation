@@ -8,16 +8,8 @@ import {
   igcrWorkingDifference,
 } from "./igcr-working-context";
 import { exportToExcel } from "@/lib/excel-export";
+import { formatINR } from "@/lib/utils";
 import { Download } from "lucide-react";
-
-function formatINR(value: number): string {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-    minimumFractionDigits: 0,
-  }).format(value);
-}
 
 export function IgcrWorking() {
   const { dutyPayable, ertWaiver, dsrtWaiver } = useIgcrWorking();

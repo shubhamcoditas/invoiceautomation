@@ -35,7 +35,7 @@ export const entityConfigs: Record<string, EntityConfig> = {
   'emirates': {
     id: 'emirates',
     name: 'Emirates',
-    displayName: 'Emirates Invoice Downloader',
+    displayName: 'KPMG One Tax Platform',
     primaryColor: '#2563eb', // Blue primary
     secondaryColor: '#60a5fa', // Blue secondary
     accentColor: '#dbeafe', // Light blue accent
@@ -56,7 +56,7 @@ export const entityConfigs: Record<string, EntityConfig> = {
     branding: {
       showKpmgBranding: false,
       kpmgPosition: 'bottom',
-      customFooter: 'Emirates Invoice Automation Platform'
+      customFooter: 'KPMG One Tax Platform'
     }
   },
   'hsbc': {
@@ -83,7 +83,7 @@ export const entityConfigs: Record<string, EntityConfig> = {
     branding: {
       showKpmgBranding: true,
       kpmgPosition: 'bottom',
-      customFooter: 'Powered by KPMG Invoice Automation Platform'
+      customFooter: 'KPMG One Tax Platform'
     }
   },
   'swiggy': {
@@ -110,7 +110,7 @@ export const entityConfigs: Record<string, EntityConfig> = {
     branding: {
       showKpmgBranding: true,
       kpmgPosition: 'bottom',
-      customFooter: 'Powered by KPMG Invoice Automation Platform'
+      customFooter: 'KPMG One Tax Platform'
     }
   },
   'flipkart': {
@@ -137,13 +137,13 @@ export const entityConfigs: Record<string, EntityConfig> = {
     branding: {
       showKpmgBranding: true,
       kpmgPosition: 'bottom',
-      customFooter: 'Powered by KPMG Invoice Automation Platform'
+      customFooter: 'KPMG One Tax Platform'
     }
   },
   'default': {
     id: 'default',
     name: 'KPMG',
-    displayName: 'KPMG Invoice Automation',
+    displayName: 'KPMG One Tax Platform',
     primaryColor: '#00338D', // KPMG Blue
     secondaryColor: '#4A90E2', // KPMG Light Blue
     accentColor: '#FFD700',
@@ -170,8 +170,8 @@ export const entityConfigs: Record<string, EntityConfig> = {
 
 // Get current entity configuration
 export function getCurrentEntityConfig(): EntityConfig {
-  // In a real application, this would come from environment variables or API
-  // For now, we'll use Emirates as the default entity
+  // In production this would come from environment variables or API
+  // Default entity id from env (see VITE_ENTITY_ID)
   const entityId = import.meta.env.VITE_ENTITY_ID || 'emirates';
   return entityConfigs[entityId] || entityConfigs['default'];
 }

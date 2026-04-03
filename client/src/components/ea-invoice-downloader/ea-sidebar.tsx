@@ -24,7 +24,7 @@ const adminNavigationItems = [
   { id: 'ea-audit-logs', label: 'Audit Logs', icon: FileText },
 ];
 
-// User navigation items - only Invoice Downloader
+// User navigation items — invoice download application
 const userNavigationItems = [
   { id: 'ea-invoice-downloader', label: 'Invoice Downloader', icon: Download },
 ];
@@ -61,14 +61,14 @@ export function EASidebar() {
       {/* Sidebar */}
       <div 
         className={cn(
-          "fixed left-0 top-0 h-full ea-sidebar z-40 transition-all duration-300 ease-out",
+          "fixed left-0 top-0 flex h-full min-h-0 flex-col overflow-hidden ea-sidebar z-40 transition-all duration-300 ease-out",
           "lg:translate-x-0",
           isMobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
           isCollapsed ? "w-16" : "w-72"
         )} 
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-2 py-4 ea-border-primary border-b">
+        <div className="flex shrink-0 items-center justify-between px-2 py-4 ea-border-primary border-b">
           {!isCollapsed && (
             <div className="flex flex-col space-y-2 w-full">
               {/* Emirates Airlines Branding */}
@@ -80,9 +80,6 @@ export function EASidebar() {
                   <h1 className="text-lg font-bold ea-text-primary">
                     Emirates Airlines
                   </h1>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Invoice Downloader
-                  </p>
                 </div>
               </div>
             </div>
@@ -106,8 +103,8 @@ export function EASidebar() {
           </Button>
         </div>
 
-        {/* Back to Modules Button */}
-        <div className="px-2 py-2 ea-border-primary border-b">
+        {/* Back to applications (landing) */}
+        <div className="shrink-0 px-2 py-2 ea-border-primary border-b">
           <Button
             variant="outline"
             className={cn(
@@ -120,11 +117,12 @@ export function EASidebar() {
             }}
           >
             <ArrowLeft className="h-4 w-4" />
-            {!isCollapsed && <span>Back to Modules</span>}
+            {!isCollapsed && <span>Back to applications</span>}
           </Button>
         </div>
 
         {/* Navigation */}
+        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain [scrollbar-gutter:stable]">
         <nav className="px-2 py-4 space-y-3">
           {isCollapsed ? (
             // Collapsed view with icons only
@@ -181,6 +179,7 @@ export function EASidebar() {
             </div>
           )}
         </nav>
+        </div>
       </div>
 
       {/* Mobile Overlay */}

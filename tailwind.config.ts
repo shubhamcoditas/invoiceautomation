@@ -119,6 +119,11 @@ export default {
         serif: ["var(--font-serif)"],
         mono: ["var(--font-mono)"],
       },
+      transitionTimingFunction: {
+        interactive: "cubic-bezier(0.4, 0, 0.2, 1)",
+        spring: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "expo-out": "cubic-bezier(0.16, 1, 0.3, 1)",
+      },
       keyframes: {
         "accordion-down": {
           from: {

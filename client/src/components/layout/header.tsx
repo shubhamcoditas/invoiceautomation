@@ -1,5 +1,4 @@
 import { useAppState } from "@/hooks/use-app-state";
-import { useEntity } from "@/hooks/use-entity";
 import { EntitySwitcher } from "./entity-switcher";
 import { 
   Building2,
@@ -16,7 +15,8 @@ import {
   LogOut,
   Shield,
   Users,
-  Check
+  Check,
+  Receipt
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,7 +31,8 @@ import {
   DropdownMenuSubTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { Receipt } from "lucide-react";
+import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
 
 const tabTitles = {
   'dashboard': { title: 'Dashboard', subtitle: 'Overview of invoice processing activities', icon: BarChart3 },
@@ -54,9 +55,16 @@ const tabTitles = {
 
 export function Header() {
   const { state, dispatch } = useAppState();
-  const { config, isKpmgBrandingVisible, kpmgPosition } = useEntity();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 12);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
   
-  // Check if we're in Invoice Management module
+  // Check if we're in Invoice Management application area
   const isInvoiceManagement = state.currentTab?.startsWith('invoice-management') || state.currentTab === 'invoice-management';
   
   const currentTabInfo = tabTitles[state.currentTab as keyof typeof tabTitles] || 
@@ -98,7 +106,7 @@ export function Header() {
     }
   };
 
-  // Get available roles based on module
+  // Get available roles based on application area
   const getAvailableRoles = () => {
     if (isInvoiceManagement) {
       return [
@@ -119,47 +127,40 @@ export function Header() {
   const defaultRole = isInvoiceManagement ? 'Admin' : 'Application Admin';
 
   return (
-    <header className="bg-card border-b border-border px-6 py-4 transition-all duration-200" data-testid="header">
+    <header
+      className={cn(
+        "app-header-shell sticky top-0 z-30 px-6",
+        scrolled ? "py-2.5" : "py-4"
+      )}
+      data-scrolled={scrolled}
+      data-testid="header"
+    >
       <div className="flex justify-between items-center">
         <div className="flex items-center space-x-4">
           {/* Current Tab Icon */}
           <div className="flex items-center space-x-3">
-            <div 
-              className="w-10 h-10 rounded-md flex items-center justify-center bg-primary"
+            <div
+              className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/95 text-[#0a0e1a] shadow-md ring-1 ring-white/25 transition-transform duration-200 ease-spring hover:scale-105"
             >
               {(() => {
                 const IconComponent = currentTabInfo.icon;
-                return <IconComponent className="h-5 w-5 text-primary-foreground" />;
+                return <IconComponent className="h-5 w-5 text-[color:var(--brand-blue)]" />;
               })()}
             </div>
             <div>
-              <h2 className="text-2xl font-semibold text-foreground" data-testid="page-title">
+              <h2 className="text-2xl font-extrabold tracking-tight text-foreground" data-testid="page-title">
                 {currentTabInfo.title}
               </h2>
-              <p className="text-muted-foreground text-sm mt-0.5" data-testid="page-subtitle">
+              <p className="text-muted-foreground text-sm mt-0.5 max-w-xl leading-relaxed" data-testid="page-subtitle">
                 {currentTabInfo.subtitle}
               </p>
             </div>
           </div>
-          
-          {/* KPMG Branding - Side position */}
-          {isKpmgBrandingVisible && kpmgPosition === 'side' && (
-            <div className="flex items-center space-x-2 px-3 py-1.5 bg-muted rounded-md border border-border">
-              <div 
-                className="w-3.5 h-3.5 rounded flex items-center justify-center bg-primary"
-              >
-                <Building2 className="h-2 w-2 text-primary-foreground" />
-              </div>
-              <span className="text-xs text-muted-foreground font-medium">
-                Powered by KPMG
-              </span>
-            </div>
-          )}
         </div>
 
         {/* Entity Switcher and User Avatar - Top Right */}
         <div className="flex items-center space-x-3">
-          {/* Entity Switcher - Only for Application Admin in EGAM module */}
+          {/* Entity Switcher - Only for Application Admin in EGAM */}
           {!isInvoiceManagement && (
             <EntitySwitcher 
               userRole={state.currentUser?.role || 'Business User'} 
@@ -172,13 +173,13 @@ export function Header() {
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="flex items-center space-x-2 px-3 py-2 rounded-md hover:bg-muted transition-colors duration-150"
+                className="flex items-center space-x-2 px-3 py-2 rounded-xl hover:bg-white/8 transition-all duration-200"
                 data-testid="user-avatar-button"
               >
-                <div 
-                  className="w-8 h-8 rounded-full flex items-center justify-center bg-primary"
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center bg-primary text-primary-foreground shadow-[0_0_20px_-4px_var(--accent-glow)]"
                 >
-                  <User className="h-4 w-4 text-primary-foreground" />
+                  <User className="h-4 w-4" />
                 </div>
                 <div className="hidden sm:block text-left">
                   <p className="text-sm font-medium text-foreground">John Smith</p>

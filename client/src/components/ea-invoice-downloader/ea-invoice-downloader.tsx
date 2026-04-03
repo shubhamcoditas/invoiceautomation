@@ -90,7 +90,7 @@ export function EAInvoiceDownloader() {
         </div>
       );
     }
-    // Default to Agent Management (for 'ea-invoice-downloader' tab or any other tab within this module)
+    // Default to Agent Management (for 'ea-invoice-downloader' tab or any other tab within this application)
     return (
       <div className="space-y-6">
         <AgentManagement />
